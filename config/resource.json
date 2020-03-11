@@ -1,0 +1,157 @@
+[{
+        "name": "权限主菜单",
+        "label": "/rbac",
+        "children": [{
+                "name": "用户菜单",
+                "label": "/rbac/users",
+                "children": [{
+                        "name": "列表",
+                        "label": "/api/auth/user/list"
+                    },
+                    {
+                        "name": "新增",
+                        "label": "/api/auth/user/create"
+                    }, {
+                        "name": "更新",
+                        "label": "/api/auth/user/update"
+                    }, {
+                        "name": "状态更改",
+                        "label": "/api/auth/user/updateState"
+                    },
+                    {
+                        "name": "删除",
+                        "label": "/api/auth/user/delete"
+                    },
+                    {
+                        "name": "获取多个用户的角色",
+                        "label": "/api/auth/rbac/getRolesForManyUser"
+                    }
+                ]
+            }, {
+                "name": "角色菜单",
+                "label": "/rbac/roles",
+                "children": [{
+                        "name": "列表",
+                        "label": "/api/auth/role/list"
+                    },
+                    {
+                        "name": "新增",
+                        "label": "/api/auth/role/create"
+                    }, {
+                        "name": "更新",
+                        "label": "/api/auth/role/update"
+                    }, {
+                        "name": "状态更改",
+                        "label": "/api/auth/role/updateState"
+                    },
+                    {
+                        "name": "删除",
+                        "label": "/api/auth/role/delete"
+                    }, {
+                        "name": "获取角色权限",
+                        "label": "/api/auth/rbac/getRolePermissions"
+                    },
+                    {
+                        "name": "获取角色用户",
+                        "label": "/api/auth/rbac/getUserForRole"
+                    },
+                    {
+                        "name": "取消已分配资源",
+                        "label": "/api/auth/rbac/deletePolicy"
+                    },
+                    {
+                        "name": "分配资源",
+                        "label": "/api/auth/rbac/createPolicy"
+                    }
+                ]
+            }, {
+                "name": "资源菜单",
+                "label": "/rbac/resources",
+                "children": [{
+                        "name": "列表",
+                        "label": "/api/auth/resource/list"
+                    },
+                    {
+                        "name": "新增",
+                        "label": "/api/auth/resource/create"
+                    }, {
+                        "name": "更新",
+                        "label": "/api/auth/resource/update"
+                    }, {
+                        "name": "状态更改",
+                        "label": "/api/auth/resource/updateState"
+                    },
+                    {
+                        "name": "删除",
+                        "label": "/api/auth/resource/delete"
+                    }
+                ]
+            },
+            {
+                "name": "日志菜单",
+                "label": "/rbac/operate",
+                "children": [{
+                    "name": "列表",
+                    "label": "/api/auth/operate/list"
+                }]
+            },
+            {
+                "name": "登录用户菜单",
+                "label": "/rbac/loginUsers",
+                "children": [{
+                    "name": "列表",
+                    "label": "/api/auth/loginUsers"
+                }]
+            },
+            {
+                "name": "登录日志菜单",
+                "label": "/rbac/loginLogs",
+                "children": [{
+                    "name": "列表",
+                    "label": "/api/auth/loginLogs/list"
+                }]
+            }
+        ]
+    },
+    {
+        "name": "系统菜单",
+        "label": "/system",
+        "children": [{
+            "name": "配置菜单",
+            "label": "/system/settings",
+            "children": [{
+                    "name": "列表",
+                    "label": "/api/system/setting/list"
+                },
+                {
+                    "name": "更新",
+                    "label": "/api/system/setting/update"
+                }
+            ]
+        }]
+    },
+    {
+        "name": "我的菜单",
+        "label": "/mine",
+        "children": [{
+                "name": "信息菜单",
+                "label": "/mine/info",
+                "children": [{
+                    "name": "获取信息",
+                    "label": "/api/auth/loginUser"
+                }, {
+                    "name": "修改信息",
+                    "label": "/api/auth/updateMine"
+                }]
+            },
+            {
+                "name": "修改密码菜单",
+                "label": "/mine/changePassword",
+                "children": [{
+                    "name": "修改密码",
+                    "label": "/api/auth/updatePassword"
+                }]
+            }
+        ]
+    }
+]
