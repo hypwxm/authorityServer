@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/lib/pq"
-	uuid "github.com/satori/go.uuid"
 	"log"
 	"strings"
 	"worldbar/DB/pgsql"
@@ -59,7 +58,7 @@ func (self *WbHouseOption) Insert() (string, error) {
 	}
 	log.Println(stmt.QueryString)
 	var lastId string
-	self.ID = uuid.NewV4().String()
+	self.ID = util.GetUuid()
 	err = stmt.Get(&lastId, self)
 	if err != nil {
 		return "", err
