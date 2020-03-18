@@ -25,6 +25,9 @@ type WbNewsDynamics struct {
 	Type      int    `json:"type" db:"type"`
 
 	Sort int `json:"sort" db:"sort"`
+
+	Status       int    `json:"status" db:"status"`
+	StatusReason string `json:"statusReason" db:"status_reason"`
 }
 
 func (self *WbNewsDynamics) Insert() (string, error) {
@@ -163,10 +166,13 @@ func (self *WbNewsDynamics) GetCount(db *sqlx.DB, query *Query, whereSql ...stri
 }
 
 type UpdateByIDQuery struct {
-	ID         string `db:"id"`
-	Name       string `db:"name"`
-	Note       string `db:"note"`
-	Updatetime int64  `db:"updatetime"`
+	ID      string `db:"id"`
+	Title   string `db:"title"`
+	Intro   string `db:"intro"`
+	Content string `db:"content"`
+	Surface string `db:"surface"`
+
+	Updatetime int64 `db:"updatetime"`
 }
 
 // 更新,根据用户id和数据id进行更新
@@ -181,8 +187,10 @@ func (self *WbNewsDynamics) Update(query *UpdateByIDQuery) error {
 
 	db := pgsql.Open()
 	var updateSql = ""
-	updateSql = updateSql + " ,name=:name"
-	updateSql = updateSql + " ,note=:note"
+	updateSql = updateSql + " ,title=:title"
+	updateSql = updateSql + " ,intro=:intro"
+	updateSql = updateSql + " ,content=:content"
+	updateSql = updateSql + " ,surface=:surface"
 
 	stmt, err := db.PrepareNamed("update wb_news_dynamics set updatetime=:updatetime " + updateSql + " where id=:id and isdelete=false")
 	if err != nil {
@@ -279,6 +287,42 @@ func (self *WbNewsDynamics) UpdateSort(query *UpdateSortQuery) error {
 	}
 	log.Println(stmt.QueryString)
 	_, err = stmt.Exec(query)
+	if err != nil {
+		return err
+	}
+	err = tx.Commit()
+	return err
+}
+
+type UpdateStatusQuery struct {
+	Id           string `db:"id"`
+	Status       int    `db:"status"`
+	StatusReason string `db:"status_reason"`
+}
+
+// 更新店铺的状态
+func (self *WbNewsDynamics) UpdateStatus(query *UpdateStatusQuery) error {
+	if query == nil {
+		return errors.New("无操作条件")
+	}
+	if query.Id == "" && query.Status == 0 {
+		return errors.New("参数错误")
+	}
+	db := pgsql.Open()
+	tx, err := db.Beginx()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	stmt, err := tx.PrepareNamed(`update wb_news_dynamics set status=:status, status_reason=:status_reason where id=:id and isdelete=false`)
+	if err != nil {
+		return err
+	}
+	log.Println(stmt.QueryString)
+	_, err = stmt.Exec(query)
+	if err != nil {
+		return err
+	}
 	err = tx.Commit()
 	return err
 }

@@ -20,6 +20,14 @@ func Del(query *model.DeleteQuery) error {
 	return new(model.WbNewsDynamics).Delete(query)
 }
 
+func Get(query *model.GetQuery) (*model.WbNewsDynamics, error) {
+	return new(model.WbNewsDynamics).GetByID(query)
+}
+
 func UpdateSort(query *model.UpdateSortQuery) error {
 	return new(model.WbNewsDynamics).UpdateSort(query)
+}
+
+func UpdateStatus(query *model.UpdateStatusQuery) error {
+	return new(model.WbNewsDynamics).UpdateStatus(query)
 }
