@@ -11,7 +11,7 @@ CREATE TABLE if not exists wb_news_dynamics
 
 
     title         varchar(24)             not null check (title <> '' ),
-    intro         varchar(256) default '',
+    intro         varchar(256) default '' not null,
     surface       varchar(512)            not null check (surface <> '' ),
     content       text                    not null check (content <> '' ),
     publisher     varchar(128)            not null check (publisher <> '' ),
