@@ -28,6 +28,7 @@ type WbNewsDynamics struct {
 
 	Status       int    `json:"status" db:"status"`
 	StatusReason string `json:"statusReason" db:"status_reason"`
+	PublishTime  int64  `json:"publishTime" db:"publish_time"`
 }
 
 func (self *WbNewsDynamics) Insert() (string, error) {
@@ -45,14 +46,6 @@ func (self *WbNewsDynamics) Insert() (string, error) {
 	if strings.TrimSpace(self.Publisher) == "" {
 		return "", errors.New(fmt.Sprintf("操作错误"))
 	}
-
-	// 插入时间
-	self.Createtime = util.GetCurrentMS()
-
-	// 默认添加直接启用
-	self.Disabled = false
-	self.Isdelete = false
-
 	db := pgsql.Open()
 	tx, err := db.Beginx()
 	if err != nil {
@@ -60,14 +53,13 @@ func (self *WbNewsDynamics) Insert() (string, error) {
 	}
 	defer tx.Rollback()
 	// 插入判断用户登录账号是否已经存在
-	stmt, err := tx.PrepareNamed("insert into wb_news_dynamics (createtime, isdelete, disabled, id, title, intro, surface, content, publisher, type) select :createtime, :isdelete, :disabled, :id, :title, :intro, :surface, :content, :publisher, :type returning id")
-
+	stmt, err := tx.PrepareNamed(insertSql())
 	if err != nil {
 		return "", err
 	}
 	log.Println(stmt.QueryString)
 	var lastId string
-	self.ID = util.GetUuid()
+	self.BaseColumns.Init()
 	err = stmt.Get(&lastId, self)
 	if err != nil {
 		return "", err
@@ -87,7 +79,7 @@ type GetQuery struct {
 
 func (self *WbNewsDynamics) GetByID(query *GetQuery) (*WbNewsDynamics, error) {
 	db := pgsql.Open()
-	stmt, err := db.PrepareNamed("select * from wb_news_dynamics where id=:id")
+	stmt, err := db.PrepareNamed(getByIdSql())
 	if err != nil {
 		return nil, err
 	}
@@ -101,31 +93,28 @@ func (self *WbNewsDynamics) GetByID(query *GetQuery) (*WbNewsDynamics, error) {
 
 type Query struct {
 	pgsql.BaseQuery
-	Name string `db:"name"`
+	Keywords string `db:"keywords"`
+	Status   int    `db:"status"`
 }
 
-func (self *WbNewsDynamics) List(query *Query) ([]*WbNewsDynamics, int64, error) {
+type ListModel struct {
+	WbNewsDynamics
+	Avatar   string `json:"avatar" db:"avatar"`
+	Nickname string `json:"nickname" db:"nickname"`
+}
+
+func (self *WbNewsDynamics) List(query *Query) ([]*ListModel, int64, error) {
 	if query == nil {
 		query = new(Query)
 	}
 	db := pgsql.Open()
-	var selectSql = `SELECT * FROM wb_news_dynamics WHERE 1=1 `
-	var whereSql = ""
-	query.OrderBy = ""
-	whereSql = pgsql.BaseWhere(query.BaseQuery)
-
-	if strings.TrimSpace(query.Name) != "" {
-		whereSql = whereSql + " and name like '%" + query.Name + "%'"
-	}
-
+	whereSql, fullSql := listSql(query)
 	// 以上部分为查询条件，接下来是分页和排序
 	count, err := self.GetCount(db, query, whereSql)
 	if err != nil {
 		return nil, 0, err
 	}
-	query.OrderBy = "sort asc"
-	optionSql := pgsql.BaseOption(query.BaseQuery)
-	stmt, err := db.PrepareNamed(selectSql + whereSql + optionSql)
+	stmt, err := db.PrepareNamed(fullSql)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -137,9 +126,9 @@ func (self *WbNewsDynamics) List(query *Query) ([]*WbNewsDynamics, int64, error)
 	}
 	defer rows.Close()
 
-	var users = make([]*WbNewsDynamics, 0)
+	var users = make([]*ListModel, 0)
 	for rows.Next() {
-		var user = new(WbNewsDynamics)
+		var user = new(ListModel)
 		err = rows.StructScan(&user)
 		if err != nil {
 			return nil, 0, err
@@ -155,7 +144,8 @@ func (self *WbNewsDynamics) GetCount(db *sqlx.DB, query *Query, whereSql ...stri
 	if query == nil {
 		query = new(Query)
 	}
-	stmt, err := db.PrepareNamed("select count(*) from wb_news_dynamics where 1=1 " + strings.Join(whereSql, " "))
+	sqlStr := countSql(whereSql...)
+	stmt, err := db.PrepareNamed(sqlStr)
 	if err != nil {
 		return 0, err
 	}
@@ -186,13 +176,7 @@ func (self *WbNewsDynamics) Update(query *UpdateByIDQuery) error {
 	}
 
 	db := pgsql.Open()
-	var updateSql = ""
-	updateSql = updateSql + " ,title=:title"
-	updateSql = updateSql + " ,intro=:intro"
-	updateSql = updateSql + " ,content=:content"
-	updateSql = updateSql + " ,surface=:surface"
-
-	stmt, err := db.PrepareNamed("update wb_news_dynamics set updatetime=:updatetime " + updateSql + " where id=:id and isdelete=false")
+	stmt, err := db.PrepareNamed(updateSql())
 	if err != nil {
 		return err
 	}
@@ -224,7 +208,7 @@ func (self *WbNewsDynamics) Delete(query *DeleteQuery) error {
 	}
 
 	db := pgsql.Open()
-	stmt, err := db.PrepareNamed("update wb_news_dynamics set isdelete=true where id=any(:ids)")
+	stmt, err := db.PrepareNamed(delSql())
 	if err != nil {
 		return err
 	}
@@ -246,7 +230,7 @@ func (self *WbNewsDynamics) ToggleDisabled(query *DisabledQuery) error {
 		return errors.New("操作条件错误")
 	}
 	db := pgsql.Open()
-	stmt, err := db.PrepareNamed("update wb_news_dynamics set disabled=:disabled where id=:id and isdelete=false")
+	stmt, err := db.PrepareNamed(toggleSql())
 	if err != nil {
 		return err
 	}
@@ -298,9 +282,10 @@ type UpdateStatusQuery struct {
 	Id           string `db:"id"`
 	Status       int    `db:"status"`
 	StatusReason string `db:"status_reason"`
+	publishTime  int64  `db:"publish_time"`
 }
 
-// 更新店铺的状态
+// 更新状态
 func (self *WbNewsDynamics) UpdateStatus(query *UpdateStatusQuery) error {
 	if query == nil {
 		return errors.New("无操作条件")
@@ -314,7 +299,13 @@ func (self *WbNewsDynamics) UpdateStatus(query *UpdateStatusQuery) error {
 		return err
 	}
 	defer tx.Rollback()
-	stmt, err := tx.PrepareNamed(`update wb_news_dynamics set status=:status, status_reason=:status_reason where id=:id and isdelete=false`)
+	var sqlStr = "update wb_news_dynamics set status=:status, status_reason=:status_reason where id=:id and isdelete=false"
+	if query.Status == 1 {
+		// 记录发布时间
+		query.publishTime = util.GetCurrentMS()
+		sqlStr = "update wb_news_dynamics set status=:status, status_reason=:status_reason, publish_time=:publish_time where id=:id and isdelete=false"
+	}
+	stmt, err := tx.PrepareNamed(sqlStr)
 	if err != nil {
 		return err
 	}

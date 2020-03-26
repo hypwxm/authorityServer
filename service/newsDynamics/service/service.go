@@ -12,7 +12,7 @@ func Modify(updateQuery *model.UpdateByIDQuery) error {
 	return new(model.WbNewsDynamics).Update(updateQuery)
 }
 
-func List(query *model.Query) ([]*model.WbNewsDynamics, int64, error) {
+func List(query *model.Query) ([]*model.ListModel, int64, error) {
 	return new(model.WbNewsDynamics).List(query)
 }
 

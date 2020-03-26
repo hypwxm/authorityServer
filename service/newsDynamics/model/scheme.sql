@@ -18,7 +18,8 @@ CREATE TABLE if not exists wb_news_dynamics
     type          smallint,
     sort          SMALLSERIAL             not null,
     status        smallint     default 2  not null,
-    status_reason varchar(255) default '' not null
+    status_reason varchar(255) default '' not null,
+    publish_time bigint default 0 not null,
 );
 Create Index wb_news_dynamics_createtime_index On wb_news_dynamics (createtime);
 comment on column wb_news_dynamics.title is '标题';
