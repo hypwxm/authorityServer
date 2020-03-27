@@ -20,7 +20,7 @@ func Del(query *model.DeleteQuery) error {
 	return new(model.WbNewsDynamics).Delete(query)
 }
 
-func Get(query *model.GetQuery) (*model.WbNewsDynamics, error) {
+func Get(query *model.GetQuery) (*model.GetModel, error) {
 	return new(model.WbNewsDynamics).GetByID(query)
 }
 

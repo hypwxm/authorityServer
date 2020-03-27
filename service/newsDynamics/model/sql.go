@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"worldbar/DB/pgsql"
+	"worldbar/service/like/model"
 )
 
 const table_name = "wb_news_dynamics"
@@ -15,24 +16,25 @@ func insertSql() string {
 
 func listSql(query *Query) (whereSql string, fullSql string) {
 	var selectSql = fmt.Sprintf(`SELECT 
-				%[0].createtime,
-				%[0].updatetime,
-				%[0].publish_time,
-				%[0].title,
-				%[0].intro,
-				%[0].content,
-				%[0].surface,
-				%[0].type,
-				%[0].sort,
-				%[0].status,
-				%[0].StatusReason,
-				%[0].publisher,
-				%[1].avatar,
-				%[1].nickname
-				FROM %[0] left join %[1] on %[0].publisher=%[1].id WHERE 1=1 `, table_name, "wb_user")
+				%[1]s.createtime,
+				%[1]s.updatetime,
+				%[1]s.publish_time,
+				%[1]s.title,
+				%[1]s.intro,
+				%[1]s.content,
+				%[1]s.surface,
+				%[1]s.type,
+				%[1]s.sort,
+				%[1]s.status,
+				%[1]s.StatusReason,
+				%[1]s.publisher,
+				%[2]s.avatar,
+				%[2]s.nickname,
+				case when %[3]s.id <> null then true else false end as like
+				FROM %[1]s left join %[2]s on %[1]s.publisher=%[2]s.id left join %[3]s on %[3]s.source_id=%[1]s.id and %[3]s.source_type=1 WHERE 1=1 `, table_name, "wb_user", "wb_news_dynamics_comment")
 	whereSql = pgsql.BaseWhere(query.BaseQuery)
 	if strings.TrimSpace(query.Keywords) != "" {
-		whereSql = whereSql + fmt.Sprintf(" and (%[0].title like '%:keywords%' or %[0].intro like '%:keywords%' or %[0].content like '%:keywords%')", table_name)
+		whereSql = whereSql + fmt.Sprintf(" and (%[1]s.title like '%%:keywords%%' or %[1]s.intro like '%%:keywords%%' or %[1]s.content like '%%:keywords%%')", table_name)
 	}
 
 	if query.Status > 0 {
@@ -50,7 +52,7 @@ func countSql(whereSql ...string) string {
 }
 
 func getByIdSql() string {
-	return fmt.Sprintf("select * from %s where id=:id", table_name)
+	return fmt.Sprintf("select %[1]s.*, case when %[2]s.id <> null then true else false end as like from %[1]s left join %[2]s on %[1]s.id=%[2]s.source_id and %[2]s.source_type=%[3]d where id=:id", table_name, "wb_like", model.SourceTypeNews)
 }
 
 func updateSql() string {

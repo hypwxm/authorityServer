@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"worldbar/DB/pgsql"
+	"worldbar/service/like/model"
 )
 
 const table_name = "wb_news_dynamics_comment"
@@ -14,19 +15,20 @@ func insertSql() string {
 }
 func listSql(query *Query) (whereSql string, fullSql string) {
 	var selectSql = fmt.Sprintf(`SELECT 
-				%[0].createtime,
-				%[0].updatetime,
-				%[0].content,
-				%[0].publisher,
-				%[0].top_comment_id,
-				%[0].prev_comment_id,
-				%[0].prev_publisher,
-				%[0].news_id,
-				%[1].avatar,
-				%[1].nickname,
-				%[2].avatar as prev_avatar,
-				%[2].nickname as prev_nickname
-				FROM %[0] left join %[1] on %[0].publisher=%[1].id left join %[2] on %[0].prev_publisher=%[2].id WHERE 1=1 `, table_name, "wb_user", "wb_user")
+				%[1]s.createtime,
+				%[1]s.updatetime,
+				%[1]s.content,
+				%[1]s.publisher,
+				%[1]s.top_comment_id,
+				%[1]s.prev_comment_id,
+				%[1]s.prev_publisher,
+				%[1]s.news_id,
+				%[2]s.avatar,
+				%[2]s.nickname,
+				%[3]s.avatar as prev_avatar,
+				%[3]s.nickname as prev_nickname,
+				case when %[4]s.id <> null then true else false end as like
+				FROM %[1]s left join %[2]s on %[1]s.publisher=%[2]s.id left join %[3]s on %[1]s.prev_publisher=%[3]s.id left join %[4]s on %[4]s.source_id=%[1]s.id and %[4]s.source_type=%[5]d WHERE 1=1 `, table_name, "wb_user", "wb_user", "wb_like", model.SourceTypeComment)
 	whereSql = pgsql.BaseWhere(query.BaseQuery)
 	whereSql = whereSql + " and news_id=:news_id"
 
