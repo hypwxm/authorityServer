@@ -52,7 +52,15 @@ func countSql(whereSql ...string) string {
 }
 
 func getByIdSql() string {
-	return fmt.Sprintf("select %[1]s.*, case when %[2]s.id <> null then true else false end as like from %[1]s left join %[2]s on %[1]s.id=%[2]s.source_id and %[2]s.source_type=%[3]d where id=:id", table_name, "wb_like", model.SourceTypeNews)
+	return fmt.Sprintf(`
+			select 
+				%[1]s.*, 
+				(select count(*) from %[2]s where source_type=%[3]d and source_id=:id) as total_like,
+				(select count(*) from %[4]s where news_id=:id and isdelete=false) as total_comment, 
+				case when %[2]s.id <> null then true else false end as like 
+				from %[1]s left join %[2]s on %[1]s.id=%[2]s.source_id and %[2]s.source_type=%[3]d 
+				where id=:id and isdelete=false`,
+		table_name, "wb_like", model.SourceTypeNews, "wb_news_dynamics_comment")
 }
 
 func updateSql() string {

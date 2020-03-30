@@ -79,7 +79,9 @@ type GetQuery struct {
 
 type GetModel struct {
 	WbNewsDynamics
-	Like bool `json:"like" db:"like"`
+	Like         bool `json:"like" db:"like"`
+	TotalLike    int  `json:"totalLike" db:"total_like"`
+	TotalComment int  `json:"totalComment" db:"total_comment"`
 }
 
 func (self *WbNewsDynamics) GetByID(query *GetQuery) (*GetModel, error) {
