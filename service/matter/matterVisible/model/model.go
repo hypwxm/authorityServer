@@ -3,82 +3,78 @@ package model
 import (
 	"errors"
 	"fmt"
+	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 	"log"
 	"strings"
 	"worldbar/DB/pgsql"
 	"worldbar/util"
-	"worldbar/util/database"
-
-	"github.com/jmoiron/sqlx"
 )
 
-type WbLike struct {
-	database.BaseColumns
-
-	UserId     string `json:"userId" db:"user_id"`
-	SourceType int    `json:"sourceType" db:"source_type"`
-	SourceId   string `json:"sourceId" db:"source_id"`
+type WbMatterVisible struct {
+	MatterId string `json:"matterId" db:"matter_id"`
+	UserId   string `json:"userId" db:"user_id"`
 }
 
-const (
-	_ = iota
-	SourceTypeNews
-	SourceTypeUser
-	SourceTypeComment
-	SourceTypeMatter
-)
-
-func (self *WbLike) Insert() (string, error) {
+func (self *WbMatterVisible) Insert(list []WbMatterVisible) error {
 	var err error
 
-	if strings.TrimSpace(self.UserId) == "" {
-		return "", errors.New(fmt.Sprintf("操作错误"))
+	if len(list) == 0 {
+		return nil
 	}
-	if self.SourceType == 0 {
-		return "", errors.New(fmt.Sprintf("操作错误"))
-	}
-	if strings.TrimSpace(self.SourceId) == "" {
-		return "", errors.New(fmt.Sprintf("操作错误"))
-	}
+
 	db := pgsql.Open()
 	tx, err := db.Beginx()
 	if err != nil {
-		return "", err
+		return err
 	}
 	defer tx.Rollback()
-	// 插入判断用户登录账号是否已经存在
-	stmt, err := tx.PrepareNamed(insertSql(self))
-	if err != nil {
-		return "", err
-	}
-	log.Println(stmt.QueryString)
-	var lastId string
-	self.BaseColumns.Init()
-	err = stmt.Get(&lastId, self)
-	if err != nil {
-		return "", err
+
+	for k, v := range list {
+		if strings.TrimSpace(v.MatterId) == "" {
+			return errors.New(fmt.Sprintf("操作错误"))
+		}
+		if strings.TrimSpace(v.UserId) == "" {
+			return errors.New(fmt.Sprintf("操作错误"))
+		}
+		//
+		stmt, err := tx.PrepareNamed(insertSql())
+		if err != nil {
+			return err
+		}
+		log.Println(stmt.QueryString)
+		_, err = stmt.Exec(self)
+		if err != nil {
+			return err
+		}
 	}
 
 	err = tx.Commit()
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	return self.ID, nil
+	return nil
 }
 
 type GetQuery struct {
 	ID string `db:"id"`
 }
 
-func (self *WbLike) GetByID(query *GetQuery) (*WbLike, error) {
+type GetModel struct {
+	WbMatterVisible
+	Like         bool `json:"like" db:"like"`
+	TotalLike    int  `json:"totalLike" db:"total_like"`
+	TotalComment int  `json:"totalComment" db:"total_comment"`
+}
+
+func (self *WbMatterVisible) GetByID(query *GetQuery) (*GetModel, error) {
 	db := pgsql.Open()
 	stmt, err := db.PrepareNamed(getByIdSql())
 	if err != nil {
 		return nil, err
 	}
-	var entity = new(WbLike)
+	var entity = new(GetModel)
 	err = stmt.Get(entity, query)
 	if err != nil {
 		return nil, err
@@ -88,20 +84,18 @@ func (self *WbLike) GetByID(query *GetQuery) (*WbLike, error) {
 
 type Query struct {
 	pgsql.BaseQuery
-	SourceType int `db:"source_type"`
+	Keywords string `db:"keywords"`
+	Status   int    `db:"status"`
 }
 
 type ListModel struct {
-	WbLike
-	Avatar       string `json:"avatar" db:"avatar"`
-	Nickname     string `json:"nickname" db:"nickname"`
-	LikeAvatar   string `json:"likeAvatar" db:"like_avatar"`
-	LikeNickname string `json:"likeNickname" db:"like_nickname"`
-	NewsTitle    string `json:"newsTitle" db:"news_title"`
-	NewsSurface  string `json:"newsSurface" db:"news_surface"`
+	WbMatterVisible
+	Avatar   string `json:"avatar" db:"avatar"`
+	Nickname string `json:"nickname" db:"nickname"`
+	Like     bool   `json:"like" db:"like"`
 }
 
-func (self *WbLike) List(query *Query) ([]*ListModel, int64, error) {
+func (self *WbMatterVisible) List(query *Query) ([]*ListModel, int64, error) {
 	if query == nil {
 		query = new(Query)
 	}
@@ -138,7 +132,7 @@ func (self *WbLike) List(query *Query) ([]*ListModel, int64, error) {
 
 }
 
-func (self *WbLike) GetCount(db *sqlx.DB, query *Query, whereSql ...string) (int64, error) {
+func (self *WbMatterVisible) GetCount(db *sqlx.DB, query *Query, whereSql ...string) (int64, error) {
 	if query == nil {
 		query = new(Query)
 	}
@@ -165,7 +159,7 @@ type UpdateByIDQuery struct {
 
 // 更新,根据用户id和数据id进行更新
 // 部分字段不允许更新，userID, id
-func (self *WbLike) Update(query *UpdateByIDQuery) error {
+func (self *WbMatterVisible) Update(query *UpdateByIDQuery) error {
 	if query == nil {
 		return errors.New("无更新条件")
 	}
@@ -192,7 +186,7 @@ type DeleteQuery struct {
 }
 
 // 删除，批量删除
-func (self *WbLike) Delete(query *DeleteQuery) error {
+func (self *WbMatterVisible) Delete(query *DeleteQuery) error {
 	if query == nil {
 		return errors.New("无操作条件")
 	}
@@ -220,7 +214,7 @@ type DisabledQuery struct {
 }
 
 // 启用禁用店铺
-func (self *WbLike) ToggleDisabled(query *DisabledQuery) error {
+func (self *WbMatterVisible) ToggleDisabled(query *DisabledQuery) error {
 	if query == nil {
 		return errors.New("无操作条件")
 	}
@@ -244,7 +238,7 @@ type UpdateSortQuery struct {
 }
 
 // 根据两个枚举的排序
-func (self *WbLike) UpdateSort(query *UpdateSortQuery) error {
+func (self *WbMatterVisible) UpdateSort(query *UpdateSortQuery) error {
 	if query == nil {
 		return errors.New("无操作条件")
 	}
@@ -284,7 +278,7 @@ type UpdateStatusQuery struct {
 }
 
 // 更新状态
-func (self *WbLike) UpdateStatus(query *UpdateStatusQuery) error {
+func (self *WbMatterVisible) UpdateStatus(query *UpdateStatusQuery) error {
 	if query == nil {
 		return errors.New("无操作条件")
 	}

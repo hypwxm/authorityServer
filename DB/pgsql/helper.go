@@ -48,7 +48,7 @@ func BaseOption(query BaseQuery) string {
 	}*/
 	var optionSql string = ""
 	if strings.TrimSpace(query.OrderBy) != "" {
-		optionSql = optionSql + ` order by ` + query.OrderBy
+		optionSql = optionSql + ` order by ` + query.OrderBy + `,createtime desc `
 	} else {
 		optionSql = optionSql + ` order by createtime desc`
 	}
