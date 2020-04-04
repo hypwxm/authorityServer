@@ -4,6 +4,7 @@ import (
 	"worldbar/middleware"
 	controller2 "worldbar/service/auth/controller"
 	"worldbar/service/house/appController"
+	appController3 "worldbar/service/newsDynamics/appController"
 	appController2 "worldbar/service/user/appController"
 
 	"github.com/hypwxm/rider"
@@ -17,7 +18,7 @@ func AppRouter() *rider.Router {
 
 	route.Kid("/user", middleware.AppAuth(), appController2.Router())
 	route.Kid("/house", middleware.AppAuth(), appController.Router())
-
+	route.Kid("/newsdynamics", middleware.AppAuth(), appController3.Router())
 
 	return route
 }

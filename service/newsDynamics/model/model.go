@@ -290,7 +290,7 @@ type UpdateStatusQuery struct {
 	Id           string `db:"id"`
 	Status       int    `db:"status"`
 	StatusReason string `db:"status_reason"`
-	publishTime  int64  `db:"publish_time"`
+	PublishTime  int64  `db:"publish_time"`
 }
 
 // 更新状态
@@ -310,7 +310,7 @@ func (self *WbNewsDynamics) UpdateStatus(query *UpdateStatusQuery) error {
 	var sqlStr = "update wb_news_dynamics set status=:status, status_reason=:status_reason where id=:id and isdelete=false"
 	if query.Status == 1 {
 		// 记录发布时间
-		query.publishTime = util.GetCurrentMS()
+		query.PublishTime = util.GetCurrentMS()
 		sqlStr = "update wb_news_dynamics set status=:status, status_reason=:status_reason, publish_time=:publish_time where id=:id and isdelete=false"
 	}
 	stmt, err := tx.PrepareNamed(sqlStr)
