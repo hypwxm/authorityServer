@@ -60,7 +60,7 @@ func BaseOption(query BaseQuery, tableName ...string) string {
 
 	var optionSql string = ""
 	if strings.TrimSpace(query.OrderBy) != "" {
-		optionSql = optionSql + ` order by ` + query.OrderBy
+		optionSql = optionSql + ` order by ` + query.OrderBy + `,createtime desc `
 	} else {
 		optionSql = optionSql + fmt.Sprintf(` order by %screatetime desc`, curTable)
 	}
