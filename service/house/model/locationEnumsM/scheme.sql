@@ -15,7 +15,7 @@ CREATE TABLE if not exists wb_house_enums
 );
 
 comment on column wb_house_enums.name is '房屋枚举';
-Create Index createtime_index On wb_house_enums (createtime);
+Create Index wb_house_enums_createtime_index On wb_house_enums (createtime);
 
 
 

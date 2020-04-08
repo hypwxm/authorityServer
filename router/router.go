@@ -5,6 +5,7 @@ import (
 	"worldbar/middleware"
 	controller2 "worldbar/service/auth/controller"
 	controller4 "worldbar/service/house/controller"
+	controller6 "worldbar/service/matter/matter/controller"
 	controller5 "worldbar/service/newsDynamics/controller"
 	"worldbar/service/user/controller"
 	controller3 "worldbar/service/vote/controller"
@@ -18,6 +19,7 @@ func Router() *rider.Router {
 	route.Kid("/vote", middleware.Auth(), controller3.Router())
 	route.Kid("/house", middleware.Auth(), controller4.Router())
 	route.Kid("/newsDynamics", middleware.Auth(), controller5.Router())
+	route.Kid("/matter", middleware.Auth(), controller6.Router())
 
 	return route
 }
