@@ -1,33 +1,44 @@
 package service
 
 import (
-	"worldbar/service/newsDynamics/model"
+	"worldbar/service/admin/user/model"
 )
 
-func Create(entity *model.WbNewsDynamics) (string, error) {
+func Create(entity *model.WbAdminUser) (string, error) {
 	return entity.Insert()
 }
 
 func Modify(updateQuery *model.UpdateByIDQuery) error {
-	return new(model.WbNewsDynamics).Update(updateQuery)
+	return new(model.WbAdminUser).Update(updateQuery)
 }
 
 func List(query *model.Query) ([]*model.ListModel, int64, error) {
-	return new(model.WbNewsDynamics).List(query)
+	return new(model.WbAdminUser).List(query)
 }
 
 func Del(query *model.DeleteQuery) error {
-	return new(model.WbNewsDynamics).Delete(query)
+	return new(model.WbAdminUser).Delete(query)
 }
 
 func Get(query *model.GetQuery) (*model.GetModel, error) {
-	return new(model.WbNewsDynamics).GetByID(query)
+	return new(model.WbAdminUser).GetByID(query)
 }
 
 func UpdateSort(query *model.UpdateSortQuery) error {
-	return new(model.WbNewsDynamics).UpdateSort(query)
+	return new(model.WbAdminUser).UpdateSort(query)
 }
 
 func UpdateStatus(query *model.UpdateStatusQuery) error {
-	return new(model.WbNewsDynamics).UpdateStatus(query)
+	return new(model.WbAdminUser).UpdateStatus(query)
+}
+
+// 默认创建一个超级管理员
+func InitAdmin() {
+	admin := &model.WbAdminUser{
+		Account:  "admin",
+		Password: "123456",
+		Username: "管理员",
+		Type:     1,
+	}
+	admin.Insert()
 }

@@ -3,22 +3,21 @@ package controller
 import (
 	"encoding/json"
 	"github.com/hypwxm/rider"
-	"worldbar/service/newsDynamics/model"
-	"worldbar/service/newsDynamics/service"
+	"worldbar/service/admin/user/model"
+	"worldbar/service/admin/user/service"
 	"worldbar/util/response"
 )
 
 func create(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		entity := new(model.WbNewsDynamics)
+		entity := new(model.WbAdminUser)
 		err := json.Unmarshal(c.Body(), &entity)
 		if err != nil {
 			sender.Fail(err.Error())
 			return
 		}
-		entity.Type = 1
-		entity.Publisher = "admin"
+		entity.Type = 2
 		id, err := service.Create(entity)
 		if err != nil {
 			sender.Fail(err.Error())

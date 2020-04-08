@@ -3,6 +3,7 @@ package model
 import (
 	"errors"
 	"fmt"
+	"github.com/hypwxm/rider/utils/cryptos"
 	"github.com/lib/pq"
 	"log"
 	"strings"
@@ -13,37 +14,25 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type WbNewsDynamics struct {
+type WbAdminUser struct {
 	database.BaseColumns
 
-	Title   string `json:"title" db:"title"`
-	Intro   string `json:"intro" db:"intro"`
-	Surface string `json:"surface" db:"surface"`
-	Content string `json:"content" db:"content"`
-
-	Publisher string `json:"publisher" db:"publisher"`
-	Type      int    `json:"type" db:"type"`
-
-	Sort int `json:"sort" db:"sort"`
-
-	Status       int    `json:"status" db:"status"`
-	StatusReason string `json:"statusReason" db:"status_reason"`
-	PublishTime  int64  `json:"publishTime" db:"publish_time"`
+	Account  string `json:"account" db:"account"`
+	Password string `json:"password" db:"password"`
+	Username string `json:"username" db:"username"`
+	Salt     string `json:"salt" db:"salt"`
+	Avatar   string `json:"avatar" db:"avatar"`
+	Type     int    `json:"type" db:"type"`
+	RoleId   string `json:"roleId" db:"role_id"`
 }
 
-func (self *WbNewsDynamics) Insert() (string, error) {
+func (self *WbAdminUser) Insert() (string, error) {
 	var err error
 
-	if strings.TrimSpace(self.Title) == "" {
+	if strings.TrimSpace(self.Account) == "" {
 		return "", errors.New(fmt.Sprintf("操作错误"))
 	}
-	if strings.TrimSpace(self.Surface) == "" {
-		return "", errors.New(fmt.Sprintf("操作错误"))
-	}
-	if strings.TrimSpace(self.Content) == "" {
-		return "", errors.New(fmt.Sprintf("操作错误"))
-	}
-	if strings.TrimSpace(self.Publisher) == "" {
+	if strings.TrimSpace(self.Password) == "" {
 		return "", errors.New(fmt.Sprintf("操作错误"))
 	}
 	db := pgsql.Open()
@@ -60,6 +49,10 @@ func (self *WbNewsDynamics) Insert() (string, error) {
 	log.Println(stmt.QueryString)
 	var lastId string
 	self.BaseColumns.Init()
+
+	self.Salt = cryptos.RandString()
+	self.Password = util.SignPwd(self.Password, self.Salt)
+
 	err = stmt.Get(&lastId, self)
 	if err != nil {
 		return "", err
@@ -78,13 +71,13 @@ type GetQuery struct {
 }
 
 type GetModel struct {
-	WbNewsDynamics
+	WbAdminUser
 	Like         bool `json:"like" db:"like"`
 	TotalLike    int  `json:"totalLike" db:"total_like"`
 	TotalComment int  `json:"totalComment" db:"total_comment"`
 }
 
-func (self *WbNewsDynamics) GetByID(query *GetQuery) (*GetModel, error) {
+func (self *WbAdminUser) GetByID(query *GetQuery) (*GetModel, error) {
 	db := pgsql.Open()
 	stmt, err := db.PrepareNamed(getByIdSql())
 	if err != nil {
@@ -105,13 +98,11 @@ type Query struct {
 }
 
 type ListModel struct {
-	WbNewsDynamics
-	Avatar   string `json:"avatar" db:"avatar"`
-	Nickname string `json:"nickname" db:"nickname"`
-	Like     bool   `json:"like" db:"like"`
+	WbAdminUser
+	RoleName string `json:"roleName" db:"role_name"`
 }
 
-func (self *WbNewsDynamics) List(query *Query) ([]*ListModel, int64, error) {
+func (self *WbAdminUser) List(query *Query) ([]*ListModel, int64, error) {
 	if query == nil {
 		query = new(Query)
 	}
@@ -148,7 +139,7 @@ func (self *WbNewsDynamics) List(query *Query) ([]*ListModel, int64, error) {
 
 }
 
-func (self *WbNewsDynamics) GetCount(db *sqlx.DB, query *Query, whereSql ...string) (int64, error) {
+func (self *WbAdminUser) GetCount(db *sqlx.DB, query *Query, whereSql ...string) (int64, error) {
 	if query == nil {
 		query = new(Query)
 	}
@@ -175,7 +166,7 @@ type UpdateByIDQuery struct {
 
 // 更新,根据用户id和数据id进行更新
 // 部分字段不允许更新，userID, id
-func (self *WbNewsDynamics) Update(query *UpdateByIDQuery) error {
+func (self *WbAdminUser) Update(query *UpdateByIDQuery) error {
 	if query == nil {
 		return errors.New("无更新条件")
 	}
@@ -202,7 +193,7 @@ type DeleteQuery struct {
 }
 
 // 删除，批量删除
-func (self *WbNewsDynamics) Delete(query *DeleteQuery) error {
+func (self *WbAdminUser) Delete(query *DeleteQuery) error {
 	if query == nil {
 		return errors.New("无操作条件")
 	}
@@ -230,7 +221,7 @@ type DisabledQuery struct {
 }
 
 // 启用禁用店铺
-func (self *WbNewsDynamics) ToggleDisabled(query *DisabledQuery) error {
+func (self *WbAdminUser) ToggleDisabled(query *DisabledQuery) error {
 	if query == nil {
 		return errors.New("无操作条件")
 	}
@@ -254,7 +245,7 @@ type UpdateSortQuery struct {
 }
 
 // 根据两个枚举的排序
-func (self *WbNewsDynamics) UpdateSort(query *UpdateSortQuery) error {
+func (self *WbAdminUser) UpdateSort(query *UpdateSortQuery) error {
 	if query == nil {
 		return errors.New("无操作条件")
 	}
@@ -294,7 +285,7 @@ type UpdateStatusQuery struct {
 }
 
 // 更新状态
-func (self *WbNewsDynamics) UpdateStatus(query *UpdateStatusQuery) error {
+func (self *WbAdminUser) UpdateStatus(query *UpdateStatusQuery) error {
 	if query == nil {
 		return errors.New("无操作条件")
 	}
