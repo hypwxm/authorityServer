@@ -7,6 +7,7 @@ func Router() *rider.Router {
 
 	// 获取处于发布状态的新闻
 	route.POST("/list", list)
+	route.POST("/get", get)
 
 	return route
 }

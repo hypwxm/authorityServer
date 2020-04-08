@@ -28,3 +28,24 @@ func list(c rider.Context) {
 	})()
 	c.SendJson(200, sender)
 }
+
+
+func get(c rider.Context) {
+	sender := response.NewSender()
+	(func() {
+		query := new(model.GetQuery)
+		err := json.Unmarshal(c.Body(), &query)
+		if err != nil {
+			sender.Fail(err.Error())
+			return
+		}
+		entity, err := service.Get(query)
+		if err != nil {
+			sender.Fail(err.Error())
+			return
+		}
+		sender.Success(entity)
+	})()
+	c.SendJson(200, sender)
+}
+
