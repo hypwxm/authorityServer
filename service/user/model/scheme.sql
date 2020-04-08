@@ -22,6 +22,7 @@ CREATE TABLE if not exists wb_user
     house      varchar(512)
 );
 
+create index wb_user_createtime_index on wb_user (createtime);
 comment on column wb_user.house is '用户所在房屋坐落位置';
 comment on column wb_user.type is '1:居民用户';
 

@@ -16,7 +16,7 @@ CREATE TABLE if not exists wb_house_option
 );
 
 comment on column wb_house_option.house_enums_id is '对应的房屋枚举';
-Create Index createtime_index On wb_house_option (createtime);
+Create Index wb_house_option_createtime_index On wb_house_option (createtime);
 
 
 drop table if exists wb_house_option_associate;
@@ -26,6 +26,6 @@ CREATE TABLE if not exists wb_house_option_associate
     super_option_id varchar(128) not null,
     sub_option_id   varchar(128) not null
 );
-Create Unique Index super_sub_index On wb_house_option_associate (super_option_id, sub_option_id);
+Create Unique Index wb_house_option_super_sub_index On wb_house_option_associate (super_option_id, sub_option_id);
 
 

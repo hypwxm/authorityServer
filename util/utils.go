@@ -1,6 +1,8 @@
 package util
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	uuid "github.com/satori/go.uuid"
 	"strings"
 	"time"
@@ -19,4 +21,12 @@ func GetCurrentMS() int64 {
 
 func GetUuid() string {
 	return uuid.NewV4().String()
+}
+
+
+func SignPwd(pwd string, salt string) string {
+	m := md5.New()
+	m.Write([]byte(pwd))
+	m.Write([]byte(salt))
+	return hex.EncodeToString(m.Sum(nil))
 }
