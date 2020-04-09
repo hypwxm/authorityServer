@@ -31,7 +31,7 @@ func Auth() rider.HandlerFunc {
 				c.SendJson(200, sender)
 				return
 			}
-			c.SetLocals("userId", userStr)
+			c.SetLocals(config.AppServerTokenKey, userStr)
 			c.Next()
 
 		} else {

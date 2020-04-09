@@ -3,6 +3,7 @@ package router
 import (
 	"github.com/hypwxm/rider"
 	"worldbar/middleware"
+	controller8 "worldbar/service/admin/role/controller"
 	controller7 "worldbar/service/admin/user/controller"
 	controller2 "worldbar/service/auth/controller"
 	controller4 "worldbar/service/house/controller"
@@ -22,6 +23,7 @@ func Router() *rider.Router {
 	route.Kid("/newsDynamics", middleware.Auth(), controller5.Router())
 	route.Kid("/matter", middleware.Auth(), controller6.Router())
 	route.Kid("/adminuser", middleware.Auth(), controller7.Router())
+	route.Kid("/adminrole", middleware.Auth(), controller8.Router())
 
 	return route
 }

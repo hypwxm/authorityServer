@@ -32,6 +32,11 @@ func UpdateStatus(query *model.UpdateStatusQuery) error {
 	return new(model.WbAdminUser).UpdateStatus(query)
 }
 
+
+func GetUser(query *model.WbAdminUser) (*model.WbAdminUser, error) {
+	return new(model.WbAdminUser).Get(query)
+}
+
 // 默认创建一个超级管理员
 func InitAdmin() {
 	admin := &model.WbAdminUser{

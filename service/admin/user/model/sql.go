@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"worldbar/DB/pgsql"
-	"worldbar/service/like/model"
+	"worldbar/util"
 )
 
 const table_name = "wb_admin_user"
@@ -19,6 +19,7 @@ func insertSql() string {
 
 func listSql(query *Query) (whereSql string, fullSql string) {
 	var selectSql = fmt.Sprintf(`SELECT 
+				%[1]s.id,
 				%[1]s.createtime,
 				%[1]s.updatetime,
 				%[1]s.account,
@@ -26,8 +27,8 @@ func listSql(query *Query) (whereSql string, fullSql string) {
 				%[1]s.avatar,
 				%[1]s.type,
 				%[1]s.disabled,
-				%[2]s.id as role_id,
-				%[2]s.name as role_name
+				%[1]s.role_id,
+				COALESCE(%[2]s.name, '') as role_name
 				FROM %[1]s left join %[2]s on %[1]s.role_id=%[2]s.id WHERE 1=1 `, table_name, "wb_admin_role")
 	whereSql = pgsql.BaseWhere(query.BaseQuery, table_name)
 	if strings.TrimSpace(query.Keywords) != "" {
@@ -44,21 +45,23 @@ func countSql(whereSql ...string) string {
 func getByIdSql() string {
 	return fmt.Sprintf(`
 			select 
-				%[1]s.*, 
-				(select count(*) from %[2]s where source_type=%[3]d and source_id=:id) as total_like,
-				(select count(*) from %[4]s where news_id=:id and isdelete=false) as total_comment, 
-				case when %[2]s.id <> null then true else false end as like 
-				from %[1]s left join %[2]s on %[1]s.id=%[2]s.source_id and %[2]s.source_type=%[3]d 
+				%[1]s.*,
+				%[2]s.name as role_name
+				from %[1]s left join %[2]s on %[1]s.role_id=%[2]s.id
 				where id=:id and isdelete=false`,
-		table_name, "wb_like", model.SourceTypeNews, "wb_news_dynamics_comment")
+		table_name, "wb_admin_role")
 }
 
-func updateSql() string {
+func updateSql(query *UpdateByIDQuery) string {
 	var updateSql = ""
-	updateSql = updateSql + " ,title=:title"
-	updateSql = updateSql + " ,intro=:intro"
-	updateSql = updateSql + " ,content=:content"
-	updateSql = updateSql + " ,surface=:surface"
+	updateSql = updateSql + " ,username=:username"
+	updateSql = updateSql + " ,avatar=:avatar"
+	updateSql = updateSql + " ,role_id=:role_id"
+	if query.Password != "" {
+		if util.ValidatePwd(query.Password) {
+			updateSql = updateSql + " ,password=:password"
+		}
+	}
 
 	return fmt.Sprintf("update %s set updatetime=:updatetime %s where id=:id and isdelete=false", table_name, updateSql)
 }

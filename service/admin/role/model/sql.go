@@ -7,42 +7,31 @@ import (
 	"worldbar/service/like/model"
 )
 
-const table_name = "wb_news_dynamics"
+const table_name = "wb_admin_role"
 
 func insertSql() string {
-	return fmt.Sprintf("insert into %s (createtime, isdelete, disabled, id, title, intro, surface, content, publisher, type) select :createtime, :isdelete, :disabled, :id, :title, :intro, :surface, :content, :publisher, :type returning id", table_name)
+	return fmt.Sprintf(`insert into %s
+		(createtime, isdelete, disabled, id, name, intro, parent_role_id, parent_role_link) 
+		select :createtime, :isdelete, :disabled, :id, :name, :intro, :parent_role_id, :parent_role_link returning id`,
+		table_name)
 
 }
 
 func listSql(query *Query) (whereSql string, fullSql string) {
 	var selectSql = fmt.Sprintf(`SELECT 
+				%[1]s.id,
 				%[1]s.createtime,
 				%[1]s.updatetime,
-				%[1]s.publish_time,
-				%[1]s.title,
+				%[1]s.name,
 				%[1]s.intro,
-				%[1]s.content,
-				%[1]s.surface,
-				%[1]s.type,
-				%[1]s.sort,
-				%[1]s.status,
-				%[1]s.StatusReason,
-				%[1]s.publisher,
-				%[2]s.avatar,
-				%[2]s.nickname,
-				case when %[3]s.id <> null then true else false end as like
-				FROM %[1]s left join %[2]s on %[1]s.publisher=%[2]s.id left join %[3]s on %[3]s.source_id=%[1]s.id and %[3]s.source_type=1 WHERE 1=1 `, table_name, "wb_user", "wb_news_dynamics_comment")
+				%[1]s.parent_role_id,
+				%[1]s.parent_role_link
+				FROM %[1]s WHERE 1=1 `, table_name)
 	whereSql = pgsql.BaseWhere(query.BaseQuery)
 	if strings.TrimSpace(query.Keywords) != "" {
-		whereSql = whereSql + fmt.Sprintf(" and (%[1]s.title like '%%:keywords%%' or %[1]s.intro like '%%:keywords%%' or %[1]s.content like '%%:keywords%%')", table_name)
+		whereSql = whereSql + fmt.Sprintf(" and (%[1]s.name like '%%:keywords%%' or %[1]s.intro like '%%:keywords%%')", table_name)
 	}
-
-	if query.Status > 0 {
-		whereSql = whereSql + " and status=:status "
-	}
-	if query.OrderBy == "" {
-		query.OrderBy = "sort asc"
-	}
+	
 	optionSql := pgsql.BaseOption(query.BaseQuery)
 	return whereSql, selectSql + whereSql + optionSql
 }

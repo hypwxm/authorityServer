@@ -23,10 +23,16 @@ func GetUuid() string {
 	return uuid.NewV4().String()
 }
 
-
 func SignPwd(pwd string, salt string) string {
 	m := md5.New()
 	m.Write([]byte(pwd))
 	m.Write([]byte(salt))
 	return hex.EncodeToString(m.Sum(nil))
+}
+
+func ValidatePwd(pwd string) bool {
+	if len(pwd) < 6 {
+		return false
+	}
+	return true
 }

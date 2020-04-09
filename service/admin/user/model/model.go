@@ -155,11 +155,11 @@ func (self *WbAdminUser) GetCount(db *sqlx.DB, query *Query, whereSql ...string)
 }
 
 type UpdateByIDQuery struct {
-	ID      string `db:"id"`
-	Title   string `db:"title"`
-	Intro   string `db:"intro"`
-	Content string `db:"content"`
-	Surface string `db:"surface"`
+	ID       string `db:"id"`
+	Avatar   string `db:"avatar"`
+	Username string `db:"username"`
+	RoleId   string `db:"role_id"`
+	Password string `db:"password"`
 
 	Updatetime int64 `db:"updatetime"`
 }
@@ -175,7 +175,7 @@ func (self *WbAdminUser) Update(query *UpdateByIDQuery) error {
 	}
 
 	db := pgsql.Open()
-	stmt, err := db.PrepareNamed(updateSql())
+	stmt, err := db.PrepareNamed(updateSql(query))
 	if err != nil {
 		return err
 	}
@@ -315,4 +315,41 @@ func (self *WbAdminUser) UpdateStatus(query *UpdateStatusQuery) error {
 	}
 	err = tx.Commit()
 	return err
+}
+
+// 根据条件获取单个用户
+func (self *WbAdminUser) Get(query *WbAdminUser) (*WbAdminUser, error) {
+	db := pgsql.Open()
+
+	var selectSql = `
+		select * from wb_admin_user 
+	`
+	var whereSql = `
+		where 1=1 
+	`
+
+	if strings.TrimSpace(query.ID) != "" {
+		whereSql = whereSql + " and id=:id"
+	}
+	if strings.TrimSpace(query.Account) != "" {
+		whereSql = whereSql + " and account=:account"
+	}
+
+	stmt, err := db.PrepareNamed(selectSql + whereSql)
+	if err != nil {
+		return nil, err
+	}
+	var user = new(WbAdminUser)
+	err = stmt.QueryRow(query).StructScan(user)
+	if err != nil {
+		return nil, err
+	}
+	if strings.TrimSpace(query.Password) != "" {
+		// 如果密码传过来了，是登录事件
+		signedPwd := util.SignPwd(query.Password, user.Salt)
+		if signedPwd != user.Password {
+			return nil, errors.New("密码错误")
+		}
+	}
+	return user, nil
 }

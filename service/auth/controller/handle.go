@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"github.com/hypwxm/rider"
 	"worldbar/config"
+	adminUserModel "worldbar/service/admin/user/model"
+	adminUserService "worldbar/service/admin/user/service"
 	"worldbar/service/user/model"
 	"worldbar/service/user/service"
 	"worldbar/util/response"
@@ -23,11 +25,21 @@ func login(c rider.Context) {
 			sender.Fail(err.Error())
 			return
 		}
-		if loginForm.UserName != "admin" || loginForm.Password != "123456" {
-			sender.Fail("账号或密码错误")
+		if loginForm.Password == "" {
+			if err != nil {
+				sender.Fail("账号或密码错误")
+				return
+			}
+		}
+		user, err := adminUserService.GetUser(&adminUserModel.WbAdminUser{
+			Account:  loginForm.UserName,
+			Password: loginForm.Password,
+		})
+		if err != nil {
+			sender.Fail(err.Error())
 			return
 		}
-		c.Jwt().Set(config.AppServerTokenKey, "admin")
+		c.Jwt().Set(config.AppServerTokenKey, user.ID)
 		sender.Success(c.Jwt().GetToken())
 	})()
 
@@ -37,10 +49,14 @@ func login(c rider.Context) {
 func loginAdmin(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		sender.Success(map[string]interface{}{
-			"id":   "21312",
-			"name": "admin",
-		})
+		query := new(adminUserModel.WbAdminUser)
+		query.ID = c.GetLocals(config.AppServerTokenKey).(string)
+		user, err := adminUserService.GetUser(query)
+		if err != nil {
+			sender.Fail(err.Error())
+			return
+		}
+		sender.Success(user)
 	})()
 
 	c.SendJson(200, sender)
