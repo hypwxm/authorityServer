@@ -38,6 +38,10 @@ func listSql(query *Query) (whereSql string, fullSql string) {
 		whereSql = whereSql + fmt.Sprintf(" and (%[1]s.title like '%%:keywords%%' or %[1]s.intro like '%%:keywords%%' or %[1]s.content like '%%:keywords%%')", table_name)
 	}
 
+	if query.PublishTime > 0 {
+		whereSql = whereSql + fmt.Sprintf(" and %s.publish_time<=:publish_time", table_name)
+	}
+
 	if query.Status > 0 {
 		whereSql = whereSql + fmt.Sprintf(" and %s.status=:status ", table_name)
 	}

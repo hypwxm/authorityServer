@@ -100,8 +100,9 @@ func (self *WbNewsDynamics) GetByID(query *GetQuery) (*GetModel, error) {
 
 type Query struct {
 	pgsql.BaseQuery
-	Keywords string `db:"keywords"`
-	Status   int    `db:"status"`
+	Keywords    string `db:"keywords"`
+	Status      int    `db:"status"`
+	PublishTime int64  `db:"publish_time"`
 }
 
 type ListModel struct {
