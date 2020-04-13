@@ -311,7 +311,9 @@ func (self *WbNewsDynamics) UpdateStatus(query *UpdateStatusQuery) error {
 	var sqlStr = "update wb_news_dynamics set status=:status, status_reason=:status_reason where id=:id and isdelete=false"
 	if query.Status == 1 {
 		// 记录发布时间
-		query.PublishTime = util.GetCurrentMS()
+		if query.PublishTime == 0 {
+			query.PublishTime = util.GetCurrentMS()
+		}
 		sqlStr = "update wb_news_dynamics set status=:status, status_reason=:status_reason, publish_time=:publish_time where id=:id and isdelete=false"
 	}
 	stmt, err := tx.PrepareNamed(sqlStr)
