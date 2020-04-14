@@ -13,38 +13,24 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type WbMatter struct {
+type WbMatterElement struct {
 	database.BaseColumns
 
-	Title   string `json:"title" db:"title"`
-	Intro   string `json:"intro" db:"intro"`
-	Surface string `json:"surface" db:"surface"`
-	Content string `json:"content" db:"content"`
-
-	Publisher string `json:"publisher" db:"publisher"`
-	Type      int    `json:"type" db:"type"`
-
-	Sort int `json:"sort" db:"sort"`
-
-	Status       int    `json:"status" db:"status"`
-	StatusReason string `json:"statusReason" db:"status_reason"`
-	PublishTime  int64  `json:"publishTime" db:"publish_time"`
-	Sticky       bool   `json:"sticky" db:"sticky"`
+	Title    string `json:"title" db:"title"`
+	Intro    string `json:"intro" db:"intro"`
+	Type     int    `json:"type" db:"type"`
+	Min      int    `json:"min" db:"min"`
+	Max      int    `json:"max" db:"max"`
+	MatterId string `json:"matterId" db:"matter_id"`
 }
 
-func (self *WbMatter) Insert() (string, error) {
+func (self *WbMatterElement) Insert() (string, error) {
 	var err error
 
 	if strings.TrimSpace(self.Title) == "" {
 		return "", errors.New(fmt.Sprintf("操作错误"))
 	}
-	if strings.TrimSpace(self.Surface) == "" {
-		return "", errors.New(fmt.Sprintf("操作错误"))
-	}
-	if strings.TrimSpace(self.Content) == "" {
-		return "", errors.New(fmt.Sprintf("操作错误"))
-	}
-	if strings.TrimSpace(self.Publisher) == "" {
+	if strings.TrimSpace(self.MatterId) == "" {
 		return "", errors.New(fmt.Sprintf("操作错误"))
 	}
 	db := pgsql.Open()
@@ -53,7 +39,7 @@ func (self *WbMatter) Insert() (string, error) {
 		return "", err
 	}
 	defer tx.Rollback()
-	// 插入判断用户登录账号是否已经存在
+	// 插入
 	stmt, err := tx.PrepareNamed(insertSql())
 	if err != nil {
 		return "", err
@@ -79,13 +65,10 @@ type GetQuery struct {
 }
 
 type GetModel struct {
-	WbMatter
-	Like         bool `json:"like" db:"like"`
-	TotalLike    int  `json:"totalLike" db:"total_like"`
-	TotalComment int  `json:"totalComment" db:"total_comment"`
+	WbMatterElement
 }
 
-func (self *WbMatter) GetByID(query *GetQuery) (*GetModel, error) {
+func (self *WbMatterElement) GetByID(query *GetQuery) (*GetModel, error) {
 	db := pgsql.Open()
 	stmt, err := db.PrepareNamed(getByIdSql())
 	if err != nil {
@@ -106,13 +89,10 @@ type Query struct {
 }
 
 type ListModel struct {
-	WbMatter
-	Avatar   string `json:"avatar" db:"avatar"`
-	Nickname string `json:"nickname" db:"nickname"`
-	Like     bool   `json:"like" db:"like"`
+	WbMatterElement
 }
 
-func (self *WbMatter) List(query *Query) ([]*ListModel, int64, error) {
+func (self *WbMatterElement) List(query *Query) ([]*ListModel, int64, error) {
 	if query == nil {
 		query = new(Query)
 	}
@@ -149,7 +129,7 @@ func (self *WbMatter) List(query *Query) ([]*ListModel, int64, error) {
 
 }
 
-func (self *WbMatter) GetCount(db *sqlx.DB, query *Query, whereSql ...string) (int64, error) {
+func (self *WbMatterElement) GetCount(db *sqlx.DB, query *Query, whereSql ...string) (int64, error) {
 	if query == nil {
 		query = new(Query)
 	}
@@ -165,18 +145,18 @@ func (self *WbMatter) GetCount(db *sqlx.DB, query *Query, whereSql ...string) (i
 }
 
 type UpdateByIDQuery struct {
-	ID      string `db:"id"`
-	Title   string `db:"title"`
-	Intro   string `db:"intro"`
-	Content string `db:"content"`
-	Surface string `db:"surface"`
+	ID    string `db:"id"`
+	Title string `db:"title"`
+	Intro string `db:"intro"`
+	Min   int    `db:"min"`
+	Max   int    `db:"max"`
 
 	Updatetime int64 `db:"updatetime"`
 }
 
 // 更新,根据用户id和数据id进行更新
 // 部分字段不允许更新，userID, id
-func (self *WbMatter) Update(query *UpdateByIDQuery) error {
+func (self *WbMatterElement) Update(query *UpdateByIDQuery) error {
 	if query == nil {
 		return errors.New("无更新条件")
 	}
@@ -203,7 +183,7 @@ type DeleteQuery struct {
 }
 
 // 删除，批量删除
-func (self *WbMatter) Delete(query *DeleteQuery) error {
+func (self *WbMatterElement) Delete(query *DeleteQuery) error {
 	if query == nil {
 		return errors.New("无操作条件")
 	}
@@ -231,7 +211,7 @@ type DisabledQuery struct {
 }
 
 // 启用禁用店铺
-func (self *WbMatter) ToggleDisabled(query *DisabledQuery) error {
+func (self *WbMatterElement) ToggleDisabled(query *DisabledQuery) error {
 	if query == nil {
 		return errors.New("无操作条件")
 	}
@@ -244,85 +224,5 @@ func (self *WbMatter) ToggleDisabled(query *DisabledQuery) error {
 		return err
 	}
 	_, err = stmt.Exec(query)
-	return err
-}
-
-type UpdateSortQuery struct {
-	Sort1 int    `db:"sort1"`
-	Sort2 int    `db:"sort2"`
-	Id1   string `db:"id1"`
-	Id2   string `db:"id2"`
-}
-
-// 根据两个枚举的排序
-func (self *WbMatter) UpdateSort(query *UpdateSortQuery) error {
-	if query == nil {
-		return errors.New("无操作条件")
-	}
-	if query.Sort1 == 0 || query.Sort2 == 0 || query.Id1 == "" || query.Id2 == "" {
-		return errors.New("参数错误")
-	}
-	db := pgsql.Open()
-	tx, err := db.Beginx()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-	stmt, err := tx.PrepareNamed(`update wb_news_dynamics set sort=:sort1 where id=:id2 and isdelete=false`)
-	if err != nil {
-		return err
-	}
-	log.Println(stmt.QueryString)
-	_, err = stmt.Exec(query)
-	stmt, err = tx.PrepareNamed("update wb_news_dynamics set sort=:sort2 where id=:id1 and isdelete=false")
-	if err != nil {
-		return err
-	}
-	log.Println(stmt.QueryString)
-	_, err = stmt.Exec(query)
-	if err != nil {
-		return err
-	}
-	err = tx.Commit()
-	return err
-}
-
-type UpdateStatusQuery struct {
-	Id           string `db:"id"`
-	Status       int    `db:"status"`
-	StatusReason string `db:"status_reason"`
-	publishTime  int64  `db:"publish_time"`
-}
-
-// 更新状态
-func (self *WbMatter) UpdateStatus(query *UpdateStatusQuery) error {
-	if query == nil {
-		return errors.New("无操作条件")
-	}
-	if query.Id == "" && query.Status == 0 {
-		return errors.New("参数错误")
-	}
-	db := pgsql.Open()
-	tx, err := db.Beginx()
-	if err != nil {
-		return err
-	}
-	defer tx.Rollback()
-	var sqlStr = "update wb_news_dynamics set status=:status, status_reason=:status_reason where id=:id and isdelete=false"
-	if query.Status == 1 {
-		// 记录发布时间
-		query.publishTime = util.GetCurrentMS()
-		sqlStr = "update wb_news_dynamics set status=:status, status_reason=:status_reason, publish_time=:publish_time where id=:id and isdelete=false"
-	}
-	stmt, err := tx.PrepareNamed(sqlStr)
-	if err != nil {
-		return err
-	}
-	log.Println(stmt.QueryString)
-	_, err = stmt.Exec(query)
-	if err != nil {
-		return err
-	}
-	err = tx.Commit()
 	return err
 }

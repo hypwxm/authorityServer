@@ -3,22 +3,20 @@ package controller
 import (
 	"encoding/json"
 	"github.com/hypwxm/rider"
-	"worldbar/service/newsDynamics/model"
-	"worldbar/service/newsDynamics/service"
+	"worldbar/service/matter/matterElement/model"
+	"worldbar/service/matter/matterElement/service"
 	"worldbar/util/response"
 )
 
 func create(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		entity := new(model.WbNewsDynamics)
+		entity := new(model.WbMatterElement)
 		err := json.Unmarshal(c.Body(), &entity)
 		if err != nil {
 			sender.Fail(err.Error())
 			return
 		}
-		entity.Type = 1
-		entity.Publisher = "admin"
 		id, err := service.Create(entity)
 		if err != nil {
 			sender.Fail(err.Error())
@@ -101,44 +99,6 @@ func get(c rider.Context) {
 			return
 		}
 		sender.Success(entity)
-	})()
-	c.SendJson(200, sender)
-}
-
-func updateSort(c rider.Context) {
-	sender := response.NewSender()
-	(func() {
-		query := new(model.UpdateSortQuery)
-		err := json.Unmarshal(c.Body(), &query)
-		if err != nil {
-			sender.Fail(err.Error())
-			return
-		}
-		err = service.UpdateSort(query)
-		if err != nil {
-			sender.Fail(err.Error())
-			return
-		}
-		sender.Success("")
-	})()
-	c.SendJson(200, sender)
-}
-
-func updateStatus(c rider.Context) {
-	sender := response.NewSender()
-	(func() {
-		query := new(model.UpdateStatusQuery)
-		err := json.Unmarshal(c.Body(), &query)
-		if err != nil {
-			sender.Fail(err.Error())
-			return
-		}
-		err = service.UpdateStatus(query)
-		if err != nil {
-			sender.Fail(err.Error())
-			return
-		}
-		sender.Success("")
 	})()
 	c.SendJson(200, sender)
 }

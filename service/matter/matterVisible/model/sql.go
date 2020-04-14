@@ -32,7 +32,7 @@ func listSql(query *Query) (whereSql string, fullSql string) {
 				%[2]s.nickname,
 				case when %[3]s.id <> null then true else false end as like
 				FROM %[1]s left join %[2]s on %[1]s.publisher=%[2]s.id left join %[3]s on %[3]s.source_id=%[1]s.id and %[3]s.source_type=1 WHERE 1=1 `, table_name, "wb_user", "wb_news_dynamics_comment")
-	whereSql = pgsql.BaseWhere(BaseQuery)
+	whereSql = pgsql.BaseWhere(query.BaseQuery)
 	if strings.TrimSpace(query.Keywords) != "" {
 		whereSql = whereSql + fmt.Sprintf(" and (%[1]s.title like '%%:keywords%%' or %[1]s.intro like '%%:keywords%%' or %[1]s.content like '%%:keywords%%')", table_name)
 	}
@@ -43,7 +43,7 @@ func listSql(query *Query) (whereSql string, fullSql string) {
 	if query.OrderBy == "" {
 		query.OrderBy = "sort asc"
 	}
-	optionSql := pgsql.BaseOption(BaseQuery)
+	optionSql := pgsql.BaseOption(query.BaseQuery)
 	return whereSql, selectSql + whereSql + optionSql
 }
 

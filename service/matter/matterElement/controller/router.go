@@ -12,10 +12,5 @@ func Router() *rider.Router {
 	route.POST("/delete", del)
 	route.POST("/get", get)
 
-	route.POST("/updateSort", updateSort)
-
-	route.POST("/updateStatus", updateStatus)
-
-
 	return route
 }

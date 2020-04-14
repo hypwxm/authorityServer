@@ -30,7 +30,7 @@ func (self *WbMatterVisible) Insert(list []WbMatterVisible) error {
 	}
 	defer tx.Rollback()
 
-	for k, v := range list {
+	for _, v := range list {
 		if strings.TrimSpace(v.MatterId) == "" {
 			return errors.New(fmt.Sprintf("操作错误"))
 		}
