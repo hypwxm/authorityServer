@@ -52,7 +52,7 @@ func (self *WbMatterElementOption) MulInsert(options []WbMatterElementOption) (s
 	defer tx.Rollback()
 
 	for _, v := range options {
-		_, err = insert(tx, v)
+		_, err = insert(tx, &v)
 		if err != nil {
 			return "", err
 		}
