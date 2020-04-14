@@ -51,6 +51,11 @@ func (self *WbMatterElementOption) MulInsert(options []WbMatterElementOption) (s
 	}
 	defer tx.Rollback()
 
+	// 根据业务情形，批量添加保存的情况，需要删除原来的
+	if len(options) > 0 {
+		self.Delete(&DeleteQuery{ElementId: options[0].ElementId})
+	}
+
 	for _, v := range options {
 		_, err = insert(tx, &v)
 		if err != nil {
@@ -122,15 +127,14 @@ func (self *WbMatterElementOption) GetByID(query *GetQuery) (*GetModel, error) {
 
 type Query struct {
 	pgsql.BaseQuery
-	Keywords string `db:"keywords"`
-	Status   int    `db:"status"`
+	Keywords  string `db:"keywords"`
+	Status    int    `db:"status"`
+	MatterId  string `db:"matter_id"`
+	ElementId string `db:"element_id"`
 }
 
 type ListModel struct {
 	WbMatterElementOption
-	Avatar   string `json:"avatar" db:"avatar"`
-	Nickname string `json:"nickname" db:"nickname"`
-	Like     bool   `json:"like" db:"like"`
 }
 
 func (self *WbMatterElementOption) List(query *Query) ([]*ListModel, int64, error) {
@@ -220,7 +224,8 @@ func (self *WbMatterElementOption) Update(query *UpdateByIDQuery) error {
 }
 
 type DeleteQuery struct {
-	IDs pq.StringArray `db:"ids"`
+	IDs       pq.StringArray `db:"ids"`
+	ElementId string         `db:"element_id"`
 }
 
 // 删除，批量删除
@@ -238,7 +243,7 @@ func (self *WbMatterElementOption) Delete(query *DeleteQuery) error {
 	}
 
 	db := pgsql.Open()
-	stmt, err := db.PrepareNamed(delSql())
+	stmt, err := db.PrepareNamed(delSql(query))
 	if err != nil {
 		return err
 	}

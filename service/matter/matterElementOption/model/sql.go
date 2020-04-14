@@ -7,49 +7,31 @@ import (
 	"worldbar/service/like/model"
 )
 
-const table_name = "wb_matter_element"
+const table_name = "wb_matter_element_option"
 
 func insertSql() string {
-	return fmt.Sprintf("insert into %s (createtime, isdelete, disabled, id, title, intro, surface, content, publisher, type) select :createtime, :isdelete, :disabled, :id, :title, :intro, :surface, :content, :publisher, :type returning id", table_name)
+	return fmt.Sprintf("insert into %s (createtime, isdelete, disabled, id, title, matter_id, element_id) select :createtime, :isdelete, :disabled, :id, :title, :matter_id, :element_id returning id", table_name)
 }
-
 
 func listSql(query *Query) (whereSql string, fullSql string) {
 	var selectSql = fmt.Sprintf(`SELECT 
 				%[1]s.createtime,
-				%[1]s.updatetime,
-				%[1]s.publish_time,
 				%[1]s.title,
-				%[1]s.intro,
-				%[1]s.content,
-				%[1]s.surface,
-				%[1]s.type,
-				%[1]s.sort,
-				%[1]s.status,
-				%[1]s.StatusReason,
-				%[1]s.publisher,
-				%[2]s.avatar,
-				%[2]s.nickname,
-				case when %[4]s.id <> null then true else false end as like
-				FROM %[1]s inner join %[2]s on %[1]s.publisher=%[2]s.id inner join %[3]s on %[3]s.matter_id=%[1]s.id and %[3]s.user_id <> null left join %[4]s on %[1]s.id=%[4]s.source_id and %[4]s.source_type=%[5]d WHERE 1=1 `, table_name, "wb_user", "wb_matter_visible", "wb_like", model.SourceTypeMatter)
+				%[1]s.matter_id,
+				%[1]s.element_id
+				FROM %[1]s WHERE 1=1 `, table_name)
 	whereSql = pgsql.BaseWhere(query.BaseQuery)
 	if strings.TrimSpace(query.Keywords) != "" {
 		whereSql = whereSql + fmt.Sprintf(" and (%[1]s.title like '%%:keywords%%' or %[1]s.intro like '%%:keywords%%' or %[1]s.content like '%%:keywords%%')", table_name)
 	}
 
-	if query.Status > 0 {
-		whereSql = whereSql + " and status=:status "
+	if query.MatterId != "" {
+		whereSql = whereSql + fmt.Sprintf(" and %s.matter_id=:matter_id", table_name)
 	}
-	if query.OrderBy == "" {
-		query.OrderBy = ` sort asc,
-							(
-							case
-							when sticky=true then 1
-							else 2
-							end
-							)
-						`
+	if query.ElementId != "" {
+		whereSql = whereSql + fmt.Sprintf(" and %s.element_id=:element_id", table_name)
 	}
+
 	optionSql := pgsql.BaseOption(query.BaseQuery)
 	return whereSql, selectSql + whereSql + optionSql
 }
@@ -73,15 +55,17 @@ func getByIdSql() string {
 func updateSql() string {
 	var updateSql = ""
 	updateSql = updateSql + " ,title=:title"
-	updateSql = updateSql + " ,intro=:intro"
-	updateSql = updateSql + " ,content=:content"
-	updateSql = updateSql + " ,surface=:surface"
-
 	return fmt.Sprintf("update %s set updatetime=:updatetime %s where id=:id and isdelete=false", table_name, updateSql)
 }
 
-func delSql() string {
-	return fmt.Sprintf("update %s set isdelete=true where id=any(:ids)", table_name)
+func delSql(query *DeleteQuery) string {
+	if query.ElementId != "" && len(query.IDs) == 0 {
+		return fmt.Sprintf("update %s set isdelete=true where element_id=:element_id", table_name)
+	} else if query.ElementId != "" && len(query.IDs) > 0 {
+		return fmt.Sprintf("update %s set isdelete=true where element_id=:element_id and id=any(:ids)", table_name)
+	} else {
+		return fmt.Sprintf("update %s set isdelete=true where id=any(:ids)", table_name)
+	}
 }
 
 func toggleSql() string {
