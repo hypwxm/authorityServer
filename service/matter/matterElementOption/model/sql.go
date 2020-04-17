@@ -15,6 +15,7 @@ func insertSql() string {
 
 func listSql(query *Query) (whereSql string, fullSql string) {
 	var selectSql = fmt.Sprintf(`SELECT 
+				%[1]s.id,
 				%[1]s.createtime,
 				%[1]s.title,
 				%[1]s.matter_id,
