@@ -19,7 +19,7 @@ CREATE TABLE if not exists wb_matter_element_feedback
 );
 Create Index wb_matter_element_feedback_createtime_index On wb_matter_element_feedback (createtime);
 comment on column wb_matter_element_feedback.title is '标题';
-comment on column wb_matter_element_feedback.element_option_ids is '反馈，选则的id列表，单选或者多选，文本的情况不存在这个';
+comment on column wb_matter_element_feedback.element_option_ids is '反馈，选则的id列表，单选或者多选，文本的情况这里存提交的文本内容';
 
 
 
