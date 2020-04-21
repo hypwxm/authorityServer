@@ -32,6 +32,7 @@ func listSql(query *Query) (whereSql string, fullSql string) {
 		whereSql = whereSql + fmt.Sprintf(" and (%[1]s.title like '%%:keywords%%' or %[1]s.intro like '%%:keywords%%')", table_name)
 	}
 
+	query.OrderBy = "createtime asc"
 	optionSql := pgsql.BaseOption(query.BaseQuery)
 	return whereSql, selectSql + whereSql + optionSql
 }

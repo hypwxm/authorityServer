@@ -53,7 +53,10 @@ func (self *WbMatterElementOption) MulInsert(options []WbMatterElementOption) (s
 
 	// 根据业务情形，批量添加保存的情况，需要删除原来的
 	if len(options) > 0 {
-		self.Delete(&DeleteQuery{ElementId: options[0].ElementId})
+		err = self.Delete(&DeleteQuery{ElementId: options[0].ElementId})
+		if err != nil {
+			return "", err
+		}
 	}
 
 	for _, v := range options {
@@ -233,15 +236,6 @@ func (self *WbMatterElementOption) Delete(query *DeleteQuery) error {
 	if query == nil {
 		return errors.New("无操作条件")
 	}
-	if len(query.IDs) == 0 {
-		return errors.New("操作条件错误")
-	}
-	for _, v := range query.IDs {
-		if strings.TrimSpace(v) == "" {
-			return errors.New("操作条件错误")
-		}
-	}
-
 	db := pgsql.Open()
 	stmt, err := db.PrepareNamed(delSql(query))
 	if err != nil {

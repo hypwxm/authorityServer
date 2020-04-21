@@ -33,6 +33,8 @@ func listSql(query *Query) (whereSql string, fullSql string) {
 		whereSql = whereSql + fmt.Sprintf(" and %s.element_id=:element_id", table_name)
 	}
 
+	query.OrderBy = "createtime asc"
+
 	optionSql := pgsql.BaseOption(query.BaseQuery)
 	return whereSql, selectSql + whereSql + optionSql
 }
