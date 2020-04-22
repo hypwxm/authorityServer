@@ -31,11 +31,16 @@ func listSql(query *Query) (whereSql string, fullSql string) {
 				%[1]s.publisher,
 				%[2]s.avatar,
 				%[2]s.username as nickname,
+				%[3]s.user_id as visible_user_id,
 				case when %[4]s.id <> null then true else false end as like
-				FROM %[1]s inner join %[2]s on %[1]s.publisher=%[2]s.id left join %[3]s on %[3]s.matter_id=%[1]s.id and %[3]s.user_id <> null left join %[4]s on %[1]s.id=%[4]s.source_id and %[4]s.source_type=%[5]d WHERE 1=1 `, table_name, "wb_admin_user", "wb_matter_visible", "wb_like", model.SourceTypeMatter)
+				FROM %[1]s inner join %[2]s on %[1]s.publisher=%[2]s.id left join %[3]s on %[3]s.matter_id=%[1]s.id left join %[4]s on %[1]s.id=%[4]s.source_id and %[4]s.source_type=%[5]d WHERE 1=1 `, table_name, "wb_admin_user", "wb_matter_visible", "wb_like", model.SourceTypeMatter)
 	whereSql = pgsql.BaseWhere(query.BaseQuery, table_name)
 	if strings.TrimSpace(query.Keywords) != "" {
 		whereSql = whereSql + fmt.Sprintf(" and (%[1]s.title like '%%:keywords%%' or %[1]s.intro like '%%:keywords%%' or %[1]s.content like '%%:keywords%%')", table_name)
+	}
+
+	if query.UserId != "" {
+		whereSql = whereSql + fmt.Sprintf(" and visible_user_id=:user_id")
 	}
 
 	if query.Status > 0 {

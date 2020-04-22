@@ -3,8 +3,8 @@ package appController
 import (
 	"encoding/json"
 	"github.com/hypwxm/rider"
-	"worldbar/service/newsDynamics/model"
-	"worldbar/service/newsDynamics/service"
+	"worldbar/service/matter/matter/model"
+	"worldbar/service/matter/matter/service"
 	"worldbar/util/response"
 )
 

@@ -99,10 +99,15 @@ func (self *WbMatter) GetByID(query *GetQuery) (*GetModel, error) {
 	return entity, nil
 }
 
+
+/**
+目前业务逻辑中userId用于app端客户请求时，返回他能看到的信息
+ */
 type Query struct {
 	pgsql.BaseQuery
 	Keywords string `db:"keywords"`
 	Status   int    `db:"status"`
+	UserId   string `db:"user_id"`
 }
 
 type ListModel struct {
