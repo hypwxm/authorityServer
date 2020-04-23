@@ -16,7 +16,7 @@ func List(query *model.Query) ([]*model.ListModel, int64, error) {
 	return new(model.WbMatterVisible).List(query)
 }
 
-func Del(query *model.DeleteQuery) error {
+func Del(query []model.WbMatterVisible) error {
 	return new(model.WbMatterVisible).Delete(query)
 }
 

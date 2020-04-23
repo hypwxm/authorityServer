@@ -179,26 +179,32 @@ type DeleteQuery struct {
 }
 
 // 删除，批量删除
-func (self *WbMatterVisible) Delete(query *DeleteQuery) error {
-	if query == nil {
+func (self *WbMatterVisible) Delete(query []WbMatterVisible) error {
+	if len(query) == 0 {
 		return errors.New("无操作条件")
 	}
-	if len(query.IDs) == 0 {
-		return errors.New("操作条件错误")
-	}
-	for _, v := range query.IDs {
-		if strings.TrimSpace(v) == "" {
-			return errors.New("操作条件错误")
-		}
-	}
-
 	db := pgsql.Open()
-	stmt, err := db.PrepareNamed(delSql())
+	tx, err := db.Begin()
 	if err != nil {
 		return err
 	}
-	_, err = stmt.Exec(query)
-	return err
+	defer tx.Rollback()
+	for _, v := range query {
+		stmt, err := db.PrepareNamed(delSql())
+		if err != nil {
+			return err
+		}
+		_, err = stmt.Exec(v)
+		if err != nil {
+			return err
+		}
+	}
+	err = tx.Commit()
+
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 type DisabledQuery struct {

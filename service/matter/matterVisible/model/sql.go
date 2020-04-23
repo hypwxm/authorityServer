@@ -47,7 +47,7 @@ func updateSql() string {
 }
 
 func delSql() string {
-	return fmt.Sprintf("update %s set isdelete=true where id=any(:ids)", table_name)
+	return fmt.Sprintf("delete from %s where user_id=:user_id and matter_id=:matter_id", table_name)
 }
 
 func toggleSql() string {

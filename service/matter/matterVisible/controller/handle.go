@@ -68,7 +68,7 @@ func list(c rider.Context) {
 func del(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		query := new(model.DeleteQuery)
+		query := make([]model.WbMatterVisible, 0)
 		err := json.Unmarshal(c.Body(), &query)
 		if err != nil {
 			sender.Fail(err.Error())
