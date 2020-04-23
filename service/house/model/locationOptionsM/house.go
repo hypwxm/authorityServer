@@ -24,6 +24,7 @@ type WbHouseOption struct {
 	Name         string `json:"name" db:"name"` // 枚举名称，比如 区，房，室等
 	Note         string `json:"note" db:"note"` // 房号
 	HouseEnumsId string `json:"houseEnumsId" db:"house_enums_id"`
+	Sort         int    `json:"sort" db:"sort"`
 }
 
 func (self *WbHouseOption) Insert() (string, error) {

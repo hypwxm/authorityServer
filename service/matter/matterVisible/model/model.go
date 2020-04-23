@@ -18,11 +18,9 @@ type WbMatterVisible struct {
 
 func (self *WbMatterVisible) Insert(list []WbMatterVisible) error {
 	var err error
-
 	if len(list) == 0 {
 		return nil
 	}
-
 	db := pgsql.Open()
 	tx, err := db.Beginx()
 	if err != nil {
@@ -43,7 +41,7 @@ func (self *WbMatterVisible) Insert(list []WbMatterVisible) error {
 			return err
 		}
 		log.Println(stmt.QueryString)
-		_, err = stmt.Exec(self)
+		_, err = stmt.Exec(v)
 		if err != nil {
 			return err
 		}
@@ -83,16 +81,11 @@ func (self *WbMatterVisible) GetByID(query *GetQuery) (*GetModel, error) {
 }
 
 type Query struct {
-	pgsql.BaseQuery
-	Keywords string `db:"keywords"`
-	Status   int    `db:"status"`
+	MatterId string `db:"matter_id"`
 }
 
 type ListModel struct {
 	WbMatterVisible
-	Avatar   string `json:"avatar" db:"avatar"`
-	Nickname string `json:"nickname" db:"nickname"`
-	Like     bool   `json:"like" db:"like"`
 }
 
 func (self *WbMatterVisible) List(query *Query) ([]*ListModel, int64, error) {
@@ -100,9 +93,9 @@ func (self *WbMatterVisible) List(query *Query) ([]*ListModel, int64, error) {
 		query = new(Query)
 	}
 	db := pgsql.Open()
-	whereSql, fullSql := listSql(query)
+	fullSql := listSql()
 	// 以上部分为查询条件，接下来是分页和排序
-	count, err := self.GetCount(db, query, whereSql)
+	count, err := self.GetCount(db, query)
 	if err != nil {
 		return nil, 0, err
 	}
@@ -132,11 +125,11 @@ func (self *WbMatterVisible) List(query *Query) ([]*ListModel, int64, error) {
 
 }
 
-func (self *WbMatterVisible) GetCount(db *sqlx.DB, query *Query, whereSql ...string) (int64, error) {
+func (self *WbMatterVisible) GetCount(db *sqlx.DB, query *Query) (int64, error) {
 	if query == nil {
 		query = new(Query)
 	}
-	sqlStr := countSql(whereSql...)
+	sqlStr := countSql()
 	stmt, err := db.PrepareNamed(sqlStr)
 	if err != nil {
 		return 0, err

@@ -16,17 +16,17 @@ import (
 )
 
 type WbUser struct {
-	ID         string        `json:"id" db:"id"`
-	Createtime int64         `json:"createtime" db:"createtime"`
-	Updatetime sql.NullInt64 `json:"updatetime" db:"updatetime"`
-	Deletetime sql.NullInt64 `json:"deletetime" db:"deletetime"`
-	Isdelete   bool          `json:"isdelete" db:"isdelete"`
-	Disabled   bool          `json:"disabled" db:"disabled"`
+	ID         string `json:"id" db:"id"`
+	Createtime int64  `json:"createtime" db:"createtime"`
+	Updatetime int64  `json:"updatetime" db:"updatetime"`
+	Deletetime int64  `json:"deletetime" db:"deletetime"`
+	Isdelete   bool   `json:"isdelete" db:"isdelete"`
+	Disabled   bool   `json:"disabled" db:"disabled"`
 
-	Nickname  string         `json:"nickname" db:"nickname"`
-	RealName  string         `json:"realName" db:"realname"`
-	FirstName sql.NullString `json:"firstName" db:"firstname"`
-	LastName  sql.NullString `json:"lastName" db:"lastname"`
+	Nickname  string `json:"nickname" db:"nickname"`
+	RealName  string `json:"realName" db:"realname"`
+	FirstName string `json:"firstName" db:"firstname"`
+	LastName  string `json:"lastName" db:"lastname"`
 
 	Avatar string `json:"avatar" db:"avatar"`
 
@@ -195,7 +195,6 @@ func (self *WbUser) Update(query *UpdateByIDQuery) error {
 	updateSql = updateSql + " ,firstname=:firstname"
 	updateSql = updateSql + " ,lastname=:lastname"
 	updateSql = updateSql + " ,avatar=:avatar"
-
 
 	db := pgsql.Open()
 

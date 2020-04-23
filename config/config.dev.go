@@ -7,7 +7,7 @@ var dev = config{
 	Hostname:              "http://localhost:8000",
 	GlobalLock:            "memory",
 	RabbitMqUrl:           "amqp://root:123456@localhost:5672/",
-	Pgsql:                 "host=127.0.0.1 port=5432 user=postgres password=123456 dbname=worldbar sslmode=disable",
+	Pgsql:                 "host=47.96.29.83 port=5432 user=postgres password=123456 dbname=worldbar sslmode=disable",
 }
 
 var test = config{

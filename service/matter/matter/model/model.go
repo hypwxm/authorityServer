@@ -99,10 +99,9 @@ func (self *WbMatter) GetByID(query *GetQuery) (*GetModel, error) {
 	return entity, nil
 }
 
-
 /**
 目前业务逻辑中userId用于app端客户请求时，返回他能看到的信息
- */
+*/
 type Query struct {
 	pgsql.BaseQuery
 	Keywords string `db:"keywords"`
@@ -115,6 +114,7 @@ type ListModel struct {
 	Avatar   string `json:"avatar" db:"avatar"`
 	Nickname string `json:"nickname" db:"nickname"`
 	Like     bool   `json:"like" db:"like"`
+	Visible  bool   `json:"-" db:"visible"`
 }
 
 func (self *WbMatter) List(query *Query) ([]*ListModel, int64, error) {

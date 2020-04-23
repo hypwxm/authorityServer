@@ -10,6 +10,7 @@ import (
 	controller6 "worldbar/service/matter/matter/controller"
 	controller9 "worldbar/service/matter/matterElement/controller"
 	controller10 "worldbar/service/matter/matterElementOption/controller"
+	controller11 "worldbar/service/matter/matterVisible/controller"
 	controller5 "worldbar/service/newsDynamics/controller"
 	"worldbar/service/user/controller"
 	controller3 "worldbar/service/vote/controller"
@@ -26,6 +27,7 @@ func Router() *rider.Router {
 	route.Kid("/matter", middleware.Auth(), controller6.Router())
 	route.Kid("/matterElement", middleware.Auth(), controller9.Router())
 	route.Kid("/matterElementOption", middleware.Auth(), controller10.Router())
+	route.Kid("/matterVisible", middleware.Auth(), controller11.Router())
 
 	route.Kid("/adminuser", middleware.Auth(), controller7.Router())
 	route.Kid("/adminrole", middleware.Auth(), controller8.Router())
