@@ -19,7 +19,7 @@ func listSql(query *Query) (whereSql string, fullSql string) {
 				%[1]s.name,
 				%[1]s.path,
 				%[1]s.disabled
-				FROM %[1]s `, table_name)
+				FROM %[1]s where 1=1 `, table_name)
 	whereSql = pgsql.BaseWhere(query.BaseQuery, table_name)
 
 	if query.OrderBy == "" {

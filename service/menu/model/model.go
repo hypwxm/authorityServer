@@ -86,9 +86,6 @@ type Query struct {
 
 type ListModel struct {
 	WbSettingsMenu
-	Avatar   string `json:"avatar" db:"avatar"`
-	Nickname string `json:"nickname" db:"nickname"`
-	Like     bool   `json:"like" db:"like"`
 }
 
 func (self *WbSettingsMenu) List(query *Query) ([]*ListModel, int64, error) {
