@@ -9,7 +9,7 @@ import (
 const table_name = "wb_settings_menu"
 
 func insertSql() string {
-	return fmt.Sprintf("insert into %[1]s (createtime, isdelete, disabled, id, name, path) select :createtime, :isdelete, :disabled, :id, :name, :path where not exists(select 1 from %[1]s where path=:path and isdelete='false') returning id", table_name)
+	return fmt.Sprintf("insert into %[1]s (createtime, isdelete, disabled, id, name, path, parent_id) select :createtime, :isdelete, :disabled, :id, :name, :path, :parent_id where not exists(select 1 from %[1]s where path=:path and isdelete='false') returning id", table_name)
 
 }
 
@@ -18,6 +18,7 @@ func listSql(query *Query) (whereSql string, fullSql string) {
 				%[1]s.id,
 				%[1]s.name,
 				%[1]s.path,
+				%[1]s.parent_id,
 				%[1]s.disabled
 				FROM %[1]s where 1=1 `, table_name)
 	whereSql = pgsql.BaseWhere(query.BaseQuery, table_name)

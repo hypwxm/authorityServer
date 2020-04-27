@@ -16,8 +16,9 @@ import (
 type WbSettingsMenu struct {
 	database.BaseColumns
 
-	Name   string `json:"name" db:"name"`
-	Path   string `json:"path" db:"path"`
+	Name     string `json:"name" db:"name"`
+	Path     string `json:"path" db:"path"`
+	ParentId string `json:"parentId" db:"parent_id"`
 }
 
 func (self *WbSettingsMenu) Insert() (string, error) {

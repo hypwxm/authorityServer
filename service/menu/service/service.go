@@ -23,3 +23,7 @@ func Del(query *model.DeleteQuery) error {
 func Get(query *model.GetQuery) (*model.GetModel, error) {
 	return new(model.WbSettingsMenu).GetByID(query)
 }
+
+func ToggleDisabled(query *model.DisabledQuery) error {
+	return new(model.WbSettingsMenu).ToggleDisabled(query)
+}
