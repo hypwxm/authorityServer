@@ -6,10 +6,10 @@ import (
 	"worldbar/DB/pgsql"
 )
 
-const table_name = "wb_settings_menu"
+const table_name = "wb_settings_source"
 
 func insertSql() string {
-	return fmt.Sprintf("insert into %[1]s (createtime, isdelete, disabled, id, name, path, parent_id) select :createtime, :isdelete, :disabled, :id, :name, :path, :parent_id where not exists(select 1 from %[1]s where path=:path and isdelete='false') returning id", table_name)
+	return fmt.Sprintf("insert into %[1]s (createtime, isdelete, disabled, id, name, api_path, source_name, parent_id) select :createtime, :isdelete, :disabled, :id, :name, :api_path, :source_name, :parent_id where not exists(select 1 from %[1]s where api_path=:api_path and isdelete='false') returning id", table_name)
 
 }
 
@@ -17,7 +17,8 @@ func listSql(query *Query) (whereSql string, fullSql string) {
 	var selectSql = fmt.Sprintf(`SELECT 
 				%[1]s.id,
 				%[1]s.name,
-				%[1]s.path,
+				%[1]s.api_path,
+				%[1]s.source_name,
 				%[1]s.parent_id,
 				%[1]s.disabled
 				FROM %[1]s where 1=1 `, table_name)
@@ -46,7 +47,8 @@ func getByIdSql() string {
 func updateSql() string {
 	var updateSql = ""
 	updateSql = updateSql + " ,name=:name"
-	updateSql = updateSql + " ,path=:path"
+	updateSql = updateSql + " ,api_path=:api_path"
+	updateSql = updateSql + " ,source_name=:source_name"
 	return fmt.Sprintf("update %s set updatetime=:updatetime %s where id=:id and isdelete=false", table_name, updateSql)
 }
 

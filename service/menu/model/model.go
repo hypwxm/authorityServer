@@ -142,11 +142,9 @@ func (self *WbSettingsMenu) GetCount(db *sqlx.DB, query *Query, whereSql ...stri
 }
 
 type UpdateByIDQuery struct {
-	ID      string `db:"id"`
-	Title   string `db:"title"`
-	Intro   string `db:"intro"`
-	Content string `db:"content"`
-	Surface string `db:"surface"`
+	ID   string `db:"id"`
+	Name string `db:"name"`
+	Path string `db:"path"`
 
 	Updatetime int64 `db:"updatetime"`
 }

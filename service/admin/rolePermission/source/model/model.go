@@ -12,13 +12,13 @@ import (
 type WbAdminRoleMenuPermission struct {
 	database.BaseColumns
 
-	RoleId string `json:"roleId" db:"role_id"`
-	MenuId string `json:"menuId" db:"menu_id"`
+	RoleId   string `json:"roleId" db:"role_id"`
+	SourceId string `json:"sourceId" db:"source_id"`
 }
 
 type SaveQuery struct {
 	RoleId  string `db:"role_id"`
-	MenuIds []string
+	SourceIds []string
 }
 
 func (self *WbAdminRoleMenuPermission) Save(query *SaveQuery) (string, error) {
@@ -36,13 +36,13 @@ func (self *WbAdminRoleMenuPermission) Save(query *SaveQuery) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	for _, v := range query.MenuIds {
+	for _, v := range query.SourceIds {
 		stmt, err := tx.PrepareNamed(saveSql())
 		if err != nil {
 			return "", err
 		}
 		var _query = &WbAdminRoleMenuPermission{
-			MenuId: v,
+			SourceId: v,
 			RoleId: query.RoleId,
 		}
 		_query.BaseColumns.Init()

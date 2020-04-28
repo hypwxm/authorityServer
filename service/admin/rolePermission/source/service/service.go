@@ -1,7 +1,7 @@
 package service
 
 import (
-	"worldbar/service/admin/rolePermission/menu/model"
+	"worldbar/service/admin/rolePermission/source/model"
 )
 
 func Create(query *model.SaveQuery) (string, error) {

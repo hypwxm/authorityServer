@@ -5,12 +5,12 @@ import (
 	"worldbar/DB/pgsql"
 )
 
-const table_name = "wb_admin_role_menu_permission"
+const table_name = "wb_admin_role_source_permission"
 
 func saveSql() string {
 	return fmt.Sprintf(`insert into %s
-		(createtime, isdelete, disabled, id, role_id, menu_id) 
-		select :createtime, :isdelete, :disabled, :id, :role_id, :menu_id`,
+		(createtime, isdelete, disabled, id, role_id, source_id) 
+		select :createtime, :isdelete, :disabled, :id, :role_id, :source_id`,
 		table_name)
 
 }
@@ -21,7 +21,7 @@ func listSql(query *Query) (fullSql string) {
 				%[1]s.createtime,
 				%[1]s.updatetime,
 				%[1]s.role_id,
-				%[1]s.menu_id
+				%[1]s.source_id
 				FROM %[1]s WHERE 1=1 `, table_name)
 	whereSql := pgsql.BaseWhere(query.BaseQuery)
 	whereSql = whereSql + fmt.Sprintf(" and role_id=:role_id")

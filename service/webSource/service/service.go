@@ -1,29 +1,29 @@
 package service
 
 import (
-	"worldbar/service/menu/model"
+	"worldbar/service/webSource/model"
 )
 
-func Create(entity *model.WbSettingsMenu) (string, error) {
+func Create(entity *model.WbSettingsSource) (string, error) {
 	return entity.Insert()
 }
 
 func Modify(updateQuery *model.UpdateByIDQuery) error {
-	return new(model.WbSettingsMenu).Update(updateQuery)
+	return new(model.WbSettingsSource).Update(updateQuery)
 }
 
 func List(query *model.Query) ([]*model.ListModel, int64, error) {
-	return new(model.WbSettingsMenu).List(query)
+	return new(model.WbSettingsSource).List(query)
 }
 
 func Del(query *model.DeleteQuery) error {
-	return new(model.WbSettingsMenu).Delete(query)
+	return new(model.WbSettingsSource).Delete(query)
 }
 
 func Get(query *model.GetQuery) (*model.GetModel, error) {
-	return new(model.WbSettingsMenu).GetByID(query)
+	return new(model.WbSettingsSource).GetByID(query)
 }
 
 func ToggleDisabled(query *model.DisabledQuery) error {
-	return new(model.WbSettingsMenu).ToggleDisabled(query)
+	return new(model.WbSettingsSource).ToggleDisabled(query)
 }

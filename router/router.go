@@ -4,6 +4,8 @@ import (
 	"github.com/hypwxm/rider"
 	"worldbar/middleware"
 	controller8 "worldbar/service/admin/role/controller"
+	controller13 "worldbar/service/admin/rolePermission/menu/controller"
+	controller15 "worldbar/service/admin/rolePermission/source/controller"
 	controller7 "worldbar/service/admin/user/controller"
 	controller2 "worldbar/service/auth/controller"
 	controller4 "worldbar/service/house/controller"
@@ -15,6 +17,7 @@ import (
 	controller5 "worldbar/service/newsDynamics/controller"
 	"worldbar/service/user/controller"
 	controller3 "worldbar/service/vote/controller"
+	controller14 "worldbar/service/webSource/controller"
 )
 
 func Router() *rider.Router {
@@ -30,9 +33,12 @@ func Router() *rider.Router {
 	route.Kid("/matterElementOption", middleware.Auth(), controller10.Router())
 	route.Kid("/matterVisible", middleware.Auth(), controller11.Router())
 	route.Kid("/settings/menu", middleware.Auth(), controller12.Router())
+	route.Kid("/settings/webSource", middleware.Auth(), controller14.Router())
 
 	route.Kid("/adminuser", middleware.Auth(), controller7.Router())
 	route.Kid("/adminrole", middleware.Auth(), controller8.Router())
+	route.Kid("/adminrole/menuPermission", middleware.Auth(), controller13.Router())
+	route.Kid("/adminrole/sourcePermission", middleware.Auth(), controller15.Router())
 
 	return route
 }

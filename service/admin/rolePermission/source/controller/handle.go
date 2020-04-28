@@ -3,8 +3,8 @@ package controller
 import (
 	"encoding/json"
 	"github.com/hypwxm/rider"
-	"worldbar/service/admin/rolePermission/menu/model"
-	"worldbar/service/admin/rolePermission/menu/service"
+	"worldbar/service/admin/rolePermission/source/model"
+	"worldbar/service/admin/rolePermission/source/service"
 	"worldbar/util/response"
 )
 

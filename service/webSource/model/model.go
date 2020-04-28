@@ -13,21 +13,19 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type WbSettingsMenu struct {
+type WbSettingsSource struct {
 	database.BaseColumns
 
-	Name     string `json:"name" db:"name"`
-	Path     string `json:"path" db:"path"`
-	ParentId string `json:"parentId" db:"parent_id"`
+	Name       string `json:"name" db:"name"`
+	ApiPath    string `json:"apiPath" db:"api_path"`
+	SourceName string `json:"sourceName" db:"source_name"`
+	ParentId   string `json:"parentId" db:"parent_id"`
 }
 
-func (self *WbSettingsMenu) Insert() (string, error) {
+func (self *WbSettingsSource) Insert() (string, error) {
 	var err error
 
 	if strings.TrimSpace(self.Name) == "" {
-		return "", errors.New(fmt.Sprintf("操作错误"))
-	}
-	if strings.TrimSpace(self.Path) == "" {
 		return "", errors.New(fmt.Sprintf("操作错误"))
 	}
 	db := pgsql.Open()
@@ -61,10 +59,10 @@ type GetQuery struct {
 }
 
 type GetModel struct {
-	WbSettingsMenu
+	WbSettingsSource
 }
 
-func (self *WbSettingsMenu) GetByID(query *GetQuery) (*GetModel, error) {
+func (self *WbSettingsSource) GetByID(query *GetQuery) (*GetModel, error) {
 	db := pgsql.Open()
 	stmt, err := db.PrepareNamed(getByIdSql())
 	if err != nil {
@@ -86,10 +84,10 @@ type Query struct {
 }
 
 type ListModel struct {
-	WbSettingsMenu
+	WbSettingsSource
 }
 
-func (self *WbSettingsMenu) List(query *Query) ([]*ListModel, int64, error) {
+func (self *WbSettingsSource) List(query *Query) ([]*ListModel, int64, error) {
 	if query == nil {
 		query = new(Query)
 	}
@@ -126,7 +124,7 @@ func (self *WbSettingsMenu) List(query *Query) ([]*ListModel, int64, error) {
 
 }
 
-func (self *WbSettingsMenu) GetCount(db *sqlx.DB, query *Query, whereSql ...string) (int64, error) {
+func (self *WbSettingsSource) GetCount(db *sqlx.DB, query *Query, whereSql ...string) (int64, error) {
 	if query == nil {
 		query = new(Query)
 	}
@@ -151,7 +149,7 @@ type UpdateByIDQuery struct {
 
 // 更新,根据用户id和数据id进行更新
 // 部分字段不允许更新，userID, id
-func (self *WbSettingsMenu) Update(query *UpdateByIDQuery) error {
+func (self *WbSettingsSource) Update(query *UpdateByIDQuery) error {
 	if query == nil {
 		return errors.New("无更新条件")
 	}
@@ -178,7 +176,7 @@ type DeleteQuery struct {
 }
 
 // 删除，批量删除
-func (self *WbSettingsMenu) Delete(query *DeleteQuery) error {
+func (self *WbSettingsSource) Delete(query *DeleteQuery) error {
 	if query == nil {
 		return errors.New("无操作条件")
 	}
@@ -206,7 +204,7 @@ type DisabledQuery struct {
 }
 
 // 启用禁用店铺
-func (self *WbSettingsMenu) ToggleDisabled(query *DisabledQuery) error {
+func (self *WbSettingsSource) ToggleDisabled(query *DisabledQuery) error {
 	if query == nil {
 		return errors.New("无操作条件")
 	}

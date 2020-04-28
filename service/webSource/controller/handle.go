@@ -3,15 +3,15 @@ package controller
 import (
 	"encoding/json"
 	"github.com/hypwxm/rider"
-	"worldbar/service/menu/model"
-	"worldbar/service/menu/service"
+	"worldbar/service/webSource/model"
+	"worldbar/service/webSource/service"
 	"worldbar/util/response"
 )
 
 func create(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		entity := new(model.WbSettingsMenu)
+		entity := new(model.WbSettingsSource)
 		err := json.Unmarshal(c.Body(), &entity)
 		if err != nil {
 			sender.Fail(err.Error())
