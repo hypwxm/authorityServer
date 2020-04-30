@@ -12,7 +12,7 @@ func Modify(updateQuery *model.UpdateByIDQuery) error {
 	return new(model.WbSettingsMenu).Update(updateQuery)
 }
 
-func List(query *model.Query) ([]*model.ListModel, int64, error) {
+func List(query *model.Query) ([]*model.ListModel, error) {
 	return new(model.WbSettingsMenu).List(query)
 }
 

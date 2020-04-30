@@ -11,11 +11,11 @@ func Router() *rider.Router {
 	route.POST("/modify", modify)
 	route.POST("/delete", del)
 	route.POST("/get", get)
+	route.POST("/toggleDisabled", toggleDisabled)
 
 	route.POST("/updateSort", updateSort)
 
 	route.POST("/updateStatus", updateStatus)
-
 
 	return route
 }

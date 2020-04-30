@@ -35,7 +35,7 @@ func listSql(query *Query) (whereSql string, fullSql string) {
 				FROM %[1]s left join %[2]s on %[1]s.publisher=%[2]s.id left join %[3]s on %[3]s.source_id=%[1]s.id and %[3]s.source_type=1 WHERE 1=1 `, table_name, "wb_user", "wb_like")
 	whereSql = pgsql.BaseWhere(query.BaseQuery, table_name)
 	if strings.TrimSpace(query.Keywords) != "" {
-		whereSql = whereSql + fmt.Sprintf(" and (%[1]s.title like '%%:keywords%%' or %[1]s.intro like '%%:keywords%%' or %[1]s.content like '%%:keywords%%')", table_name)
+		whereSql = whereSql + fmt.Sprintf(" and (%[1]s.title like '%%%[2]s%%' or %[1]s.intro like '%%%[2]s%%' or %[1]s.content like '%%%[2]s%%')", table_name, query.Keywords)
 	}
 
 	if query.PublishTime > 0 {

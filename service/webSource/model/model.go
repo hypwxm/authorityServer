@@ -87,26 +87,22 @@ type ListModel struct {
 	WbSettingsSource
 }
 
-func (self *WbSettingsSource) List(query *Query) ([]*ListModel, int64, error) {
+func (self *WbSettingsSource) List(query *Query) ([]*ListModel, error) {
 	if query == nil {
 		query = new(Query)
 	}
 	db := pgsql.Open()
-	whereSql, fullSql := listSql(query)
+	fullSql := listSql(query)
 	// 以上部分为查询条件，接下来是分页和排序
-	count, err := self.GetCount(db, query, whereSql)
-	if err != nil {
-		return nil, 0, err
-	}
 	stmt, err := db.PrepareNamed(fullSql)
 	if err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 	log.Println(stmt.QueryString)
 
 	rows, err := stmt.Queryx(query)
 	if err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 	defer rows.Close()
 
@@ -115,12 +111,12 @@ func (self *WbSettingsSource) List(query *Query) ([]*ListModel, int64, error) {
 		var user = new(ListModel)
 		err = rows.StructScan(&user)
 		if err != nil {
-			return nil, 0, err
+			return nil, err
 		}
 		users = append(users, user)
 	}
 
-	return users, count, nil
+	return users, nil
 
 }
 

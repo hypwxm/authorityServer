@@ -80,6 +80,9 @@ type Query struct {
 
 type ListModel struct {
 	WbAdminRoleMenuPermission
+	ParentId string `json:"parentId" db:"parent_id"`
+	Name     string `json:"name" db:"name"`
+	Path     string `json:"path" db:"path"`
 }
 
 func (self *WbAdminRoleMenuPermission) List(query *Query) ([]*ListModel, error) {

@@ -24,6 +24,10 @@ func Get(query *model.GetQuery) (*model.GetModel, error) {
 	return new(model.WbNewsDynamics).GetByID(query)
 }
 
+func ToggleDisabled(query *model.DisabledQuery) error {
+	return new(model.WbNewsDynamics).ToggleDisabled(query)
+}
+
 func UpdateSort(query *model.UpdateSortQuery) error {
 	return new(model.WbNewsDynamics).UpdateSort(query)
 }

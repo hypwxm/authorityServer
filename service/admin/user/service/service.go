@@ -24,15 +24,6 @@ func Get(query *model.GetQuery) (*model.GetModel, error) {
 	return new(model.WbAdminUser).GetByID(query)
 }
 
-func UpdateSort(query *model.UpdateSortQuery) error {
-	return new(model.WbAdminUser).UpdateSort(query)
-}
-
-func UpdateStatus(query *model.UpdateStatusQuery) error {
-	return new(model.WbAdminUser).UpdateStatus(query)
-}
-
-
 func GetUser(query *model.WbAdminUser) (*model.WbAdminUser, error) {
 	return new(model.WbAdminUser).Get(query)
 }

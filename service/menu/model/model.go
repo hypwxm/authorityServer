@@ -9,8 +9,6 @@ import (
 	"worldbar/DB/pgsql"
 	"worldbar/util"
 	"worldbar/util/database"
-
-	"github.com/jmoiron/sqlx"
 )
 
 type WbSettingsMenu struct {
@@ -80,35 +78,29 @@ func (self *WbSettingsMenu) GetByID(query *GetQuery) (*GetModel, error) {
 
 type Query struct {
 	pgsql.BaseQuery
-	Keywords    string `db:"keywords"`
-	Status      int    `db:"status"`
-	PublishTime int64  `db:"publish_time"`
+	RoleId string `db:"role_id"`
 }
 
 type ListModel struct {
 	WbSettingsMenu
 }
 
-func (self *WbSettingsMenu) List(query *Query) ([]*ListModel, int64, error) {
+func (self *WbSettingsMenu) List(query *Query) ([]*ListModel, error) {
 	if query == nil {
 		query = new(Query)
 	}
 	db := pgsql.Open()
-	whereSql, fullSql := listSql(query)
+	fullSql := listSql(query)
 	// 以上部分为查询条件，接下来是分页和排序
-	count, err := self.GetCount(db, query, whereSql)
-	if err != nil {
-		return nil, 0, err
-	}
 	stmt, err := db.PrepareNamed(fullSql)
 	if err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 	log.Println(stmt.QueryString)
 
 	rows, err := stmt.Queryx(query)
 	if err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 	defer rows.Close()
 
@@ -117,28 +109,13 @@ func (self *WbSettingsMenu) List(query *Query) ([]*ListModel, int64, error) {
 		var user = new(ListModel)
 		err = rows.StructScan(&user)
 		if err != nil {
-			return nil, 0, err
+			return nil, err
 		}
 		users = append(users, user)
 	}
 
-	return users, count, nil
+	return users, nil
 
-}
-
-func (self *WbSettingsMenu) GetCount(db *sqlx.DB, query *Query, whereSql ...string) (int64, error) {
-	if query == nil {
-		query = new(Query)
-	}
-	sqlStr := countSql(whereSql...)
-	stmt, err := db.PrepareNamed(sqlStr)
-	if err != nil {
-		return 0, err
-	}
-	var count int64
-	err = stmt.Get(&count, query)
-	log.Println(stmt.QueryString, query)
-	return count, err
 }
 
 type UpdateByIDQuery struct {
@@ -166,9 +143,16 @@ func (self *WbSettingsMenu) Update(query *UpdateByIDQuery) error {
 	}
 	log.Println(stmt.QueryString)
 	query.Updatetime = util.GetCurrentMS()
-	_, err = stmt.Exec(query)
+	res, err := stmt.Exec(query)
 	if err != nil {
 		return err
+	}
+	rowsAf, err := res.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rowsAf == 0 {
+		return errors.New("未产生任何更新，请检查该路径是否已经存在")
 	}
 	return nil
 }

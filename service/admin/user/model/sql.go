@@ -46,9 +46,9 @@ func getByIdSql() string {
 	return fmt.Sprintf(`
 			select 
 				%[1]s.*,
-				%[2]s.name as role_name
+				COALESCE(%[2]s.name, '') as role_name
 				from %[1]s left join %[2]s on %[1]s.role_id=%[2]s.id
-				where id=:id and isdelete=false`,
+				where %[1]s.id=:id and %[1]s.isdelete=false`,
 		table_name, "wb_admin_role")
 }
 

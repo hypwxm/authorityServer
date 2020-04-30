@@ -21,12 +21,15 @@ func listSql(query *Query) (fullSql string) {
 				%[1]s.createtime,
 				%[1]s.updatetime,
 				%[1]s.role_id,
-				%[1]s.menu_id
-				FROM %[1]s WHERE 1=1 `, table_name)
-	whereSql := pgsql.BaseWhere(query.BaseQuery)
-	whereSql = whereSql + fmt.Sprintf(" and role_id=:role_id")
+				%[1]s.menu_id,
+				%[2]s.parent_id,
+				%[2]s.name,
+				%[2]s.path
+				FROM %[1]s inner join %[2]s on %[1]s.menu_id=%[2]s.id WHERE 1=1 `, table_name, "wb_settings_menu")
+	whereSql := pgsql.BaseWhere(query.BaseQuery, table_name)
+	whereSql = whereSql + fmt.Sprintf(" and %[1]s.role_id=:role_id", table_name)
 
-	optionSql := pgsql.BaseOption(query.BaseQuery)
+	optionSql := pgsql.BaseOption(query.BaseQuery, table_name)
 	return selectSql + whereSql + optionSql
 }
 

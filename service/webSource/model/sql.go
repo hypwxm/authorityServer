@@ -13,7 +13,7 @@ func insertSql() string {
 
 }
 
-func listSql(query *Query) (whereSql string, fullSql string) {
+func listSql(query *Query) (fullSql string) {
 	var selectSql = fmt.Sprintf(`SELECT 
 				%[1]s.id,
 				%[1]s.name,
@@ -22,13 +22,9 @@ func listSql(query *Query) (whereSql string, fullSql string) {
 				%[1]s.parent_id,
 				%[1]s.disabled
 				FROM %[1]s where 1=1 `, table_name)
-	whereSql = pgsql.BaseWhere(query.BaseQuery, table_name)
-
-	if query.OrderBy == "" {
-		// query.OrderBy = "sort asc"
-	}
+	whereSql := pgsql.BaseWhere(query.BaseQuery, table_name)
 	optionSql := pgsql.BaseOption(query.BaseQuery, table_name)
-	return whereSql, selectSql + whereSql + optionSql
+	return selectSql + whereSql + optionSql
 }
 
 func countSql(whereSql ...string) string {

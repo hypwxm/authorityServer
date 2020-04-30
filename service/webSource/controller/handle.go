@@ -55,12 +55,12 @@ func list(c rider.Context) {
 			sender.Fail(err.Error())
 			return
 		}
-		list, total, err := service.List(query)
+		list, err := service.List(query)
 		if err != nil {
 			sender.Fail(err.Error())
 			return
 		}
-		sender.SuccessList(list, int(total))
+		sender.Success(list)
 	})()
 	c.SendJson(200, sender)
 }

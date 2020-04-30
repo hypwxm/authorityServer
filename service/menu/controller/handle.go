@@ -3,9 +3,13 @@ package controller
 import (
 	"encoding/json"
 	"github.com/hypwxm/rider"
+	"worldbar/config"
+	adminUserModel "worldbar/service/admin/user/model"
 	"worldbar/service/menu/model"
 	"worldbar/service/menu/service"
 	"worldbar/util/response"
+
+	adminUserService "worldbar/service/admin/user/service"
 )
 
 func create(c rider.Context) {
@@ -55,12 +59,23 @@ func list(c rider.Context) {
 			sender.Fail(err.Error())
 			return
 		}
-		list, total, err := service.List(query)
+
+		// 查询一下是否为管理员。如果不是管理员，该用户只能看到给其分配的菜单
+		userId := c.GetLocals(config.AppServerTokenKey).(string)
+		user, err := adminUserService.Get(&adminUserModel.GetQuery{
+			ID: userId,
+		})
 		if err != nil {
 			sender.Fail(err.Error())
 			return
 		}
-		sender.SuccessList(list, int(total))
+		query.RoleId = user.RoleId
+		list, err := service.List(query)
+		if err != nil {
+			sender.Fail(err.Error())
+			return
+		}
+		sender.Success(list)
 	})()
 	c.SendJson(200, sender)
 }
