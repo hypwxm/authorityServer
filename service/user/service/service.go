@@ -14,7 +14,6 @@ func GetUser(query *model.WbUser) (*model.WbUser, error) {
 	return new(model.WbUser).Get(query)
 }
 
-
 func Modify(query *model.UpdateByIDQuery) error {
 	return new(model.WbUser).Update(query)
 }

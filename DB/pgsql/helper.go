@@ -2,6 +2,7 @@ package pgsql
 
 import (
 	"fmt"
+	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
 	"strings"
 )
@@ -78,4 +79,20 @@ func BaseOption(query BaseQuery, tableName ...string) string {
 		optionSql = optionSql + fmt.Sprintf(` offset %d`, query.Offset)
 	}
 	return optionSql
+}
+
+/**
+ * 获取或者新建一个事务，如果从外界传入了tx，则用外界传入的，第二个参数会返回true代表从外界传入
+ *
+ */
+func GetOrMakeTx(tx *sqlx.Tx) (*sqlx.Tx, bool, error) {
+	if tx == nil {
+		db := Open()
+		tx, err := db.Beginx()
+		if err != nil {
+			return nil, false, err
+		}
+		return tx, false, nil
+	}
+	return tx, true, nil
 }

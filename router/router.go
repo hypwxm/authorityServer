@@ -22,7 +22,7 @@ import (
 
 func Router() *rider.Router {
 	route := rider.NewRouter()
-	route.USE(rider.RiderJwt("Authorization", "ni2QWN29DJQJDNI923N=-230S-23!23", 10000000, nil))
+	route.USE(rider.RiderJwt("Authorization", "ni2QWN29DJQJDNI923N=-230S-23!23", 10000000, nil, false))
 	route.Kid("/user", middleware.Auth(), controller.Router())
 	route.Kid("/auth", middleware.Auth(), controller2.Router())
 	route.Kid("/vote", middleware.Auth(), controller3.Router())

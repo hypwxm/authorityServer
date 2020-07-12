@@ -20,3 +20,12 @@ func (s *BaseColumns) Init() {
 	s.Disabled = false
 	s.ID = util.GetUuid()
 }
+
+
+type BaseIDColumns struct {
+	ID         string        `json:"id" db:"id"`
+}
+
+func (s *BaseIDColumns) Init() {
+	s.ID = util.GetUuid()
+}

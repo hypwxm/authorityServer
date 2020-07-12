@@ -6,22 +6,17 @@ import (
 	"fmt"
 	"github.com/hypwxm/rider/utils/cryptos"
 	"github.com/lib/pq"
-	uuid "github.com/satori/go.uuid"
 	"log"
 	"strings"
 	"worldbar/DB/pgsql"
-	"worldbar/util"
+	"worldbar/service/user/model/houseModel"
+	"worldbar/util/database"
 
 	"github.com/jmoiron/sqlx"
 )
 
 type WbUser struct {
-	ID         string `json:"id" db:"id"`
-	Createtime int64  `json:"createtime" db:"createtime"`
-	Updatetime int64  `json:"updatetime" db:"updatetime"`
-	Deletetime int64  `json:"deletetime" db:"deletetime"`
-	Isdelete   bool   `json:"isdelete" db:"isdelete"`
-	Disabled   bool   `json:"disabled" db:"disabled"`
+	database.BaseColumns
 
 	Nickname  string `json:"nickname" db:"nickname"`
 	RealName  string `json:"realName" db:"realname"`
@@ -36,13 +31,11 @@ type WbUser struct {
 
 	Type sql.NullString `db:"type"`
 
-	House string `json:"house" db:"house"`
+	House []houseModel.WbUserHouse `json:"house" db:"-"` // 房屋
 }
 
 func (self *WbUser) Insert() (string, error) {
 	var err error
-	// 插入时间
-	self.Createtime = util.GetCurrentMS()
 
 	// 必须有登录账号
 	if strings.TrimSpace(self.Account) == "" {
@@ -52,13 +45,8 @@ func (self *WbUser) Insert() (string, error) {
 	if strings.TrimSpace(self.Password) == "" {
 		return "", errors.New(fmt.Sprintf("新用户密码不能为空"))
 	}
-	// 必须有邮箱
-	if self.Type.String == "1" && strings.TrimSpace(self.House) == "" {
-		return "", errors.New(fmt.Sprintf("新用户房号不能为空"))
-	}
-	// 默认添加直接启用
-	self.Disabled = false
-	self.Isdelete = false
+
+	self.BaseColumns.Init()
 
 	// 为新用户创建唯一盐
 	self.Salt = cryptos.RandString()
@@ -71,14 +59,13 @@ func (self *WbUser) Insert() (string, error) {
 	}
 	defer tx.Rollback()
 	// 插入判断用户登录账号是否已经存在
-	stmt, err := tx.PrepareNamed("insert into wb_user (createtime, isdelete, disabled, nickname, realname, firstname, lastname, account, password, salt, type, id, house) select :createtime, :isdelete, :disabled, :nickname, :realname, :firstname, :lastname, :account, :password, :salt, :type, :id, :house where not exists(select 1 from wb_user where account = :account and isdelete='false') returning id")
+	stmt, err := tx.PrepareNamed("insert into wb_user (createtime, isdelete, disabled, nickname, realname, firstname, lastname, account, password, salt, type, id) select :createtime, :isdelete, :disabled, :nickname, :realname, :firstname, :lastname, :account, :password, :salt, :type, :id where not exists(select 1 from wb_user where account = :account and isdelete='false') returning id")
 
 	if err != nil {
 		return "", err
 	}
 	log.Println(stmt.QueryString)
 	var lastId string
-	self.ID = uuid.NewV4().String()
 	err = stmt.Get(&lastId, self)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -86,7 +73,13 @@ func (self *WbUser) Insert() (string, error) {
 		}
 		return "", err
 	}
-
+	for k, _ := range self.House {
+		self.House[k].UserId = self.ID
+	}
+	err = houseModel.MultiInsert(self.House, tx)
+	if err != nil {
+		return "", err
+	}
 	err = tx.Commit()
 	if err != nil {
 		return "", err
@@ -177,6 +170,7 @@ type UpdateByIDQuery struct {
 	RealName  string `db:"realname"`
 	FirstName string `db:"firstname"`
 	LastName  string `db:"lastname"`
+	Avatar    string `db:"avatar"`
 }
 
 // 更新,根据用户id和数据id进行更新

@@ -8,6 +8,7 @@ import (
 	adminUserService "worldbar/service/admin/user/service"
 	"worldbar/service/user/model"
 	"worldbar/service/user/service"
+	"worldbar/util/database"
 	"worldbar/util/response"
 )
 
@@ -94,7 +95,9 @@ func loginAppUser(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
 		user, err := service.GetUser(&model.WbUser{
-			ID: c.GetLocals(config.AppUserTokenKey).(string),
+			BaseColumns: database.BaseColumns{
+				ID: c.GetLocals(config.AppUserTokenKey).(string),
+			},
 		})
 		if err != nil {
 			sender.Fail(err.Error())
