@@ -12,7 +12,6 @@ import (
 
 type WbUserHouse struct {
 	database.BaseIDColumns
-	ID       string `json:"id" db:"id"`
 	EnumsId  string `json:"enumsId" db:"enums_id"`
 	OptionId string `json:"optionId" db:"option_id"`
 	UserId   string `json:"userId" db:"user_id"`
@@ -64,7 +63,7 @@ func (self *WbUserHouse) Insert(tx *sqlx.Tx) (string, error) {
 }
 
 type GetQuery struct {
-	ID string `db:"id"`
+	UserId string `db:"user_id"`
 }
 
 type Query struct {
@@ -73,11 +72,13 @@ type Query struct {
 
 type ListModel struct {
 	WbUserHouse
+	OptionName string `json:"optionName" db:"option_name"`
+	EnumsName  string `json:"enumsName" db:"enums_name"`
 }
 
-func (self *WbUserHouse) GetByUserId(query *Query) ([]*ListModel, error) {
+func (self *WbUserHouse) GetByUserId(query *GetQuery) ([]*ListModel, error) {
 	if query == nil {
-		query = new(Query)
+		query = new(GetQuery)
 	}
 	db := pgsql.Open()
 	sqlStr := listSql(query)

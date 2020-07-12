@@ -6,6 +6,7 @@ import (
 	"github.com/hypwxm/rider"
 	"worldbar/config"
 	"worldbar/service/user/model"
+	"worldbar/service/user/model/houseModel"
 	"worldbar/service/user/service"
 	"worldbar/util/response"
 )
@@ -50,6 +51,21 @@ func modify(c rider.Context) {
 			return
 		}
 		sender.Success("修改成功")
+	})()
+	c.SendJson(200, sender)
+}
+
+func house(c rider.Context) {
+	sender := response.NewSender()
+	(func() {
+		query := new(houseModel.GetQuery)
+		query.UserId = c.GetLocals(config.AppUserTokenKey).(string)
+		house, err := service.GetUserHouse(query)
+		if err != nil {
+			sender.Fail(err.Error())
+			return
+		}
+		sender.Success(house)
 	})()
 	c.SendJson(200, sender)
 }
