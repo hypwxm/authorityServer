@@ -117,7 +117,7 @@ func (self *WbHouseOptionAssociate) GetAssociate(query *AssociateGetQuery) ([]*A
 		whereSql = whereSql + " and c.house_enums_id=:sub_house_enums_id"
 	}
 
-	stmt, err := db.PrepareNamed("select a.super_option_id, a.sub_option_id, b.name as super_name, b.note as super_note, b.house_enums_id as super_enums_id, c.name as sub_name, c.note as sub_note, c.house_enums_id as sub_enums_id from wb_house_option_associate a inner join wb_house_option b on a.super_option_id=b.id inner join wb_house_option c on a.sub_option_id=c.id where 1=1 " + whereSql)
+	stmt, err := db.PrepareNamed("select a.super_option_id, a.sub_option_id, b.name as super_name, b.note as super_note, b.house_enums_id as super_enums_id, c.name as sub_name, c.note as sub_note, c.house_enums_id as sub_enums_id from wb_house_option_associate a inner join wb_house_option b on a.super_option_id=b.id inner join wb_house_option c on a.sub_option_id=c.id where 1=1 and b.isdelete=false and c.isdelete=false " + whereSql)
 
 	if err != nil {
 		return nil, err
@@ -140,4 +140,17 @@ func (self *WbHouseOptionAssociate) GetAssociate(query *AssociateGetQuery) ([]*A
 		list = append(list, data)
 	}
 	return list, nil
+}
+
+type AssociateTree struct {
+	Name             string           `json:"name"`
+	OptionId         string           `json:"optionId"`
+	OptionName       string           `json:"optionName"`
+	EnumsId          string           `json:"enumsId"`
+	EnumsName        string           `json:"enumsName"`
+	ParentOptionId   string           `json:"parentOptionId"`
+	ParentOptionName string           `json:"parentOptionName"`
+	ParentEnumsId    string           `json:"parentEnumsId"`
+	ParentEnumsName  string           `json:"parentEnumsName"`
+	Children         []*AssociateTree `json:"children"`
 }

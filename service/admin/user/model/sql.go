@@ -45,7 +45,15 @@ func countSql(whereSql ...string) string {
 func getByIdSql() string {
 	return fmt.Sprintf(`
 			select 
-				%[1]s.*,
+				%[1]s.id,
+				%[1]s.createtime,
+				%[1]s.updatetime,
+				%[1]s.account,
+				%[1]s.username,
+				%[1]s.avatar,
+				%[1]s.type,
+				%[1]s.disabled,
+				%[1]s.role_id,
 				COALESCE(%[2]s.name, '') as role_name
 				from %[1]s left join %[2]s on %[1]s.role_id=%[2]s.id
 				where %[1]s.id=:id and %[1]s.isdelete=false`,

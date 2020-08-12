@@ -3,22 +3,21 @@ package controller
 import (
 	"encoding/json"
 	"github.com/hypwxm/rider"
-	"worldbar/service/house/model/locationEnumsM"
-	"worldbar/service/house/model/locationOptionsM"
+	"worldbar/service/house/model"
 	"worldbar/service/house/service"
 	"worldbar/util/response"
 )
 
-func createEnums(c rider.Context) {
+func create(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		entity := new(locationEnumsM.WbHouseEnums)
+		entity := new(model.WbHouse)
 		err := json.Unmarshal(c.Body(), &entity)
 		if err != nil {
 			sender.Fail(err.Error())
 			return
 		}
-		id, err := service.CreateEnums(entity)
+		id, err := service.Create(entity)
 		if err != nil {
 			sender.Fail(err.Error())
 			return
@@ -28,16 +27,16 @@ func createEnums(c rider.Context) {
 	c.SendJson(200, sender)
 }
 
-func modifyEnums(c rider.Context) {
+func modify(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		entity := new(locationEnumsM.UpdateByIDQuery)
+		entity := new(model.UpdateByIDQuery)
 		err := json.Unmarshal(c.Body(), &entity)
 		if err != nil {
 			sender.Fail(err.Error())
 			return
 		}
-		err = service.ModifyEnums(entity)
+		err = service.Modify(entity)
 		if err != nil {
 			sender.Fail(err.Error())
 			return
@@ -50,187 +49,13 @@ func modifyEnums(c rider.Context) {
 func list(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		query := new(locationEnumsM.Query)
+		query := new(model.Query)
 		err := json.Unmarshal(c.Body(), &query)
 		if err != nil {
 			sender.Fail(err.Error())
 			return
 		}
-		list, total, err := service.EnumsList(query)
-		if err != nil {
-			sender.Fail(err.Error())
-			return
-		}
-		sender.SuccessList(list, int(total))
-	})()
-	c.SendJson(200, sender)
-}
-
-func deleteEnums(c rider.Context) {
-	sender := response.NewSender()
-	(func() {
-		query := new(locationEnumsM.DeleteQuery)
-		err := json.Unmarshal(c.Body(), &query)
-		if err != nil {
-			sender.Fail(err.Error())
-			return
-		}
-		err = service.DeleteEnums(query)
-		if err != nil {
-			sender.Fail(err.Error())
-			return
-		}
-		sender.Success("")
-	})()
-	c.SendJson(200, sender)
-}
-
-func updateSort(c rider.Context) {
-	sender := response.NewSender()
-	(func() {
-		query := new(locationEnumsM.UpdateSortQuery)
-		err := json.Unmarshal(c.Body(), &query)
-		if err != nil {
-			sender.Fail(err.Error())
-			return
-		}
-		err = service.UpdateSort(query)
-		if err != nil {
-			sender.Fail(err.Error())
-			return
-		}
-		sender.Success("")
-	})()
-	c.SendJson(200, sender)
-}
-
-
-
-
-func createEnumsOption(c rider.Context) {
-	sender := response.NewSender()
-	(func() {
-		entity := new(locationOptionsM.WbHouseOption)
-		err := json.Unmarshal(c.Body(), &entity)
-		if err != nil {
-			sender.Fail(err.Error())
-			return
-		}
-		id, err := service.CreateEnumsOption(entity)
-		if err != nil {
-			sender.Fail(err.Error())
-			return
-		}
-		sender.Success(id)
-	})()
-	c.SendJson(200, sender)
-}
-
-func modifyEnumsOption(c rider.Context) {
-	sender := response.NewSender()
-	(func() {
-		entity := new(locationOptionsM.UpdateByIDQuery)
-		err := json.Unmarshal(c.Body(), &entity)
-		if err != nil {
-			sender.Fail(err.Error())
-			return
-		}
-		err = service.ModifyEnumsOption(entity)
-		if err != nil {
-			sender.Fail(err.Error())
-			return
-		}
-		sender.Success("操作成功")
-	})()
-	c.SendJson(200, sender)
-}
-
-func enumsOptions(c rider.Context) {
-	sender := response.NewSender()
-	(func() {
-		query := new(locationOptionsM.Query)
-		err := json.Unmarshal(c.Body(), &query)
-		if err != nil {
-			sender.Fail(err.Error())
-			return
-		}
-		list, total, err := service.EnumsOptionsList(query)
-		if err != nil {
-			sender.Fail(err.Error())
-			return
-		}
-		sender.SuccessList(list, int(total))
-	})()
-	c.SendJson(200, sender)
-}
-
-func deleteEnumsOption(c rider.Context) {
-	sender := response.NewSender()
-	(func() {
-		query := new(locationOptionsM.DeleteQuery)
-		err := json.Unmarshal(c.Body(), &query)
-		if err != nil {
-			sender.Fail(err.Error())
-			return
-		}
-		err = service.DeleteEnumsOption(query)
-		if err != nil {
-			sender.Fail(err.Error())
-			return
-		}
-		sender.Success("")
-	})()
-	c.SendJson(200, sender)
-}
-
-func getOptionDetail(c rider.Context) {
-	sender := response.NewSender()
-	(func() {
-		query := new(locationOptionsM.GetQuery)
-		err := json.Unmarshal(c.Body(), &query)
-		if err != nil {
-			sender.Fail(err.Error())
-			return
-		}
-		option, err := service.GetEnumsOption(query)
-		if err != nil {
-			sender.Fail(err.Error())
-			return
-		}
-		sender.Success(option)
-	})()
-	c.SendJson(200, sender)
-}
-
-func associate(c rider.Context) {
-	sender := response.NewSender()
-	(func() {
-		query := new(locationOptionsM.AssociateQuery)
-		err := json.Unmarshal(c.Body(), &query)
-		if err != nil {
-			sender.Fail(err.Error())
-			return
-		}
-		err = service.Associate(query)
-		if err != nil {
-			sender.Fail(err.Error())
-			return
-		}
-		sender.Success("")
-	})()
-	c.SendJson(200, sender)
-}
-
-func getAssociates(c rider.Context) {
-	sender := response.NewSender()
-	(func() {
-		query := new(locationOptionsM.AssociateGetQuery)
-		err := json.Unmarshal(c.Body(), &query)
-		if err != nil {
-			sender.Fail(err.Error())
-			return
-		}
-		list, err := service.GetAssociates(query)
+		list, err := service.List(query)
 		if err != nil {
 			sender.Fail(err.Error())
 			return
@@ -240,16 +65,54 @@ func getAssociates(c rider.Context) {
 	c.SendJson(200, sender)
 }
 
-func deleteAssociates(c rider.Context) {
+func del(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		query := new(locationOptionsM.AssociateQuery)
+		query := new(model.DeleteQuery)
 		err := json.Unmarshal(c.Body(), &query)
 		if err != nil {
 			sender.Fail(err.Error())
 			return
 		}
-		err = service.DeleteAssociates(query)
+		err = service.Del(query)
+		if err != nil {
+			sender.Fail(err.Error())
+			return
+		}
+		sender.Success("")
+	})()
+	c.SendJson(200, sender)
+}
+
+func get(c rider.Context) {
+	sender := response.NewSender()
+	(func() {
+		query := new(model.GetQuery)
+		err := json.Unmarshal(c.Body(), &query)
+		if err != nil {
+			sender.Fail(err.Error())
+			return
+		}
+		entity, err := service.Get(query)
+		if err != nil {
+			sender.Fail(err.Error())
+			return
+		}
+		sender.Success(entity)
+	})()
+	c.SendJson(200, sender)
+}
+
+func toggleDisabled(c rider.Context) {
+	sender := response.NewSender()
+	(func() {
+		query := new(model.DisabledQuery)
+		err := json.Unmarshal(c.Body(), &query)
+		if err != nil {
+			sender.Fail(err.Error())
+			return
+		}
+		err = service.ToggleDisabled(query)
 		if err != nil {
 			sender.Fail(err.Error())
 			return

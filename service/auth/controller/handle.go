@@ -8,6 +8,7 @@ import (
 	adminUserService "worldbar/service/admin/user/service"
 	"worldbar/service/user/model"
 	"worldbar/service/user/service"
+	"worldbar/util"
 	"worldbar/util/database"
 	"worldbar/util/response"
 )
@@ -69,7 +70,7 @@ func appLogin(c rider.Context) {
 		user := new(model.WbUser)
 		err := json.Unmarshal(c.Body(), &user)
 		if err != nil {
-			sender.Fail(err.Error())
+			sender.Fail(util.ErrorFormat(err))
 			return
 		}
 		if user.Account == "" || user.Password == "" {
@@ -81,7 +82,7 @@ func appLogin(c rider.Context) {
 			Password: user.Password,
 		})
 		if err != nil {
-			sender.Fail(err.Error())
+			sender.Fail(util.ErrorFormat(err))
 			return
 		}
 		c.Jwt().Set(config.AppUserTokenKey, user.ID)

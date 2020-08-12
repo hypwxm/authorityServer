@@ -272,3 +272,4 @@ func (self *WbHouseEnums) UpdateSort(query *UpdateSortQuery) error {
 	err = tx.Commit()
 	return err
 }
+

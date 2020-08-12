@@ -1,6 +1,7 @@
 package util
 
 import (
+	"database/sql"
 	"encoding/json"
 	"fmt"
 )
@@ -22,4 +23,15 @@ func DecodeWithCommonError(response []byte, apiName string) (err error) {
 		return fmt.Errorf("%s Error , errcode=%d , errmsg=%s", apiName, commError.ErrCode, commError.ErrMsg)
 	}
 	return nil
+}
+
+/**
+ * 对错误进行转换
+ * 比如sql的 no rows in sql -> 数据不存在
+ */
+func ErrorFormat(err error) string {
+	if err == sql.ErrNoRows {
+		return "数据不存在"
+	}
+	return err.Error()
 }
