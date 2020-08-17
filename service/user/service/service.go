@@ -1,8 +1,8 @@
 package service
 
 import (
-	"worldbar/service/user/model"
-	"worldbar/service/user/model/houseModel"
+	"babygrowing/service/user/model"
+	"babygrowing/service/user/model/houseModel"
 )
 
 func Create(user *model.WbUser) (string, error) {

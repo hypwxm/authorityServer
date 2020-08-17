@@ -2,7 +2,7 @@ package model
 
 import (
 	"fmt"
-	"worldbar/service/like/model"
+	"babygrowing/service/like/model"
 )
 
 const table_name = "wb_matter_visible"

@@ -1,7 +1,7 @@
 package service
 
 import (
-	"worldbar/service/matter/matterVisible/model"
+	"babygrowing/service/matter/matterVisible/model"
 )
 
 func Create(entity []model.WbMatterVisible) error {

@@ -3,9 +3,9 @@ package controller
 import (
 	"encoding/json"
 	"github.com/hypwxm/rider"
-	"worldbar/service/newsDynamicsComment/model"
-	"worldbar/service/newsDynamicsComment/service"
-	"worldbar/util/response"
+	"babygrowing/service/newsDynamicsComment/model"
+	"babygrowing/service/newsDynamicsComment/service"
+	"babygrowing/util/response"
 )
 
 func list(c rider.Context) {

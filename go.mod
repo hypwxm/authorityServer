@@ -1,4 +1,4 @@
-module worldbar
+module babygrowing
 
 go 1.14
 

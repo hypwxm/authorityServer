@@ -1,7 +1,7 @@
 package service
 
 import (
-	"worldbar/service/newsDynamicsComment/model"
+	"babygrowing/service/newsDynamicsComment/model"
 )
 
 func Create(entity *model.WbNewsDynamicsComment) (string, error) {

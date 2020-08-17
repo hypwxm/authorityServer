@@ -1,7 +1,7 @@
 package service
 
 import (
-	"worldbar/service/admin/user/model"
+	"babygrowing/service/admin/user/model"
 )
 
 func Create(entity *model.WbAdminUser) (string, error) {

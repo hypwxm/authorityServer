@@ -2,7 +2,7 @@ package database
 
 import (
 	"database/sql"
-	"worldbar/util"
+	"babygrowing/util"
 )
 
 type BaseColumns struct {

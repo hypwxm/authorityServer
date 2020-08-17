@@ -4,11 +4,11 @@ import (
 	"database/sql"
 	"encoding/json"
 	"github.com/hypwxm/rider"
-	"worldbar/config"
-	"worldbar/service/user/model"
-	"worldbar/service/user/model/houseModel"
-	"worldbar/service/user/service"
-	"worldbar/util/response"
+	"babygrowing/config"
+	"babygrowing/service/user/model"
+	"babygrowing/service/user/model/houseModel"
+	"babygrowing/service/user/service"
+	"babygrowing/util/response"
 )
 
 func registry(c rider.Context) {

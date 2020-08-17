@@ -3,8 +3,8 @@ package model
 import (
 	"fmt"
 	"strings"
-	"worldbar/DB/pgsql"
-	"worldbar/service/like/model"
+	"babygrowing/DB/pgsql"
+	"babygrowing/service/like/model"
 )
 
 const table_name = "wb_matter"

@@ -2,7 +2,7 @@ package model
 
 import (
 	"fmt"
-	"worldbar/DB/pgsql"
+	"babygrowing/DB/pgsql"
 )
 
 const table_name = "wb_admin_role_menu_permission"

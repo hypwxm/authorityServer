@@ -6,9 +6,9 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	baseControl "worldbar/base_control"
-	"worldbar/config"
-	"worldbar/router"
+	baseControl "babygrowing/base_control"
+	"babygrowing/config"
+	"babygrowing/router"
 )
 
 func main() {

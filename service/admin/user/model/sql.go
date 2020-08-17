@@ -3,8 +3,8 @@ package model
 import (
 	"fmt"
 	"strings"
-	"worldbar/DB/pgsql"
-	"worldbar/util"
+	"babygrowing/DB/pgsql"
+	"babygrowing/util"
 )
 
 const table_name = "wb_admin_user"

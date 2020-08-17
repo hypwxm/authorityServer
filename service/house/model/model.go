@@ -6,9 +6,9 @@ import (
 	"github.com/lib/pq"
 	"log"
 	"strings"
-	"worldbar/DB/pgsql"
-	"worldbar/util"
-	"worldbar/util/database"
+	"babygrowing/DB/pgsql"
+	"babygrowing/util"
+	"babygrowing/util/database"
 )
 
 type WbHouse struct {

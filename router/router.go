@@ -2,22 +2,23 @@ package router
 
 import (
 	"github.com/hypwxm/rider"
-	"worldbar/middleware"
-	controller8 "worldbar/service/admin/role/controller"
-	controller13 "worldbar/service/admin/rolePermission/menu/controller"
-	controller15 "worldbar/service/admin/rolePermission/source/controller"
-	controller7 "worldbar/service/admin/user/controller"
-	controller2 "worldbar/service/auth/controller"
-	controller4 "worldbar/service/house/controller"
-	controller6 "worldbar/service/matter/matter/controller"
-	controller9 "worldbar/service/matter/matterElement/controller"
-	controller10 "worldbar/service/matter/matterElementOption/controller"
-	controller11 "worldbar/service/matter/matterVisible/controller"
-	controller12 "worldbar/service/menu/controller"
-	controller5 "worldbar/service/newsDynamics/controller"
-	"worldbar/service/user/controller"
-	controller3 "worldbar/service/vote/controller"
-	controller14 "worldbar/service/webSource/controller"
+	"babygrowing/middleware"
+	controller8 "babygrowing/service/admin/role/controller"
+	controller13 "babygrowing/service/admin/rolePermission/menu/controller"
+	controller15 "babygrowing/service/admin/rolePermission/source/controller"
+	controller7 "babygrowing/service/admin/user/controller"
+	controller2 "babygrowing/service/auth/controller"
+	controller4 "babygrowing/service/house/controller"
+	controller6 "babygrowing/service/matter/matter/controller"
+	controller9 "babygrowing/service/matter/matterElement/controller"
+	controller10 "babygrowing/service/matter/matterElementOption/controller"
+	controller11 "babygrowing/service/matter/matterVisible/controller"
+	controller12 "babygrowing/service/menu/controller"
+	controller5 "babygrowing/service/newsDynamics/controller"
+	controller16 "babygrowing/service/societies/base/controller"
+	"babygrowing/service/user/controller"
+	controller3 "babygrowing/service/vote/controller"
+	controller14 "babygrowing/service/webSource/controller"
 )
 
 func Router() *rider.Router {
@@ -34,6 +35,7 @@ func Router() *rider.Router {
 	route.Kid("/matterVisible", middleware.Auth(), controller11.Router())
 	route.Kid("/settings/menu", middleware.Auth(), controller12.Router())
 	route.Kid("/settings/webSource", middleware.Auth(), controller14.Router())
+	route.Kid("/societies", middleware.Auth(), controller16.Router())
 
 	route.Kid("/adminuser", middleware.Auth(), controller7.Router())
 	route.Kid("/adminrole", middleware.Auth(), controller8.Router())

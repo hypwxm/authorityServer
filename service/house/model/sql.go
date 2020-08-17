@@ -2,7 +2,7 @@ package model
 
 import (
 	"fmt"
-	"worldbar/DB/pgsql"
+	"babygrowing/DB/pgsql"
 )
 
 const table_name = "wb_house"

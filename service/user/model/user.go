@@ -8,9 +8,9 @@ import (
 	"github.com/lib/pq"
 	"log"
 	"strings"
-	"worldbar/DB/pgsql"
-	"worldbar/service/user/model/houseModel"
-	"worldbar/util/database"
+	"babygrowing/DB/pgsql"
+	"babygrowing/service/user/model/houseModel"
+	"babygrowing/util/database"
 
 	"github.com/jmoiron/sqlx"
 )

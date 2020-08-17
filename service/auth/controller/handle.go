@@ -3,14 +3,14 @@ package controller
 import (
 	"encoding/json"
 	"github.com/hypwxm/rider"
-	"worldbar/config"
-	adminUserModel "worldbar/service/admin/user/model"
-	adminUserService "worldbar/service/admin/user/service"
-	"worldbar/service/user/model"
-	"worldbar/service/user/service"
-	"worldbar/util"
-	"worldbar/util/database"
-	"worldbar/util/response"
+	"babygrowing/config"
+	adminUserModel "babygrowing/service/admin/user/model"
+	adminUserService "babygrowing/service/admin/user/service"
+	"babygrowing/service/user/model"
+	"babygrowing/service/user/service"
+	"babygrowing/util"
+	"babygrowing/util/database"
+	"babygrowing/util/response"
 )
 
 type LoginForm struct {

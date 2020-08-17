@@ -1,7 +1,7 @@
 package service
 
 import (
-	"worldbar/service/admin/role/model"
+	"babygrowing/service/admin/role/model"
 )
 
 func Create(entity *model.WbAdminRole) (string, error) {

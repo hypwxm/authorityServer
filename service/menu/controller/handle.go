@@ -3,13 +3,13 @@ package controller
 import (
 	"encoding/json"
 	"github.com/hypwxm/rider"
-	"worldbar/config"
-	adminUserModel "worldbar/service/admin/user/model"
-	"worldbar/service/menu/model"
-	"worldbar/service/menu/service"
-	"worldbar/util/response"
+	"babygrowing/config"
+	adminUserModel "babygrowing/service/admin/user/model"
+	"babygrowing/service/menu/model"
+	"babygrowing/service/menu/service"
+	"babygrowing/util/response"
 
-	adminUserService "worldbar/service/admin/user/service"
+	adminUserService "babygrowing/service/admin/user/service"
 )
 
 func create(c rider.Context) {

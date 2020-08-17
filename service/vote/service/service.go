@@ -1,8 +1,8 @@
 package service
 
 import (
-	"worldbar/service/vote/model/voteM"
-	"worldbar/service/vote/model/voteOptionM"
+	"babygrowing/service/vote/model/voteM"
+	"babygrowing/service/vote/model/voteOptionM"
 )
 
 func CreateVote(vote *voteM.WbVote) (string, error) {

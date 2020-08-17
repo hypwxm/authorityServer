@@ -1,8 +1,8 @@
 package pgsql
 
 import (
-	"worldbar/config"
-	"worldbar/logger"
+	"babygrowing/config"
+	"babygrowing/logger"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"

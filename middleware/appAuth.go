@@ -4,8 +4,8 @@ import (
 	"github.com/hypwxm/rider"
 	"log"
 	"strings"
-	"worldbar/config"
-	"worldbar/util/response"
+	"babygrowing/config"
+	"babygrowing/util/response"
 )
 
 func AppAuth() rider.HandlerFunc {

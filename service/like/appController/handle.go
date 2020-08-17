@@ -3,10 +3,10 @@ package appController
 import (
 	"encoding/json"
 	"github.com/hypwxm/rider"
-	"worldbar/config"
-	"worldbar/service/like/model"
-	"worldbar/service/like/service"
-	"worldbar/util/response"
+	"babygrowing/config"
+	"babygrowing/service/like/model"
+	"babygrowing/service/like/service"
+	"babygrowing/util/response"
 )
 
 func list(c rider.Context) {

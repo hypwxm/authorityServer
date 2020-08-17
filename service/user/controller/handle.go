@@ -3,9 +3,9 @@ package controller
 import (
 	"encoding/json"
 	"github.com/hypwxm/rider"
-	"worldbar/service/user/model"
-	"worldbar/service/user/service"
-	"worldbar/util/response"
+	"babygrowing/service/user/model"
+	"babygrowing/service/user/service"
+	"babygrowing/util/response"
 )
 
 

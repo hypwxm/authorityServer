@@ -3,9 +3,9 @@ package controller
 import (
 	"encoding/json"
 	"github.com/hypwxm/rider"
-	"worldbar/service/admin/rolePermission/menu/model"
-	"worldbar/service/admin/rolePermission/menu/service"
-	"worldbar/util/response"
+	"babygrowing/service/admin/rolePermission/menu/model"
+	"babygrowing/service/admin/rolePermission/menu/service"
+	"babygrowing/util/response"
 )
 
 func create(c rider.Context) {

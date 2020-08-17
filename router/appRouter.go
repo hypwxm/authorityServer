@@ -1,11 +1,11 @@
 package router
 
 import (
-	"worldbar/middleware"
-	controller2 "worldbar/service/auth/controller"
-	"worldbar/service/house/appController"
-	appController3 "worldbar/service/newsDynamics/appController"
-	appController2 "worldbar/service/user/appController"
+	"babygrowing/middleware"
+	controller2 "babygrowing/service/auth/controller"
+	"babygrowing/service/house/appController"
+	appController3 "babygrowing/service/newsDynamics/appController"
+	appController2 "babygrowing/service/user/appController"
 
 	"github.com/hypwxm/rider"
 )

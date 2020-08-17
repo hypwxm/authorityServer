@@ -1,7 +1,7 @@
 package service
 
 import (
-	"worldbar/service/matter/matterElement/model"
+	"babygrowing/service/matter/matterElement/model"
 )
 
 func Create(entity *model.WbMatterElement) (string, error) {

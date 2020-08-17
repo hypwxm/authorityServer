@@ -1,7 +1,7 @@
 package service
 
 import (
-	"worldbar/service/house/model"
+	"babygrowing/service/house/model"
 )
 
 func Create(entity *model.WbHouse) (string, error) {

@@ -1,7 +1,7 @@
 package service
 
 import (
-	"worldbar/service/like/model"
+	"babygrowing/service/like/model"
 )
 
 func Create(entity *model.WbLike) (string, error) {

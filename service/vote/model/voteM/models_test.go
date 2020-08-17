@@ -3,8 +3,8 @@ package voteM
 import (
 	"io/ioutil"
 	"testing"
-	"worldbar/DB/pgsql"
-	"worldbar/config"
+	"babygrowing/DB/pgsql"
+	"babygrowing/config"
 )
 
 func TestModels(t *testing.T) {
