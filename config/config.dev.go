@@ -1,13 +1,13 @@
 package config
 
 var dev = config{
-	ServerPort:            ":3009",
-	UPLOADERHOST:          "",
-	EmailActiveLink:       "http://localhost:8000/user/index.html#/mine/info",
-	Hostname:              "http://localhost:8000",
-	GlobalLock:            "memory",
-	RabbitMqUrl:           "amqp://root:123456@localhost:5672/",
-	Pgsql:                 "host=47.96.29.83 port=5432 user=postgres password=123456 dbname=worldbar sslmode=disable",
+	ServerPort:      ":6789",
+	UPLOADERHOST:    "",
+	EmailActiveLink: "http://localhost:8000/user/index.html#/mine/info",
+	Hostname:        "http://localhost:8000",
+	GlobalLock:      "memory",
+	RabbitMqUrl:     "amqp://root:123456@localhost:5672/",
+	Pgsql:           "host=47.96.29.83 port=5432 user=postgres password=123456 dbname=baby_growing sslmode=disable",
 }
 
 var test = config{

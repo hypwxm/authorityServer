@@ -1,10 +1,9 @@
 package model
 
 import (
+	"babygrowing/DB/pgsql"
 	"fmt"
 	"strings"
-	"babygrowing/DB/pgsql"
-	"babygrowing/service/like/model"
 )
 
 const table_name = "wb_admin_role"
@@ -31,7 +30,7 @@ func listSql(query *Query) (whereSql string, fullSql string) {
 	if strings.TrimSpace(query.Keywords) != "" {
 		whereSql = whereSql + fmt.Sprintf(" and (%[1]s.name like '%%:keywords%%' or %[1]s.intro like '%%:keywords%%')", table_name)
 	}
-	
+
 	optionSql := pgsql.BaseOption(query.BaseQuery)
 	return whereSql, selectSql + whereSql + optionSql
 }
@@ -49,7 +48,7 @@ func getByIdSql() string {
 				case when %[2]s.id <> null then true else false end as like 
 				from %[1]s left join %[2]s on %[1]s.id=%[2]s.source_id and %[2]s.source_type=%[3]d 
 				where id=:id and isdelete=false`,
-		table_name, "wb_like", model.SourceTypeNews, "wb_news_dynamics_comment")
+		table_name)
 }
 
 func updateSql() string {
