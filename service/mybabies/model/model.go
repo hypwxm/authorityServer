@@ -36,6 +36,11 @@ type GMyBabies struct {
 	FavoriteColor string `json:"favoriteColor" db:"favorite_color"`
 	// 志向
 	Ambition string `json:"ambition" db:"ambition"`
+
+	UserID string `json:"userId" db:"user_id"`
+
+	Weight float64 `json:"weight" db:"weight"`
+	Height float64 `json:"height" db:"height"`
 }
 
 func (self *GMyBabies) Insert() (string, error) {
@@ -48,6 +53,9 @@ func (self *GMyBabies) Insert() (string, error) {
 		return "", errors.New(fmt.Sprintf("操作错误"))
 	}
 	if strings.TrimSpace(self.Gender) == "" {
+		return "", errors.New(fmt.Sprintf("操作错误"))
+	}
+	if strings.TrimSpace(self.UserID) == "" {
 		return "", errors.New(fmt.Sprintf("操作错误"))
 	}
 
@@ -84,9 +92,6 @@ type GetQuery struct {
 
 type GetModel struct {
 	GMyBabies
-	Like         bool `json:"like" db:"like"`
-	TotalLike    int  `json:"totalLike" db:"total_like"`
-	TotalComment int  `json:"totalComment" db:"total_comment"`
 }
 
 func (self *GMyBabies) GetByID(query *GetQuery) (*GetModel, error) {

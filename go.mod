@@ -4,7 +4,7 @@ go 1.14
 
 require (
 	github.com/aliyun/alibaba-cloud-sdk-go v1.60.285
-	github.com/hypwxm/rider v1.1.14
+	github.com/hypwxm/rider v1.2.0
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/lib/pq v1.2.0
