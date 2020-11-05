@@ -24,7 +24,7 @@ type GMyBabies struct {
 	// 性别
 	Gender string `json:"gender" db:"gender"`
 	// 照片
-	Avatar string `json:"string" db:"avatar"`
+	Avatar string `json:"avatar" db:"avatar"`
 	// 身份证号
 	IdCard string `json:"idCard" db:"id_card"`
 	// 兴趣
@@ -179,7 +179,7 @@ type UpdateByIDQuery struct {
 	// 性别
 	Gender string `json:"gender" db:"gender"`
 	// 照片
-	Avatar string `json:"string" db:"avatar"`
+	Avatar string `json:"avatar" db:"avatar"`
 	// 身份证号
 	IdCard string `json:"idCard" db:"id_card"`
 	// 兴趣

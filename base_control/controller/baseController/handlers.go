@@ -1,13 +1,14 @@
 package baseController
 
 import (
+	"babygrowing/logger"
+	"babygrowing/util/response"
 	"math/rand"
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"time"
-	"babygrowing/logger"
-	"babygrowing/util/response"
 
 	"babygrowing/config"
 
@@ -52,8 +53,10 @@ func upload(c rider.Context) {
 		}
 		filename := createFileName(c) + filepath.Ext(formFile.Name)
 		fullfilename := filepath.Join(fullDirpath, filename)
+		fullfilename = strings.ReplaceAll(fullfilename, "\\", "/")
 		c.StoreFormFile(formFile, fullfilename)
 		storePath := filepath.Join(basePath, action, filename)
+		storePath = strings.ReplaceAll(storePath, "\\", "/")
 		sender.Success(config.Config.UPLOADERHOST + storePath)
 	})()
 	c.SendJson(200, sender)

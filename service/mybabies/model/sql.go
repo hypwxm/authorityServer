@@ -69,7 +69,6 @@ func updateSql() string {
 	updateSql = updateSql + " ,weight=:weight"
 	updateSql = updateSql + " ,height=:height"
 
-
 	return fmt.Sprintf("update %s set updatetime=:updatetime %s where id=:id and isdelete=false", table_name, updateSql)
 }
 
