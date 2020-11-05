@@ -6,9 +6,10 @@ import (
 	"babygrowing/util/database"
 	"errors"
 	"fmt"
-	"github.com/lib/pq"
 	"log"
 	"strings"
+
+	"github.com/lib/pq"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -193,6 +194,10 @@ type UpdateByIDQuery struct {
 	Ambition string `json:"ambition" db:"ambition"`
 
 	Updatetime int64 `db:"updatetime"`
+
+	Weight float64 `db:"weight"`
+
+	Height float64 `db:"height"`
 }
 
 // 更新,根据用户id和数据id进行更新
