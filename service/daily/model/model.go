@@ -6,9 +6,10 @@ import (
 	"babygrowing/util/database"
 	"errors"
 	"fmt"
-	"github.com/lib/pq"
 	"log"
 	"strings"
+
+	"github.com/lib/pq"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -26,6 +27,11 @@ type GDaily struct {
 
 	UserId string `json:"userId" db:"user_id"`
 	BabyId string `json:"babyId" db:"baby_id"`
+
+	Weather     string  `json:"weather" db:"weather"`
+	Mood        string  `json:"mood" db:"mood"`
+	Health      string  `json:"health" db:"health"`
+	Temperature float64 `json:"temperature" db:"temperature"`
 }
 
 func (self *GDaily) Insert() (string, error) {
@@ -71,9 +77,6 @@ type GetQuery struct {
 
 type GetModel struct {
 	GDaily
-	Like         bool `json:"like" db:"like"`
-	TotalLike    int  `json:"totalLike" db:"total_like"`
-	TotalComment int  `json:"totalComment" db:"total_comment"`
 }
 
 func (self *GDaily) GetByID(query *GetQuery) (*GetModel, error) {
@@ -92,16 +95,12 @@ func (self *GDaily) GetByID(query *GetQuery) (*GetModel, error) {
 
 type Query struct {
 	pgsql.BaseQuery
-	Keywords    string `db:"keywords"`
-	Status      int    `db:"status"`
-	PublishTime int64  `db:"publish_time"`
+	Keywords string `db:"keywords"`
+	Status   int    `db:"status"`
 }
 
 type ListModel struct {
 	GDaily
-	Avatar   string `json:"avatar" db:"avatar"`
-	Nickname string `json:"nickname" db:"nickname"`
-	Like     bool   `json:"like" db:"like"`
 }
 
 func (self *GDaily) List(query *Query) ([]*ListModel, int64, error) {
