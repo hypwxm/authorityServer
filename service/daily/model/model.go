@@ -2,8 +2,12 @@ package model
 
 import (
 	"babygrowing/DB/pgsql"
+	mediaModel "babygrowing/service/media/model"
+	mediaService "babygrowing/service/media/service"
+
 	"babygrowing/util"
 	"babygrowing/util/database"
+
 	"errors"
 	"fmt"
 	"log"
@@ -13,6 +17,8 @@ import (
 
 	"github.com/jmoiron/sqlx"
 )
+
+const BusinessName = "baby_growning"
 
 type GDaily struct {
 	database.BaseColumns
@@ -32,6 +38,8 @@ type GDaily struct {
 	Mood        string  `json:"mood" db:"mood"`
 	Health      string  `json:"health" db:"health"`
 	Temperature float64 `json:"temperature" db:"temperature"`
+
+	Medias []*mediaModel.Media `json:"medias"`
 }
 
 func (self *GDaily) Insert() (string, error) {
@@ -42,6 +50,13 @@ func (self *GDaily) Insert() (string, error) {
 	}
 	if strings.TrimSpace(self.BabyId) == "" {
 		return "", errors.New(fmt.Sprintf("操作错误"))
+	}
+
+	// 先把媒体文件插入数据库
+	medias := mediaService.InitMedias(self.Medias, "BusinessName", self.UserId)
+	err = mediaService.MultiCreate(medias)
+	if err != nil {
+		return "", err
 	}
 
 	db := pgsql.Open()
@@ -209,28 +224,6 @@ func (self *GDaily) Delete(query *DeleteQuery) error {
 
 	db := pgsql.Open()
 	stmt, err := db.PrepareNamed(delSql())
-	if err != nil {
-		return err
-	}
-	_, err = stmt.Exec(query)
-	return err
-}
-
-type DisabledQuery struct {
-	Disabled bool   `db:"disabled"`
-	ID       string `db:"id"`
-}
-
-// 启用禁用店铺
-func (self *GDaily) ToggleDisabled(query *DisabledQuery) error {
-	if query == nil {
-		return errors.New("无操作条件")
-	}
-	if strings.TrimSpace(query.ID) == "" {
-		return errors.New("操作条件错误")
-	}
-	db := pgsql.Open()
-	stmt, err := db.PrepareNamed(toggleSql())
 	if err != nil {
 		return err
 	}

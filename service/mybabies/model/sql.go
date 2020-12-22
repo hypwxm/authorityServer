@@ -3,10 +3,19 @@ package model
 import (
 	"babygrowing/DB/pgsql"
 	"fmt"
+	"io/ioutil"
 	"strings"
 )
 
 const table_name = "g_my_babies"
+
+func GetSqlFile() ([]byte, error) {
+	b, err := ioutil.ReadFile("scheme.sql")
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
+}
 
 func insertSql() string {
 	return fmt.Sprintf("insert into %s (createtime, isdelete, disabled, id, name, birthday, gender, avatar, id_card, hobby, good_at, favorite_food, favorite_color, ambition, user_id, weight, height) select :createtime, :isdelete, :disabled, :id, :name, :birthday, :gender, :avatar, :id_card, :hobby, :good_at, :favorite_food, :favorite_color, :ambition, :user_id, :weight, :height returning id", table_name)
