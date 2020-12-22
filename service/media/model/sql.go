@@ -4,13 +4,17 @@ import (
 	"babygrowing/DB/pgsql"
 	"fmt"
 	"io/ioutil"
+	"os"
+	"path"
 	"strings"
 )
 
+// 表名
 const table_name = "media"
 
 func GetSqlFile() ([]byte, error) {
-	b, err := ioutil.ReadFile("scheme.sql")
+	cwd, _ := os.Getwd()
+	b, err := ioutil.ReadFile(path.Join(cwd, "scheme.sql"))
 	if err != nil {
 		return nil, err
 	}

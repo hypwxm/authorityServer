@@ -1,11 +1,9 @@
-package envInit
+package envinit
 
 import (
 	"babygrowing/DB/pgsql"
 	"babygrowing/config"
-	"babygrowing/service/daily/model"
-	media "babygrowing/service/media/model"
-	mybabies "babygrowing/service/mybabies/model"
+	"io/ioutil"
 
 	"log"
 	"testing"
@@ -17,9 +15,9 @@ func TestMyBabiesInit(t *testing.T) {
 	}
 	db := pgsql.Open()
 
-	sql, err := mybabies.GetSqlFile()
+	sql, err := ioutil.ReadFile("sqls/g_my_babies.sql")
 	if err != nil {
-		log.Fatalln("err")
+		log.Fatalln(err)
 	}
 	_, err = db.Exec(string(sql))
 	if err != nil {
@@ -33,9 +31,9 @@ func TestBabyGrowningInit(t *testing.T) {
 	}
 	db := pgsql.Open()
 
-	sql, err := model.GetSqlFile()
+	sql, err := ioutil.ReadFile("sqls/g_daily.sql")
 	if err != nil {
-		log.Fatalln("err")
+		log.Fatalln(err)
 	}
 	_, err = db.Exec(string(sql))
 	if err != nil {
@@ -49,9 +47,9 @@ func TestMediaInit(t *testing.T) {
 	}
 	db := pgsql.Open()
 
-	sql, err := media.GetSqlFile()
+	sql, err := ioutil.ReadFile("sqls/g_media.sql")
 	if err != nil {
-		log.Fatalln("err")
+		log.Fatalln(err)
 	}
 	_, err = db.Exec(string(sql))
 	if err != nil {
