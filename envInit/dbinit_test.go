@@ -28,6 +28,7 @@ func TestMyBabiesInit(t *testing.T) {
 func TestBabyGrowningInit(t *testing.T) {
 	if config.Env != "development" {
 		log.Fatalln("环境错误")
+
 	}
 	db := pgsql.Open()
 
