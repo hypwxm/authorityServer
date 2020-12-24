@@ -2,8 +2,10 @@ package model
 
 import (
 	"babygrowing/DB/pgsql"
+	orgModel "babygrowing/service/admin/org/model"
 	"babygrowing/util"
 	"babygrowing/util/database"
+
 	"errors"
 	"fmt"
 	"log"
@@ -67,6 +69,49 @@ func insertRoles(orgs []*GAdminUserRole, tx *sqlx.Tx) error {
 		}
 	}
 	return nil
+}
+
+/**
+根据用户ids拿到对应的组织列表
+*/
+type UserAndOrgModel struct {
+	orgModel.GOrg
+}
+
+func GetOrgsByUserIds(ids []string) ([]*UserAndOrgModel, error) {
+
+	db := pgsql.Open()
+	whereSQL := orgListSql()
+	stmt, err := db.PrepareNamed(whereSQL)
+	if err != nil {
+		return nil, err
+	}
+	log.Println(stmt.QueryString)
+
+	arr := pq.StringArray{}
+	for _, v := range ids {
+		arr = append(arr, v)
+	}
+
+	rows, err := stmt.Queryx(map[string]interface{}{
+		"user_ids": arr,
+	})
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var list = make([]*UserAndOrgModel, 0)
+	for rows.Next() {
+		var item = new(UserAndOrgModel)
+		err = rows.StructScan(&item)
+		if err != nil {
+			return nil, err
+		}
+		list = append(list, item)
+	}
+
+	return list, nil
 }
 
 func (self *GAdminUser) Insert() (string, error) {
@@ -253,8 +298,17 @@ func (self *GAdminUser) Update(query *UpdateByIDQuery) error {
 	log.Println(stmt.QueryString)
 	query.Updatetime = util.GetCurrentMS()
 
-	self.Get(&GAdminUser{BaseColumns: {ID: self.ID}})
-
+	// 如果password有更新的话
+	if strings.TrimSpace(query.Password) != "" {
+		if util.ValidatePwd(query.Password) {
+			return fmt.Errorf("密码太短")
+		}
+		user, err := self.Get(&GAdminUser{BaseColumns: database.BaseColumns{ID: self.ID}})
+		if err != nil {
+			return err
+		}
+		query.Password = util.SignPwd(query.Password, user.Salt)
+	}
 	_, err = stmt.Exec(query)
 	if err != nil {
 		return err

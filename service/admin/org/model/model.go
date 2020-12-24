@@ -27,7 +27,7 @@ type GOrg struct {
 	Sort     int    `json:"sort" db:"sort"`
 	ParentId string `json:"parentId" db:"parent_id"`
 
-	UserId string `json:"userId"`
+	UserId string `json:"userId" db:"user_id"`
 	Media  *mediaModel.Media
 }
 

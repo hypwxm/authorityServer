@@ -1,19 +1,20 @@
 package model
 
 import (
-	"errors"
-	"fmt"
-	"github.com/lib/pq"
-	"log"
-	"strings"
 	"babygrowing/DB/pgsql"
 	"babygrowing/util"
 	"babygrowing/util/database"
+	"errors"
+	"fmt"
+	"log"
+	"strings"
+
+	"github.com/lib/pq"
 
 	"github.com/jmoiron/sqlx"
 )
 
-type WbAdminRole struct {
+type GAdminRole struct {
 	database.BaseColumns
 
 	Name           string `json:"name" db:"name"`

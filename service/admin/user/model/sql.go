@@ -2,7 +2,6 @@ package model
 
 import (
 	"babygrowing/DB/pgsql"
-	"babygrowing/util"
 	"fmt"
 	"strings"
 )
@@ -68,9 +67,7 @@ func updateSql(query *UpdateByIDQuery) string {
 	updateSql = updateSql + " ,contact_way=:contact_way"
 
 	if query.Password != "" {
-		if util.ValidatePwd(query.Password) {
-			updateSql = updateSql + " ,password=:password"
-		}
+		updateSql = updateSql + " ,password=:password"
 	}
 
 	return fmt.Sprintf("update %s set updatetime=:updatetime %s where id=:id and isdelete=false", table_name, updateSql)
