@@ -1,18 +1,19 @@
 package model
 
 import (
-	"fmt"
-	"strings"
 	"babygrowing/DB/pgsql"
 	"babygrowing/util"
+	"fmt"
+	"strings"
 )
 
-const table_name = "wb_admin_user"
+const table_name = "g_admin_user"
 
 func insertSql() string {
 	return fmt.Sprintf(`insert into %s 
-	(createtime, isdelete, disabled, id, account, password, username, salt, type, avatar, role_id)
-	select :createtime, :isdelete, :disabled, :id, :account, :password, :username, :salt, :type, :avatar, :role_id returning id`,
+	(createtime, isdelete, disabled, id, account, password, username, salt, avatar, post)
+	select :createtime, :isdelete, :disabled, :id, :account, :password, :username, :salt, :type, :avatar, :post
+	where not exists(select 1 from %[1]s where account=:account and isdelete=false) returning id`,
 		table_name,
 	)
 }
@@ -25,11 +26,10 @@ func listSql(query *Query) (whereSql string, fullSql string) {
 				%[1]s.account,
 				%[1]s.username,
 				%[1]s.avatar,
-				%[1]s.type,
+				%[1]s.post,
 				%[1]s.disabled,
-				%[1]s.role_id,
-				COALESCE(%[2]s.name, '') as role_name
-				FROM %[1]s left join %[2]s on %[1]s.role_id=%[2]s.id WHERE 1=1 `, table_name, "wb_admin_role")
+				%[1]s.sort
+				FROM %[1]s WHERE 1=1 and %[1]s.isdelete=false`, table_name)
 	whereSql = pgsql.BaseWhere(query.BaseQuery, table_name)
 	if strings.TrimSpace(query.Keywords) != "" {
 		whereSql = whereSql + fmt.Sprintf(" and (%[1]s.account like '%%:keywords%%' or %[1]s.username like '%%:keywords%%')", table_name)
@@ -51,11 +51,10 @@ func getByIdSql() string {
 				%[1]s.account,
 				%[1]s.username,
 				%[1]s.avatar,
-				%[1]s.type,
+				%[1]s.post,
 				%[1]s.disabled,
-				%[1]s.role_id,
-				COALESCE(%[2]s.name, '') as role_name
-				from %[1]s left join %[2]s on %[1]s.role_id=%[2]s.id
+				%[1]s.sort
+				from %[1]s
 				where %[1]s.id=:id and %[1]s.isdelete=false`,
 		table_name, "wb_admin_role")
 }
@@ -64,7 +63,10 @@ func updateSql(query *UpdateByIDQuery) string {
 	var updateSql = ""
 	updateSql = updateSql + " ,username=:username"
 	updateSql = updateSql + " ,avatar=:avatar"
-	updateSql = updateSql + " ,role_id=:role_id"
+	updateSql = updateSql + " ,post=:post"
+	updateSql = updateSql + " ,sort=:sort"
+	updateSql = updateSql + " ,contact_way=:contact_way"
+
 	if query.Password != "" {
 		if util.ValidatePwd(query.Password) {
 			updateSql = updateSql + " ,password=:password"

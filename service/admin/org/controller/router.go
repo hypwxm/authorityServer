@@ -8,7 +8,8 @@ func Router() *rider.Router {
 	// 生成枚举
 	route.POST("/create", create)
 	route.POST("/list", list)
+	route.POST("/modify", modify)
 	route.POST("/delete", del)
-
+	route.POST("/get", get)
 	return route
 }
