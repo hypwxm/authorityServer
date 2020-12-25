@@ -250,7 +250,6 @@ type Query struct {
 
 type ListModel struct {
 	GAdminUser
-	RoleName string `json:"roleName" db:"role_name"`
 }
 
 func (self *GAdminUser) List(query *Query) ([]*ListModel, int64, error) {

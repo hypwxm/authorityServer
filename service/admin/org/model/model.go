@@ -27,8 +27,8 @@ type GOrg struct {
 	Sort     int    `json:"sort" db:"sort"`
 	ParentId string `json:"parentId" db:"parent_id"`
 
-	UserId string `json:"userId" db:"user_id"`
-	Media  *mediaModel.Media
+	UserId string              `json:"userId" db:"-"`
+	Media  []*mediaModel.Media `json:"media" db:"-"`
 }
 
 func (self *GOrg) Insert() (string, error) {
@@ -39,7 +39,7 @@ func (self *GOrg) Insert() (string, error) {
 	}
 
 	// 先把媒体文件插入数据库
-	medias := mediaService.InitMedias([]*mediaModel.Media{self.Media}, BusinessName, self.UserId)
+	medias := mediaService.InitMedias(self.Media, BusinessName, self.UserId)
 	err = mediaService.MultiCreate(medias)
 	if err != nil {
 		return "", err

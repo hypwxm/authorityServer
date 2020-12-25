@@ -9,6 +9,9 @@ func Create(entity *model.Media) (string, error) {
 }
 
 func MultiCreate(list []*model.Media) error {
+	if len(list) == 0 {
+		return nil
+	}
 	return model.StoreMedias(list)
 }
 
@@ -21,5 +24,8 @@ func Del(query *model.DeleteQuery) error {
 }
 
 func InitMedias(list []*model.Media, businessName string, creator string) []*model.Media {
+	if len(list) == 0 {
+		return nil
+	}
 	return model.InitMedias(list, businessName, creator)
 }

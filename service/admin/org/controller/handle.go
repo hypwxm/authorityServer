@@ -1,10 +1,12 @@
 package controller
 
 import (
+	"babygrowing/config"
 	"babygrowing/service/admin/org/model"
 	"babygrowing/service/admin/org/service"
 	"babygrowing/util/response"
 	"encoding/json"
+	"strings"
 
 	"github.com/hypwxm/rider"
 )
@@ -18,6 +20,11 @@ func create(c rider.Context) {
 			sender.Fail(err.Error())
 			return
 		}
+		if strings.TrimSpace(entity.ParentId) == "" {
+			sender.Fail("数据错误")
+			return
+		}
+		entity.UserId = c.GetLocals(config.AppServerTokenKey).(string)
 		id, err := service.Create(entity)
 		if err != nil {
 			sender.Fail(err.Error())

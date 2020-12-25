@@ -47,6 +47,10 @@ func (self *Media) Insert() (string, error) {
 
 func InitMedias(list []*Media, businessName string, creator string) []*Media {
 	for _, v := range list {
+		if v == nil {
+			return nil
+
+		}
 		v.Init()
 		v.Business = businessName
 		v.UserID = creator
@@ -57,6 +61,9 @@ func InitMedias(list []*Media, businessName string, creator string) []*Media {
 func StoreMedias(list []*Media) error {
 	var err error
 	for _, v := range list {
+		if v == nil {
+			return fmt.Errorf("文件错误")
+		}
 		_, err = v.Insert()
 		if err != nil {
 			return err

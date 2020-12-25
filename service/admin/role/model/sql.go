@@ -10,8 +10,8 @@ const table_name = "g_admin_role"
 
 func insertSql() string {
 	return fmt.Sprintf(`insert into %s
-		(createtime, isdelete, disabled, id, name, intro) 
-		select :createtime, :isdelete, :disabled, :id, :name, :intro returning id`,
+		(createtime, isdelete, disabled, id, name, intro, org_id) 
+		select :createtime, :isdelete, :disabled, :id, :name, :intro, :org_id returning id`,
 		table_name)
 
 }
@@ -23,6 +23,9 @@ func listSql(query *Query) (whereSql string, fullSql string) {
 	whereSql = pgsql.BaseWhere(query.BaseQuery)
 	if strings.TrimSpace(query.Keywords) != "" {
 		whereSql = whereSql + fmt.Sprintf(" and (%[1]s.name like '%%:keywords%%' or %[1]s.intro like '%%:keywords%%')", table_name)
+	}
+	if query.OrgId != "" {
+		whereSql = whereSql + fmt.Sprintf(" and (%[1]s.org_id=:org_id)", table_name)
 	}
 
 	optionSql := pgsql.BaseOption(query.BaseQuery)

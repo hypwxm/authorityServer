@@ -3,23 +3,11 @@ package model
 import (
 	"babygrowing/DB/pgsql"
 	"fmt"
-	"io/ioutil"
-	"os"
-	"path"
 	"strings"
 )
 
 // 表名
-const table_name = "media"
-
-func GetSqlFile() ([]byte, error) {
-	cwd, _ := os.Getwd()
-	b, err := ioutil.ReadFile(path.Join(cwd, "scheme.sql"))
-	if err != nil {
-		return nil, err
-	}
-	return b, nil
-}
+const table_name = "g_media"
 
 func insertSql() string {
 	return fmt.Sprintf("insert into %s (createtime, isdelete, disabled, id, url, user_id, business) select :createtime, :isdelete, :disabled, :id, :url, :user_id, :business returning id", table_name)

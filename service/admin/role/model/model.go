@@ -19,6 +19,7 @@ type GAdminRole struct {
 
 	Name  string `json:"name" db:"name"`
 	Intro string `json:"intro" db:"intro"`
+	OrgId string `json:"orgId" db:"org_id"`
 }
 
 func (self *GAdminRole) Insert() (string, error) {
@@ -79,7 +80,7 @@ func (self *GAdminRole) GetByID(query *GetQuery) (*GetModel, error) {
 type Query struct {
 	pgsql.BaseQuery
 	Keywords string `db:"keywords"`
-	Status   int    `db:"status"`
+	OrgId    string `db:"org_id"`
 }
 
 type ListModel struct {
