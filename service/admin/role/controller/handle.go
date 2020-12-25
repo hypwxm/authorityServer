@@ -1,17 +1,18 @@
 package controller
 
 import (
-	"encoding/json"
-	"github.com/hypwxm/rider"
 	"babygrowing/service/admin/role/model"
 	"babygrowing/service/admin/role/service"
 	"babygrowing/util/response"
+	"encoding/json"
+
+	"github.com/hypwxm/rider"
 )
 
 func create(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		entity := new(model.WbAdminRole)
+		entity := new(model.GAdminRole)
 		err := json.Unmarshal(c.Body(), &entity)
 		if err != nil {
 			sender.Fail(err.Error())
@@ -99,44 +100,6 @@ func get(c rider.Context) {
 			return
 		}
 		sender.Success(entity)
-	})()
-	c.SendJson(200, sender)
-}
-
-func updateSort(c rider.Context) {
-	sender := response.NewSender()
-	(func() {
-		query := new(model.UpdateSortQuery)
-		err := json.Unmarshal(c.Body(), &query)
-		if err != nil {
-			sender.Fail(err.Error())
-			return
-		}
-		err = service.UpdateSort(query)
-		if err != nil {
-			sender.Fail(err.Error())
-			return
-		}
-		sender.Success("")
-	})()
-	c.SendJson(200, sender)
-}
-
-func updateStatus(c rider.Context) {
-	sender := response.NewSender()
-	(func() {
-		query := new(model.UpdateStatusQuery)
-		err := json.Unmarshal(c.Body(), &query)
-		if err != nil {
-			sender.Fail(err.Error())
-			return
-		}
-		err = service.UpdateStatus(query)
-		if err != nil {
-			sender.Fail(err.Error())
-			return
-		}
-		sender.Success("")
 	})()
 	c.SendJson(200, sender)
 }

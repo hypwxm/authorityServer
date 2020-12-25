@@ -208,7 +208,7 @@ type DisabledQuery struct {
 	ID       string `db:"id"`
 }
 
-func (self *WbAdminRole) ToggleDisabled(query *DisabledQuery) error {
+func (self *GOrg) ToggleDisabled(query *DisabledQuery) error {
 	if query == nil {
 		return errors.New("无操作条件")
 	}

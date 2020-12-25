@@ -3,6 +3,8 @@ package model
 import (
 	"babygrowing/DB/pgsql"
 	orgModel "babygrowing/service/admin/org/model"
+	roleModel "babygrowing/service/admin/org/model"
+
 	"babygrowing/util"
 	"babygrowing/util/database"
 
@@ -79,7 +81,6 @@ type UserAndOrgModel struct {
 }
 
 func GetOrgsByUserIds(ids []string) ([]*UserAndOrgModel, error) {
-
 	db := pgsql.Open()
 	whereSQL := orgListSql()
 	stmt, err := db.PrepareNamed(whereSQL)
@@ -104,6 +105,48 @@ func GetOrgsByUserIds(ids []string) ([]*UserAndOrgModel, error) {
 	var list = make([]*UserAndOrgModel, 0)
 	for rows.Next() {
 		var item = new(UserAndOrgModel)
+		err = rows.StructScan(&item)
+		if err != nil {
+			return nil, err
+		}
+		list = append(list, item)
+	}
+
+	return list, nil
+}
+
+/**
+根据用户ids拿到对应角色列表
+*/
+type UserAndRoleModel struct {
+	roleModel.GRole
+}
+
+func GetRolesByUserIds(ids []string) ([]*UserAndRoleModel, error) {
+	db := pgsql.Open()
+	whereSQL := roleListSql()
+	stmt, err := db.PrepareNamed(whereSQL)
+	if err != nil {
+		return nil, err
+	}
+	log.Println(stmt.QueryString)
+
+	arr := pq.StringArray{}
+	for _, v := range ids {
+		arr = append(arr, v)
+	}
+
+	rows, err := stmt.Queryx(map[string]interface{}{
+		"user_ids": arr,
+	})
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var list = make([]*UserAndRoleModel, 0)
+	for rows.Next() {
+		var item = new(UserAndRoleModel)
 		err = rows.StructScan(&item)
 		if err != nil {
 			return nil, err
