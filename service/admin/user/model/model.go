@@ -161,19 +161,21 @@ func (self *GAdminUser) Insert() (string, error) {
 	var err error
 
 	if strings.TrimSpace(self.Account) == "" {
-		return "", errors.New(fmt.Sprintf("操作错误"))
+		return "", fmt.Errorf("操作错误")
 	}
 	if strings.TrimSpace(self.Password) == "" {
-		return "", errors.New(fmt.Sprintf("操作错误"))
+		return "", fmt.Errorf("操作错误")
 	}
 	if strings.TrimSpace(self.Username) == "" {
-		return "", errors.New(fmt.Sprintf("操作错误"))
+		return "", fmt.Errorf("操作错误")
 	}
-	if len(self.Orgs) == 0 {
-		return "", errors.New(fmt.Sprintf("操作错误"))
-	}
-	if len(self.Roles) == 0 {
-		return "", errors.New(fmt.Sprintf("操作错误"))
+	if self.Account != "admin" {
+		if len(self.Orgs) == 0 {
+			return "", fmt.Errorf("操作错误")
+		}
+		if len(self.Roles) == 0 {
+			return "", fmt.Errorf("操作错误")
+		}
 	}
 	db := pgsql.Open()
 	tx, err := db.Beginx()
@@ -453,7 +455,7 @@ func (self *GAdminUser) Get(query *GAdminUser) (*GAdminUser, error) {
 	db := pgsql.Open()
 
 	var selectSql = `
-		select * from wb_admin_user 
+		select * from g_admin_user 
 	`
 	var whereSql = `
 		where 1=1 

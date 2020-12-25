@@ -2,10 +2,10 @@ package router
 
 import (
 	"babygrowing/middleware"
+	orgController "babygrowing/service/admin/org/controller"
 	controller8 "babygrowing/service/admin/role/controller"
-	controller13 "babygrowing/service/admin/rolePermission/menu/controller"
-	controller15 "babygrowing/service/admin/rolePermission/source/controller"
 	controller7 "babygrowing/service/admin/user/controller"
+
 	controller2 "babygrowing/service/auth/controller"
 	daily "babygrowing/service/daily/controller"
 	controller12 "babygrowing/service/menu/controller"
@@ -29,8 +29,7 @@ func Router() *rider.Router {
 
 	route.Kid("/adminuser", middleware.Auth(), controller7.Router())
 	route.Kid("/adminrole", middleware.Auth(), controller8.Router())
-	route.Kid("/adminrole/menuPermission", middleware.Auth(), controller13.Router())
-	route.Kid("/adminrole/sourcePermission", middleware.Auth(), controller15.Router())
+	route.Kid("/adminorg", middleware.Auth(), orgController.Router())
 
 	return route
 }

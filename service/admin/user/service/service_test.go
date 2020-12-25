@@ -1,7 +1,13 @@
 package service
 
-import "testing"
+import (
+	"log"
+	"testing"
+)
 
 func TestModels(t *testing.T) {
-	InitAdmin()
+	err := InitAdmin()
+	if err != nil {
+		log.Fatal(err)
+	}
 }
