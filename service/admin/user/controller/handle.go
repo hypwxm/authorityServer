@@ -1,23 +1,23 @@
 package controller
 
 import (
-	"encoding/json"
-	"github.com/hypwxm/rider"
 	"babygrowing/service/admin/user/model"
 	"babygrowing/service/admin/user/service"
 	"babygrowing/util/response"
+	"encoding/json"
+
+	"github.com/hypwxm/rider"
 )
 
 func create(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		entity := new(model.WbAdminUser)
+		entity := new(model.GAdminUser)
 		err := json.Unmarshal(c.Body(), &entity)
 		if err != nil {
 			sender.Fail(err.Error())
 			return
 		}
-		entity.Type = 2
 		id, err := service.Create(entity)
 		if err != nil {
 			sender.Fail(err.Error())

@@ -3,7 +3,7 @@ package model
 import (
 	"babygrowing/DB/pgsql"
 	orgModel "babygrowing/service/admin/org/model"
-	roleModel "babygrowing/service/admin/org/model"
+	roleModel "babygrowing/service/admin/role/model"
 
 	"babygrowing/util"
 	"babygrowing/util/database"
@@ -119,7 +119,7 @@ func GetOrgsByUserIds(ids []string) ([]*UserAndOrgModel, error) {
 根据用户ids拿到对应角色列表
 */
 type UserAndRoleModel struct {
-	roleModel.GRole
+	roleModel.GAdminRole
 }
 
 func GetRolesByUserIds(ids []string) ([]*UserAndRoleModel, error) {
