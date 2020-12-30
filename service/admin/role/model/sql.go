@@ -22,7 +22,7 @@ func listSql(query *Query) (whereSql string, fullSql string) {
 				FROM %[1]s WHERE 1=1 `, table_name)
 	whereSql = pgsql.BaseWhere(query.BaseQuery)
 	if strings.TrimSpace(query.Keywords) != "" {
-		whereSql = whereSql + fmt.Sprintf(" and (%[1]s.name like '%%:keywords%%' or %[1]s.intro like '%%:keywords%%')", table_name)
+		whereSql = whereSql + fmt.Sprintf(" and (%[1]s.name like '%%"+query.Keywords+"%%' or %[1]s.intro like '%%"+query.Keywords+"%%')", table_name)
 	}
 	if query.OrgId != "" {
 		whereSql = whereSql + fmt.Sprintf(" and (%[1]s.org_id=:org_id)", table_name)

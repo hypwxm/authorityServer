@@ -31,7 +31,7 @@ func listSql(query *Query) (whereSql string, fullSql string) {
 				FROM %[1]s WHERE 1=1 and %[1]s.isdelete=false`, table_name)
 	whereSql = pgsql.BaseWhere(query.BaseQuery, table_name)
 	if strings.TrimSpace(query.Keywords) != "" {
-		whereSql = whereSql + fmt.Sprintf(" and (%[1]s.account like '%%:keywords%%' or %[1]s.username like '%%:keywords%%')", table_name)
+		whereSql = whereSql + fmt.Sprintf(" and (%[1]s.account like '%%"+query.Keywords+"%%' or %[1]s.username like '%%"+query.Keywords+"%%')", table_name)
 	}
 	optionSql := pgsql.BaseOption(query.BaseQuery, table_name)
 	return whereSql, selectSql + whereSql + optionSql
