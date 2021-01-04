@@ -4,30 +4,22 @@ import (
 	"babygrowing/service/admin/role/model"
 )
 
-func Create(entity *model.WbAdminRole) (string, error) {
+func Create(entity *model.GAdminRole) (string, error) {
 	return entity.Insert()
 }
 
 func Modify(updateQuery *model.UpdateByIDQuery) error {
-	return new(model.WbAdminRole).Update(updateQuery)
+	return new(model.GAdminRole).Update(updateQuery)
 }
 
 func List(query *model.Query) ([]*model.ListModel, int64, error) {
-	return new(model.WbAdminRole).List(query)
+	return new(model.GAdminRole).List(query)
 }
 
 func Del(query *model.DeleteQuery) error {
-	return new(model.WbAdminRole).Delete(query)
+	return new(model.GAdminRole).Delete(query)
 }
 
 func Get(query *model.GetQuery) (*model.GetModel, error) {
-	return new(model.WbAdminRole).GetByID(query)
-}
-
-func UpdateSort(query *model.UpdateSortQuery) error {
-	return new(model.WbAdminRole).UpdateSort(query)
-}
-
-func UpdateStatus(query *model.UpdateStatusQuery) error {
-	return new(model.WbAdminRole).UpdateStatus(query)
+	return new(model.GAdminRole).GetByID(query)
 }

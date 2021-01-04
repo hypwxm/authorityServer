@@ -18,6 +18,7 @@ func create(c rider.Context) {
 			sender.Fail(err.Error())
 			return
 		}
+		entity.UserID = c.GetLocals(config.AppServerTokenKey).(string)
 
 		entity.UserID = c.GetLocals(config.AppServerTokenKey).(string)
 

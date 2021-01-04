@@ -1,8 +1,6 @@
 package controller
 
 import (
-	"encoding/json"
-	"github.com/hypwxm/rider"
 	"babygrowing/config"
 	adminUserModel "babygrowing/service/admin/user/model"
 	adminUserService "babygrowing/service/admin/user/service"
@@ -11,6 +9,9 @@ import (
 	"babygrowing/util"
 	"babygrowing/util/database"
 	"babygrowing/util/response"
+	"encoding/json"
+
+	"github.com/hypwxm/rider"
 )
 
 type LoginForm struct {
@@ -33,7 +34,7 @@ func login(c rider.Context) {
 				return
 			}
 		}
-		user, err := adminUserService.GetUser(&adminUserModel.WbAdminUser{
+		user, err := adminUserService.GetUser(&adminUserModel.GAdminUser{
 			Account:  loginForm.UserName,
 			Password: loginForm.Password,
 		})
@@ -51,7 +52,7 @@ func login(c rider.Context) {
 func loginAdmin(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		query := new(adminUserModel.WbAdminUser)
+		query := new(adminUserModel.GAdminUser)
 		query.ID = c.GetLocals(config.AppServerTokenKey).(string)
 		user, err := adminUserService.GetUser(query)
 		if err != nil {

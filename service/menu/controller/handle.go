@@ -1,13 +1,14 @@
 package controller
 
 import (
-	"encoding/json"
-	"github.com/hypwxm/rider"
 	"babygrowing/config"
 	adminUserModel "babygrowing/service/admin/user/model"
 	"babygrowing/service/menu/model"
 	"babygrowing/service/menu/service"
 	"babygrowing/util/response"
+	"encoding/json"
+
+	"github.com/hypwxm/rider"
 
 	adminUserService "babygrowing/service/admin/user/service"
 )
@@ -69,7 +70,11 @@ func list(c rider.Context) {
 			sender.Fail(err.Error())
 			return
 		}
-		query.RoleId = user.RoleId
+		if user.Account == "admin" {
+			query.RoleId = ""
+		} else {
+			query.RoleId = "1"
+		}
 		list, err := service.List(query)
 		if err != nil {
 			sender.Fail(err.Error())

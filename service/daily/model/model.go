@@ -2,16 +2,23 @@ package model
 
 import (
 	"babygrowing/DB/pgsql"
+	mediaModel "babygrowing/service/media/model"
+	mediaService "babygrowing/service/media/service"
+
 	"babygrowing/util"
 	"babygrowing/util/database"
+
 	"errors"
 	"fmt"
-	"github.com/lib/pq"
 	"log"
 	"strings"
 
+	"github.com/lib/pq"
+
 	"github.com/jmoiron/sqlx"
 )
+
+const BusinessName = "baby_growning"
 
 type GDaily struct {
 	database.BaseColumns
@@ -26,6 +33,13 @@ type GDaily struct {
 
 	UserId string `json:"userId" db:"user_id"`
 	BabyId string `json:"babyId" db:"baby_id"`
+
+	Weather     string  `json:"weather" db:"weather"`
+	Mood        string  `json:"mood" db:"mood"`
+	Health      string  `json:"health" db:"health"`
+	Temperature float64 `json:"temperature" db:"temperature"`
+
+	Medias []*mediaModel.Media `json:"medias"`
 }
 
 func (self *GDaily) Insert() (string, error) {
@@ -36,6 +50,13 @@ func (self *GDaily) Insert() (string, error) {
 	}
 	if strings.TrimSpace(self.BabyId) == "" {
 		return "", errors.New(fmt.Sprintf("操作错误"))
+	}
+
+	// 先把媒体文件插入数据库
+	medias := mediaService.InitMedias(self.Medias, "BusinessName", self.UserId)
+	err = mediaService.MultiCreate(medias)
+	if err != nil {
+		return "", err
 	}
 
 	db := pgsql.Open()
@@ -71,9 +92,6 @@ type GetQuery struct {
 
 type GetModel struct {
 	GDaily
-	Like         bool `json:"like" db:"like"`
-	TotalLike    int  `json:"totalLike" db:"total_like"`
-	TotalComment int  `json:"totalComment" db:"total_comment"`
 }
 
 func (self *GDaily) GetByID(query *GetQuery) (*GetModel, error) {
@@ -92,16 +110,12 @@ func (self *GDaily) GetByID(query *GetQuery) (*GetModel, error) {
 
 type Query struct {
 	pgsql.BaseQuery
-	Keywords    string `db:"keywords"`
-	Status      int    `db:"status"`
-	PublishTime int64  `db:"publish_time"`
+	Keywords string `db:"keywords"`
+	Status   int    `db:"status"`
 }
 
 type ListModel struct {
 	GDaily
-	Avatar   string `json:"avatar" db:"avatar"`
-	Nickname string `json:"nickname" db:"nickname"`
-	Like     bool   `json:"like" db:"like"`
 }
 
 func (self *GDaily) List(query *Query) ([]*ListModel, int64, error) {
@@ -210,28 +224,6 @@ func (self *GDaily) Delete(query *DeleteQuery) error {
 
 	db := pgsql.Open()
 	stmt, err := db.PrepareNamed(delSql())
-	if err != nil {
-		return err
-	}
-	_, err = stmt.Exec(query)
-	return err
-}
-
-type DisabledQuery struct {
-	Disabled bool   `db:"disabled"`
-	ID       string `db:"id"`
-}
-
-// 启用禁用店铺
-func (self *GDaily) ToggleDisabled(query *DisabledQuery) error {
-	if query == nil {
-		return errors.New("无操作条件")
-	}
-	if strings.TrimSpace(query.ID) == "" {
-		return errors.New("操作条件错误")
-	}
-	db := pgsql.Open()
-	stmt, err := db.PrepareNamed(toggleSql())
 	if err != nil {
 		return err
 	}

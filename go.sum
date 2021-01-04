@@ -16,6 +16,8 @@ github.com/hypwxm/jwt-go v3.2.1+incompatible h1:ic1JZYcYekeDNgYJFIpdyDAKKbcgS4eg
 github.com/hypwxm/jwt-go v3.2.1+incompatible/go.mod h1:Xb7k0DdYfQ811PBDLM7yvQ83+pDGricvVOtnJCTv2Cc=
 github.com/hypwxm/rider v1.1.14 h1:hUxCperbk8fWxS/s0+5lv5PwhdRV8bKFfSZ+tt2IprE=
 github.com/hypwxm/rider v1.1.14/go.mod h1:lV/2EPjLmpzlkwumY6/llfHA+Dl2THPSIgLFKHBcbA4=
+github.com/hypwxm/rider v1.2.0 h1:iol0kJ4AQL71ZgASk8ooBuAHUbXDztneYYdtYh2+D2Q=
+github.com/hypwxm/rider v1.2.0/go.mod h1:77OYz8xEmnH16dzSJ5Sz0WJyyZljWTu2K9H2q5bYpTU=
 github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af h1:pmfjZENx5imkbgOkpRUYLnmbU7UEFbjtDA2hxJ1ichM=
 github.com/jmespath/go-jmespath v0.0.0-20180206201540-c2b33e8439af/go.mod h1:Nht3zPeWKUH0NzdCt2Blrr5ys8VGpn0CEB0cQHVjt7k=
 github.com/jmoiron/sqlx v1.2.0 h1:41Ip0zITnmWNR/vHV+S4m+VoUivnWY5E4OJfLZjCJMA=
