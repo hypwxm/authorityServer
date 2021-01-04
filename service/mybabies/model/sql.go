@@ -9,7 +9,7 @@ import (
 const table_name = "g_my_babies"
 
 func insertSql() string {
-	return fmt.Sprintf("insert into %s (createtime, isdelete, disabled, id, name, birthday, gender, avatar, id_card, hobby, good_at, favorite_food, favorite_color, ambition) select :createtime, :isdelete, :disabled, :id, :name, :birthday, :gender, :avatar, :id_card, :hobby, :good_at, :favorite_food, :favorite_color, :ambition returning id", table_name)
+	return fmt.Sprintf("insert into %s (createtime, isdelete, disabled, id, name, birthday, gender, avatar, id_card, hobby, good_at, favorite_food, favorite_color, ambition, user_id) select :createtime, :isdelete, :disabled, :id, :name, :birthday, :gender, :avatar, :id_card, :hobby, :good_at, :favorite_food, :favorite_color, :ambition, :user_id returning id", table_name)
 
 }
 

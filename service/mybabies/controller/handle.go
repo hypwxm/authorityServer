@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"babygrowing/config"
 	"babygrowing/service/mybabies/model"
 	"babygrowing/service/mybabies/service"
 	"babygrowing/util/response"
@@ -17,6 +18,8 @@ func create(c rider.Context) {
 			sender.Fail(err.Error())
 			return
 		}
+
+		entity.UserID = c.GetLocals(config.AppServerTokenKey).(string)
 
 		id, err := service.Create(entity)
 		if err != nil {

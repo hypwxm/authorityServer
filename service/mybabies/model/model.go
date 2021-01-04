@@ -16,6 +16,8 @@ import (
 type GMyBabies struct {
 	database.BaseColumns
 
+	// 操作的用户
+	UserID string `json:"userId" db:"user_id"`
 	// 姓名
 	Name string `json:"name" db:"name"`
 	// 生日,(公历生日)

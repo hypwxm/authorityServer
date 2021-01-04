@@ -9,12 +9,7 @@ CREATE TABLE if not exists g_my_babies
     isdelete       boolean               default false,
     disabled       boolean               default false,
 
-
-    weight         real                  default 0 not null,
-    height         real                  default 0 not null,
-    diary          text                  default '' not null,
     user_id        varchar(128) not null check ( user_id <> '' ),
-    baby_id        varchar(128) not null check ( user_id <> '' ),
     name           varchar(20)  not null check (name <> ''),
     birthday       varchar(20)  not null check (birthday <> ''),
     gender         varchar(1)   not null check (gender <> ''),
