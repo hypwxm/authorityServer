@@ -40,8 +40,6 @@ type GMyBabies struct {
 	// 志向
 	Ambition string `json:"ambition" db:"ambition"`
 
-	UserID string `json:"userId" db:"user_id"`
-
 	Weight float64 `json:"weight" db:"weight"`
 	Height float64 `json:"height" db:"height"`
 }
