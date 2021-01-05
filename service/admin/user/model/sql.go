@@ -10,8 +10,8 @@ const table_name = "g_admin_user"
 
 func insertSql() string {
 	return fmt.Sprintf(`insert into %s 
-	(createtime, isdelete, disabled, id, account, password, username, salt, avatar, post)
-	select :createtime, :isdelete, :disabled, :id, :account, :password, :username, :salt, :avatar, :post
+	(createtime, isdelete, disabled, id, account, password, username, salt, avatar, post, sort)
+	select :createtime, :isdelete, :disabled, :id, :account, :password, :username, :salt, :avatar, :post, :sort
 	where not exists(select 1 from %[1]s where account=:account and isdelete=false) returning id`,
 		table_name,
 	)

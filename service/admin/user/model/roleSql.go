@@ -8,9 +8,9 @@ const role_table_name = "g_admin_user_role"
 
 func roleInsertSql() string {
 	return fmt.Sprintf(`insert into %s 
-	user_id, org_id
-	select :user_id, :org_id`,
-		org_table_name,
+	(user_id, org_id, role_id)
+	select :user_id, :org_id, :role_id`,
+	role_table_name,
 	)
 }
 
@@ -24,5 +24,5 @@ func roleListSql() (whereSql string) {
 }
 
 func roleDelSql() string {
-	return fmt.Sprintf("delete from %s where user_id=:user_id", org_table_name)
+	return fmt.Sprintf("delete from %s where user_id=:user_id", role_table_name)
 }

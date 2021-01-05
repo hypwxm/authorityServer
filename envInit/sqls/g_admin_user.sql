@@ -12,6 +12,7 @@ CREATE TABLE if not exists g_admin_user (
     salt varchar(128) not null check (salt <> ''),
     avatar varchar(512) not null default '',
     post varchar(50) not null default '',
-    contact_way varchar(50) not null default ''
+    contact_way varchar(50) not null default '',
+    sort int not null default 0
 );
 Create Index g_admin_user_createtime_index On g_admin_user (createtime);

@@ -2,7 +2,6 @@ package model
 
 import (
 	"babygrowing/DB/pgsql"
-	orgModel "babygrowing/service/admin/org/model"
 	roleModel "babygrowing/service/admin/role/model"
 
 	"babygrowing/util"
@@ -21,6 +20,7 @@ import (
 
 type GAdminUserRole struct {
 	UserId string `json:"userId" db:"user_id"`
+	OrgId  string `json:"orgId" db:"org_id"`
 	RoleId string `json:"roleId" db:"role_id"`
 }
 
@@ -41,22 +41,7 @@ type GAdminUser struct {
 	Avatar     string `json:"avatar" db:"avatar"`
 	Sort       int    `json:"sort" db:"sort"`
 
-	Orgs  []*GAdminUserOrg  `json:"orgs" db:"orgs"`
 	Roles []*GAdminUserRole `json:"roles" db:"roles"`
-}
-
-func insertOrgs(orgs []*GAdminUserOrg, tx *sqlx.Tx) error {
-	for _, v := range orgs {
-		stmt, err := tx.PrepareNamed(orgInsertSql())
-		if err != nil {
-			return err
-		}
-		_, err = stmt.Exec(v)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 func insertRoles(orgs []*GAdminUserRole, tx *sqlx.Tx) error {
@@ -71,48 +56,6 @@ func insertRoles(orgs []*GAdminUserRole, tx *sqlx.Tx) error {
 		}
 	}
 	return nil
-}
-
-/**
-根据用户ids拿到对应的组织列表
-*/
-type UserAndOrgModel struct {
-	orgModel.GOrg
-}
-
-func GetOrgsByUserIds(ids []string) ([]*UserAndOrgModel, error) {
-	db := pgsql.Open()
-	whereSQL := orgListSql()
-	stmt, err := db.PrepareNamed(whereSQL)
-	if err != nil {
-		return nil, err
-	}
-	log.Println(stmt.QueryString)
-
-	arr := pq.StringArray{}
-	for _, v := range ids {
-		arr = append(arr, v)
-	}
-
-	rows, err := stmt.Queryx(map[string]interface{}{
-		"user_ids": arr,
-	})
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var list = make([]*UserAndOrgModel, 0)
-	for rows.Next() {
-		var item = new(UserAndOrgModel)
-		err = rows.StructScan(&item)
-		if err != nil {
-			return nil, err
-		}
-		list = append(list, item)
-	}
-
-	return list, nil
 }
 
 /**
@@ -169,10 +112,8 @@ func (self *GAdminUser) Insert() (string, error) {
 	if strings.TrimSpace(self.Username) == "" {
 		return "", fmt.Errorf("操作错误")
 	}
+	// admin账号为系统初始化时需要进行创建，最高权限
 	if self.Account != "admin" {
-		if len(self.Orgs) == 0 {
-			return "", fmt.Errorf("操作错误")
-		}
 		if len(self.Roles) == 0 {
 			return "", fmt.Errorf("操作错误")
 		}
@@ -200,10 +141,8 @@ func (self *GAdminUser) Insert() (string, error) {
 		return "", err
 	}
 
-	//
-	err = insertOrgs(self.Orgs, tx)
-	if err != nil {
-		return "", err
+	for _, v := range self.Roles {
+		v.UserId = lastId
 	}
 
 	err = insertRoles(self.Roles, tx)
@@ -313,7 +252,6 @@ type UpdateByIDQuery struct {
 	Avatar     string `json:"avatar" db:"avatar"`
 	Sort       int    `json:"sort" db:"sort"`
 
-	Orgs  []*GAdminUserOrg  `json:"orgs" db:"orgs"`
 	Roles []*GAdminUserRole `json:"roles" db:"roles"`
 
 	Updatetime int64 `db:"updatetime"`
@@ -354,23 +292,6 @@ func (self *GAdminUser) Update(query *UpdateByIDQuery) error {
 		query.Password = util.SignPwd(query.Password, user.Salt)
 	}
 	_, err = stmt.Exec(query)
-	if err != nil {
-		return err
-	}
-
-	// 更新操作直接把之前的部门信息删除，再重新插入
-	stmt, err = tx.PrepareNamed(orgDelSql())
-	if err != nil {
-		return err
-	}
-	_, err = stmt.Exec(map[string]string{
-		"user_id": self.ID,
-	})
-	if err != nil {
-		return err
-	}
-
-	err = insertOrgs(self.Orgs, tx)
 	if err != nil {
 		return err
 	}
