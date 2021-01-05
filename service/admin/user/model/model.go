@@ -32,6 +32,10 @@ type GAdminUserOrg struct {
 type GAdminUser struct {
 	database.BaseColumns
 
+
+	CreatorId string `json:"creatorId" db:"creator_id"`
+	Creator string `json:"creator" db:"creator"`
+
 	Account    string `json:"account" db:"account"`
 	Password   string `json:"password" db:"password"`
 	Username   string `json:"username" db:"username"`
@@ -185,10 +189,12 @@ type Query struct {
 	pgsql.BaseQuery
 	Keywords string `db:"keywords"`
 	Status   int    `db:"status"`
+	OrgId string `db:"org_id"`
 }
 
 type ListModel struct {
 	GAdminUser
+	OrgId string `json:"orgId" db:"org_id"`
 }
 
 func (self *GAdminUser) List(query *Query) ([]*ListModel, int64, error) {
@@ -233,6 +239,9 @@ func (self *GAdminUser) GetCount(db *sqlx.DB, query *Query, whereSql ...string) 
 		query = new(Query)
 	}
 	sqlStr := countSql(whereSql...)
+	if strings.TrimSpace(query.OrgId) != "" {
+		sqlStr = countSqlByOrgId(whereSql...)
+	}
 	stmt, err := db.PrepareNamed(sqlStr)
 	if err != nil {
 		return 0, err

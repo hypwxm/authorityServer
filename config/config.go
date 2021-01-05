@@ -34,3 +34,5 @@ func init() {
 
 const AppUserTokenKey = "WB_APP_USER"
 const AppServerTokenKey = "WB_SERVER_USER"
+
+const AppLoginUserName = "WB_SERVER_USER_NAME"

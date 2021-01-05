@@ -43,6 +43,8 @@ func login(c rider.Context) {
 			return
 		}
 		c.Jwt().Set(config.AppServerTokenKey, user.ID)
+		c.Jwt().Set(config.AppLoginUserName, user.Username)
+
 		sender.Success(c.Jwt().GetToken())
 	})()
 

@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"babygrowing/config"
 	"babygrowing/service/admin/user/model"
 	"babygrowing/service/admin/user/service"
 	"babygrowing/util/response"
@@ -18,6 +19,8 @@ func create(c rider.Context) {
 			sender.Fail(err.Error())
 			return
 		}
+		entity.Creator = c.GetLocals(config.AppServerTokenKey).(string)
+		entity.CreatorId = c.GetLocals(config.AppLoginUserName).(string)
 		id, err := service.Create(entity)
 		if err != nil {
 			sender.Fail(err.Error())

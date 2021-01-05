@@ -9,6 +9,9 @@ CREATE TABLE if not exists g_admin_user (
     account varchar(20) not null check (account <> ''),
     password varchar(128) not null check (password <> ''),
     username varchar(20) not null check (username <> ''),
+    creator_id varchar(128) not null check (creator_id <> ''),
+    creator varchar(20) not null check (creator <> ''),
+
     salt varchar(128) not null check (salt <> ''),
     avatar varchar(512) not null default '',
     post varchar(50) not null default '',
