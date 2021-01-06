@@ -14,9 +14,11 @@ import (
 
 type Media struct {
 	database.BaseColumns
-	Url      string `db:"url" json:"url"`
-	UserID   string `db:"user_id" json:"userId"`
-	Business string `db:"business" json:"business"`
+	Url        string `db:"url" json:"url"`
+	UserID     string `db:"user_id" json:"userId"`
+	Business   string `db:"business" json:"business"`
+	BusinessId string `db:"business_id" json:"businessId"`
+	Size       int    `db:"size" json:"size"`
 }
 
 func (self *Media) Insert() (string, error) {
@@ -26,6 +28,9 @@ func (self *Media) Insert() (string, error) {
 		return "", errors.New(fmt.Sprintf("操作错误"))
 	}
 	if strings.TrimSpace(self.Business) == "" {
+		return "", errors.New(fmt.Sprintf("未知业务"))
+	}
+	if strings.TrimSpace(self.BusinessId) == "" {
 		return "", errors.New(fmt.Sprintf("未知业务"))
 	}
 
@@ -45,7 +50,7 @@ func (self *Media) Insert() (string, error) {
 	return self.ID, nil
 }
 
-func InitMedias(list []*Media, businessName string, creator string) []*Media {
+func InitMedias(list []*Media, businessName string, businessId string, creator string) []*Media {
 	for _, v := range list {
 		if v == nil {
 			return nil
@@ -53,6 +58,7 @@ func InitMedias(list []*Media, businessName string, creator string) []*Media {
 		}
 		v.Init()
 		v.Business = businessName
+		v.BusinessId = businessId
 		v.UserID = creator
 	}
 	return list
@@ -74,13 +80,11 @@ func StoreMedias(list []*Media) error {
 
 type Query struct {
 	pgsql.BaseQuery
+	BusinessIds pq.StringArray `json:"businessIds" db:"business_ids"`
+	Businesses  pq.StringArray `json:"businesses" db:"businesses"`
 }
 
-type ListModel struct {
-	Media
-}
-
-func (self *Media) List(query *Query) ([]*ListModel, int64, error) {
+func (self *Media) List(query *Query) ([]*Media, int, error) {
 	if query == nil {
 		query = new(Query)
 	}
@@ -103,9 +107,9 @@ func (self *Media) List(query *Query) ([]*ListModel, int64, error) {
 	}
 	defer rows.Close()
 
-	var list = make([]*ListModel, 0)
+	var list = make([]*Media, 0)
 	for rows.Next() {
-		var item = new(ListModel)
+		var item = new(Media)
 		err = rows.StructScan(&item)
 		if err != nil {
 			return nil, 0, err
@@ -117,7 +121,7 @@ func (self *Media) List(query *Query) ([]*ListModel, int64, error) {
 
 }
 
-func (self *Media) GetCount(db *sqlx.DB, query *Query, whereSql ...string) (int64, error) {
+func (self *Media) GetCount(db *sqlx.DB, query *Query, whereSql ...string) (int, error) {
 	if query == nil {
 		query = new(Query)
 	}
@@ -126,7 +130,7 @@ func (self *Media) GetCount(db *sqlx.DB, query *Query, whereSql ...string) (int6
 	if err != nil {
 		return 0, err
 	}
-	var count int64
+	var count int
 	err = stmt.Get(&count, query)
 	log.Println(stmt.QueryString, query)
 	return count, err

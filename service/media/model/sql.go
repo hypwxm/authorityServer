@@ -10,25 +10,25 @@ import (
 const table_name = "g_media"
 
 func insertSql() string {
-	return fmt.Sprintf("insert into %s (createtime, isdelete, disabled, id, url, user_id, business) select :createtime, :isdelete, :disabled, :id, :url, :user_id, :business returning id", table_name)
+	return fmt.Sprintf("insert into %s (createtime, isdelete, disabled, id, url, user_id, business, business_id, size) select :createtime, :isdelete, :disabled, :id, :url, :user_id, :business, :business_id, :size returning id", table_name)
 
 }
 
 func listSql(query *Query) (whereSql string, fullSql string) {
 	var selectSql = fmt.Sprintf(`SELECT 
-				%[1]s.id,
-				%[1]s.createtime,
-				%[1]s.updatetime,
-				%[1]s.weight,
-				%[1]s.height,
-				%[1]s.diary,
-				%[1]s.user_id,
-				%[1]s.baby_id
+				%[1]s.*
 				FROM %[1]s WHERE 1=1 `, table_name)
 	whereSql = pgsql.BaseWhere(query.BaseQuery, table_name)
 
 	if query.OrderBy == "" {
 		// query.OrderBy = "sort asc"
+	}
+
+	if len(query.Businesses) > 0 {
+		whereSql = whereSql + fmt.Sprintf(" and business=any(:businesses)")
+	}
+	if len(query.BusinessIds) > 0 {
+		whereSql = whereSql + fmt.Sprintf(" and business_id=any(:business_ids)")
 	}
 	optionSql := pgsql.BaseOption(query.BaseQuery, table_name)
 	return whereSql, selectSql + whereSql + optionSql

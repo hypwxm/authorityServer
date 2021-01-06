@@ -18,7 +18,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-const BusinessName = "admin_org_control"
+const BusinessName = "g_admin_org"
 
 type GOrg struct {
 	database.BaseColumns
@@ -38,13 +38,6 @@ func (self *GOrg) Insert() (string, error) {
 		return "", fmt.Errorf("操作错误")
 	}
 
-	// 先把媒体文件插入数据库
-	medias := mediaService.InitMedias(self.Media, BusinessName, self.UserId)
-	err = mediaService.MultiCreate(medias)
-	if err != nil {
-		return "", err
-	}
-
 	db := pgsql.Open()
 	stmt, err := db.PrepareNamed(insertSql())
 	if err != nil {
@@ -54,6 +47,12 @@ func (self *GOrg) Insert() (string, error) {
 	var lastId string
 	self.BaseColumns.Init()
 	err = stmt.Get(&lastId, self)
+	if err != nil {
+		return "", err
+	}
+
+	medias := mediaService.InitMedias(self.Media, BusinessName, lastId, self.UserId)
+	err = mediaService.MultiCreate(medias)
 	if err != nil {
 		return "", err
 	}
@@ -116,17 +115,39 @@ func (self *GOrg) List(query *Query) ([]*ListModel, int64, error) {
 	}
 	defer rows.Close()
 
-	var users = make([]*ListModel, 0)
+	var list = make([]*ListModel, 0)
+
+	var ids []string = make([]string, 0)
+
 	for rows.Next() {
-		var user = new(ListModel)
-		err = rows.StructScan(&user)
+		var item = new(ListModel)
+		err = rows.StructScan(&item)
 		if err != nil {
 			return nil, 0, err
 		}
-		users = append(users, user)
+		list = append(list, item)
+		ids = append(ids, item.ID)
 	}
 
-	return users, count, nil
+	// 查找对应的媒体信息
+	medias, _, err := mediaService.List(&mediaModel.Query{
+		BusinessIds: ids,
+		Businesses:  []string{BusinessName},
+	})
+
+	if err != nil {
+		return nil, 0, err
+	}
+
+	for _, v := range list {
+		for _, vm := range medias {
+			if v.ID == vm.BusinessId {
+				v.Media = append(v.Media, vm)
+			}
+		}
+	}
+
+	return list, count, nil
 
 }
 

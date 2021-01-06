@@ -31,9 +31,11 @@ func GetUser(query *model.GAdminUser) (*model.GAdminUser, error) {
 // 默认创建一个超级管理员
 func InitAdmin() error {
 	admin := &model.GAdminUser{
-		Account:  "admin",
-		Password: "123456",
-		Username: "管理员",
+		Account:   "admin",
+		Password:  "123456",
+		Username:  "管理员",
+		CreatorId: "system",
+		Creator:   "系统",
 	}
 	_, err := admin.Insert()
 	return err

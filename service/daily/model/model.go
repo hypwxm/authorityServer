@@ -52,13 +52,6 @@ func (self *GDaily) Insert() (string, error) {
 		return "", errors.New(fmt.Sprintf("操作错误"))
 	}
 
-	// 先把媒体文件插入数据库
-	medias := mediaService.InitMedias(self.Medias, "BusinessName", self.UserId)
-	err = mediaService.MultiCreate(medias)
-	if err != nil {
-		return "", err
-	}
-
 	db := pgsql.Open()
 	tx, err := db.Beginx()
 	if err != nil {
@@ -74,6 +67,12 @@ func (self *GDaily) Insert() (string, error) {
 	var lastId string
 	self.BaseColumns.Init()
 	err = stmt.Get(&lastId, self)
+	if err != nil {
+		return "", err
+	}
+
+	medias := mediaService.InitMedias(self.Medias, "BusinessName", lastId, self.UserId)
+	err = mediaService.MultiCreate(medias)
 	if err != nil {
 		return "", err
 	}

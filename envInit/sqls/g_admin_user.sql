@@ -13,7 +13,6 @@ CREATE TABLE if not exists g_admin_user (
     creator varchar(20) not null check (creator <> ''),
 
     salt varchar(128) not null check (salt <> ''),
-    avatar varchar(512) not null default '',
     post varchar(50) not null default '',
     contact_way varchar(50) not null default '',
     sort int not null default 0

@@ -15,7 +15,7 @@ func MultiCreate(list []*model.Media) error {
 	return model.StoreMedias(list)
 }
 
-func List(query *model.Query) ([]*model.ListModel, int64, error) {
+func List(query *model.Query) ([]*model.Media, int, error) {
 	return new(model.Media).List(query)
 }
 
@@ -23,9 +23,9 @@ func Del(query *model.DeleteQuery) error {
 	return new(model.Media).Delete(query)
 }
 
-func InitMedias(list []*model.Media, businessName string, creator string) []*model.Media {
+func InitMedias(list []*model.Media, businessName string, businessId string, creator string) []*model.Media {
 	if len(list) == 0 {
 		return nil
 	}
-	return model.InitMedias(list, businessName, creator)
+	return model.InitMedias(list, businessName, businessId, creator)
 }

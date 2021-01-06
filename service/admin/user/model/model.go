@@ -3,6 +3,8 @@ package model
 import (
 	"babygrowing/DB/pgsql"
 	roleModel "babygrowing/service/admin/role/model"
+	mediaModel "babygrowing/service/media/model"
+	mediaService "babygrowing/service/media/service"
 
 	"babygrowing/util"
 	"babygrowing/util/database"
@@ -18,6 +20,8 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+const BusinessName = "g_admin_user"
+
 type GAdminUserRole struct {
 	UserId string `json:"userId" db:"user_id"`
 	OrgId  string `json:"orgId" db:"org_id"`
@@ -32,18 +36,18 @@ type GAdminUserOrg struct {
 type GAdminUser struct {
 	database.BaseColumns
 
-
 	CreatorId string `json:"creatorId" db:"creator_id"`
-	Creator string `json:"creator" db:"creator"`
+	Creator   string `json:"creator" db:"creator"`
 
-	Account    string `json:"account" db:"account"`
-	Password   string `json:"password" db:"password"`
-	Username   string `json:"username" db:"username"`
-	ContactWay string `json:"contactWay" db:"contact_way"`
-	Post       string `json:"post" db:"post"`
-	Salt       string `json:"salt" db:"salt"`
-	Avatar     string `json:"avatar" db:"avatar"`
-	Sort       int    `json:"sort" db:"sort"`
+	Account    string              `json:"account" db:"account"`
+	Password   string              `json:"password" db:"password"`
+	Username   string              `json:"username" db:"username"`
+	ContactWay string              `json:"contactWay" db:"contact_way"`
+	Post       string              `json:"post" db:"post"`
+	Salt       string              `json:"salt" db:"salt"`
+	Media      []*mediaModel.Media `json:"media" db:"-"`
+
+	Sort int `json:"sort" db:"sort"`
 
 	Roles []*GAdminUserRole `json:"roles" db:"roles"`
 }
@@ -122,6 +126,7 @@ func (self *GAdminUser) Insert() (string, error) {
 			return "", fmt.Errorf("操作错误")
 		}
 	}
+
 	db := pgsql.Open()
 	tx, err := db.Beginx()
 	if err != nil {
@@ -150,6 +155,13 @@ func (self *GAdminUser) Insert() (string, error) {
 	}
 
 	err = insertRoles(self.Roles, tx)
+	if err != nil {
+		return "", err
+	}
+
+	// 先把媒体文件插入数据库
+	medias := mediaService.InitMedias(self.Media, BusinessName, lastId, self.CreatorId)
+	err = mediaService.MultiCreate(medias)
 	if err != nil {
 		return "", err
 	}
@@ -189,7 +201,7 @@ type Query struct {
 	pgsql.BaseQuery
 	Keywords string `db:"keywords"`
 	Status   int    `db:"status"`
-	OrgId string `db:"org_id"`
+	OrgId    string `db:"org_id"`
 }
 
 type ListModel struct {
