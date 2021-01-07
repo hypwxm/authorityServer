@@ -90,6 +90,7 @@ type Query struct {
 
 type ListModel struct {
 	GOrg
+	Avatar string `json:"avatar"`
 }
 
 func (self *GOrg) List(query *Query) ([]*ListModel, int64, error) {
@@ -143,6 +144,7 @@ func (self *GOrg) List(query *Query) ([]*ListModel, int64, error) {
 		for _, vm := range medias {
 			if v.ID == vm.BusinessId {
 				v.Media = append(v.Media, vm)
+				v.Avatar = vm.Url
 			}
 		}
 	}

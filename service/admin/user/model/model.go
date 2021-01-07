@@ -33,6 +33,12 @@ type GAdminUserOrg struct {
 	OrgId  string `json:"orgId" db:"org_id"`
 }
 
+type UserAndRoleModel struct {
+	roleModel.GAdminRole
+	UserId string `json:"userId" db:"user_id"`
+	RoleId string `json:"roleId" db:"role_id"`
+}
+
 type GAdminUser struct {
 	database.BaseColumns
 
@@ -49,12 +55,13 @@ type GAdminUser struct {
 
 	Sort int `json:"sort" db:"sort"`
 
-	Roles []*GAdminUserRole `json:"roles" db:"roles"`
+	Roles []*UserAndRoleModel `json:"roles" db:"roles"`
 }
 
-func insertRoles(orgs []*GAdminUserRole, tx *sqlx.Tx) error {
+func insertRoles(orgs []*UserAndRoleModel, tx *sqlx.Tx) error {
 	for _, v := range orgs {
 		stmt, err := tx.PrepareNamed(roleInsertSql())
+		log.Println(stmt.QueryString)
 		if err != nil {
 			return err
 		}
@@ -69,9 +76,6 @@ func insertRoles(orgs []*GAdminUserRole, tx *sqlx.Tx) error {
 /**
 根据用户ids拿到对应角色列表
 */
-type UserAndRoleModel struct {
-	roleModel.GAdminRole
-}
 
 func GetRolesByUserIds(ids []string) ([]*UserAndRoleModel, error) {
 	db := pgsql.Open()
@@ -180,7 +184,7 @@ type GetQuery struct {
 
 type GetModel struct {
 	GAdminUser
-	RoleName string `json:"roleName" db:"role_name"`
+	Avatar string `json:"avatar"`
 }
 
 func (self *GAdminUser) GetByID(query *GetQuery) (*GetModel, error) {
@@ -194,6 +198,30 @@ func (self *GAdminUser) GetByID(query *GetQuery) (*GetModel, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// 查找对应的媒体信息
+	medias, _, err := mediaService.List(&mediaModel.Query{
+		BusinessIds: []string{entity.ID},
+		Businesses:  []string{BusinessName},
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	// 查询角色信息
+	roles, err := GetRolesByUserIds([]string{entity.ID})
+	if err != nil {
+		return nil, err
+	}
+
+	entity.Media = medias
+	if len(medias) > 0 {
+		entity.Avatar = medias[0].Url
+	}
+
+	entity.Roles = roles
+
 	return entity, nil
 }
 
@@ -206,7 +234,8 @@ type Query struct {
 
 type ListModel struct {
 	GAdminUser
-	OrgId string `json:"orgId" db:"org_id"`
+	OrgId  string `json:"orgId" db:"org_id"`
+	Avatar string `json:"avatar"`
 }
 
 func (self *GAdminUser) List(query *Query) ([]*ListModel, int64, error) {
@@ -232,17 +261,49 @@ func (self *GAdminUser) List(query *Query) ([]*ListModel, int64, error) {
 	}
 	defer rows.Close()
 
-	var users = make([]*ListModel, 0)
+	var list = make([]*ListModel, 0)
+	var ids []string = make([]string, 0)
 	for rows.Next() {
-		var user = new(ListModel)
-		err = rows.StructScan(&user)
+		var item = new(ListModel)
+		err = rows.StructScan(&item)
 		if err != nil {
 			return nil, 0, err
 		}
-		users = append(users, user)
+		list = append(list, item)
+		ids = append(ids, item.ID)
 	}
 
-	return users, count, nil
+	// 查找对应的媒体信息
+	medias, _, err := mediaService.List(&mediaModel.Query{
+		BusinessIds: ids,
+		Businesses:  []string{BusinessName},
+	})
+
+	if err != nil {
+		return nil, 0, err
+	}
+
+	// 查询角色信息
+	roles, err := GetRolesByUserIds(ids)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	for _, v := range list {
+		for _, vm := range medias {
+			if v.ID == vm.BusinessId {
+				v.Media = append(v.Media, vm)
+				v.Avatar = vm.Url
+			}
+		}
+		for _, vm := range roles {
+			if v.ID == vm.UserId {
+				v.Roles = append(v.Roles, vm)
+			}
+		}
+	}
+
+	return list, count, nil
 
 }
 
@@ -265,15 +326,19 @@ func (self *GAdminUser) GetCount(db *sqlx.DB, query *Query, whereSql ...string) 
 }
 
 type UpdateByIDQuery struct {
-	ID         string `db:"id"`
+	UserId string `json:"userId"`
+
+	ID         string `json:"id" db:"id"`
 	Password   string `json:"password" db:"password"`
 	Username   string `json:"username" db:"username"`
 	ContactWay string `json:"contactWay" db:"contact_way"`
 	Post       string `json:"post" db:"post"`
-	Avatar     string `json:"avatar" db:"avatar"`
 	Sort       int    `json:"sort" db:"sort"`
 
-	Roles []*GAdminUserRole `json:"roles" db:"roles"`
+	Roles []*UserAndRoleModel `json:"roles" db:"-"`
+	Media []*mediaModel.Media `json:"media" db:"-"`
+
+	Disabled bool `json:"disabled" db:"disabled"`
 
 	Updatetime int64 `db:"updatetime"`
 }
@@ -306,7 +371,7 @@ func (self *GAdminUser) Update(query *UpdateByIDQuery) error {
 		if util.ValidatePwd(query.Password) {
 			return fmt.Errorf("密码太短")
 		}
-		user, err := self.Get(&GAdminUser{BaseColumns: database.BaseColumns{ID: self.ID}})
+		user, err := self.Get(&GAdminUser{BaseColumns: database.BaseColumns{ID: query.ID}})
 		if err != nil {
 			return err
 		}
@@ -319,17 +384,31 @@ func (self *GAdminUser) Update(query *UpdateByIDQuery) error {
 
 	// 更新操作直接把之前的角色信息删除，再重新插入
 	stmt, err = tx.PrepareNamed(roleDelSql())
+	log.Println(stmt.QueryString)
 	if err != nil {
 		return err
 	}
-	_, err = stmt.Exec(map[string]string{
-		"user_id": self.ID,
+	_, err = stmt.Exec(&GAdminUserRole{
+		UserId: query.ID,
 	})
 	if err != nil {
 		return err
 	}
 
-	err = insertRoles(self.Roles, tx)
+	err = insertRoles(query.Roles, tx)
+	if err != nil {
+		return err
+	}
+	// 先把媒体文件插入数据库
+	err = mediaService.Del(&mediaModel.DeleteQuery{
+		Businesses:  []string{BusinessName},
+		BusinessIds: []string{query.ID},
+	}, tx)
+	if err != nil {
+		return err
+	}
+	medias := mediaService.InitMedias(query.Media, BusinessName, query.ID, query.UserId)
+	err = mediaService.MultiCreate(medias, tx)
 	if err != nil {
 		return err
 	}

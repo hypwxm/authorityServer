@@ -47,6 +47,16 @@ func getByIdSql() string {
 		table_name)
 }
 
-func delSql() string {
-	return fmt.Sprintf("update %s set isdelete=true where id=any(:ids)", table_name)
+func delSql(query *DeleteQuery) string {
+	var whereSQL = " 1=1 "
+	if len(query.Businesses) > 0 {
+		whereSQL = whereSQL + fmt.Sprintf(" and business=any(:businesses)")
+	}
+	if len(query.BusinessIds) > 0 {
+		whereSQL = whereSQL + fmt.Sprintf(" and business_id=any(:business_ids)")
+	}
+	if len(query.IDs) > 0 {
+		whereSQL = whereSQL + fmt.Sprintf(" and id=any(:ids)")
+	}
+	return fmt.Sprintf("update %s set isdelete=true where %s", table_name, whereSQL)
 }

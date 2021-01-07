@@ -10,8 +10,8 @@ const table_name = "g_admin_user"
 
 func insertSql() string {
 	return fmt.Sprintf(`insert into %s 
-	(createtime, isdelete, disabled, id, account, password, username, salt, post, sort, creator_id, creator)
-	select :createtime, :isdelete, :disabled, :id, :account, :password, :username, :salt, :post, :sort, :creator_id, :creator
+	(createtime, isdelete, disabled, id, account, password, username, salt, post, sort, creator_id, creator, contact_way)
+	select :createtime, :isdelete, :disabled, :id, :account, :password, :username, :salt, :post, :sort, :creator_id, :creator, :contact_way
 	where not exists(select 1 from %[1]s where account=:account and isdelete=false) returning id`,
 		table_name,
 	)
@@ -28,7 +28,8 @@ func listSql(query *Query) (whereSql string, fullSql string) {
 				%[1]s.disabled,
 				%[1]s.sort,
 				%[1]s.creator_id,
-				%[1]s.creator
+				%[1]s.creator,
+				%[1]s.contact_way
 				FROM %[1]s WHERE 1=1 and %[1]s.isdelete=false`, table_name)
 
 	// 如果是以组织纬度进行查询，要以用户角色表作为主表
@@ -44,7 +45,8 @@ func listSql(query *Query) (whereSql string, fullSql string) {
 					%[1]s.disabled,
 					%[1]s.sort,
 					%[1]s.creator_id,
-					%[1]s.creator
+					%[1]s.creator,
+					%[1]s.contact_way
 					FROM %[2]s inner join %[1]s on %[2]s.user_id=%[1]s.id WHERE 1=1 and %[1]s.isdelete=false`, table_name, "g_admin_user_role")
 	}
 
@@ -77,6 +79,7 @@ func getByIdSql() string {
 				%[1]s.updatetime,
 				%[1]s.account,
 				%[1]s.username,
+				%[1]s.contact_way,
 				%[1]s.post,
 				%[1]s.disabled,
 				%[1]s.sort,
@@ -93,6 +96,7 @@ func updateSql(query *UpdateByIDQuery) string {
 	updateSql = updateSql + " ,post=:post"
 	updateSql = updateSql + " ,sort=:sort"
 	updateSql = updateSql + " ,contact_way=:contact_way"
+	updateSql = updateSql + " ,disabled=:disabled"
 
 	if query.Password != "" {
 		updateSql = updateSql + " ,password=:password"

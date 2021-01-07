@@ -19,8 +19,8 @@ func create(c rider.Context) {
 			sender.Fail(err.Error())
 			return
 		}
-		entity.Creator = c.GetLocals(config.AppServerTokenKey).(string)
-		entity.CreatorId = c.GetLocals(config.AppLoginUserName).(string)
+		entity.Creator = c.GetLocals(config.AppLoginUserName).(string)
+		entity.CreatorId = c.GetLocals(config.AppServerTokenKey).(string)
 		id, err := service.Create(entity)
 		if err != nil {
 			sender.Fail(err.Error())
@@ -40,6 +40,7 @@ func modify(c rider.Context) {
 			sender.Fail(err.Error())
 			return
 		}
+		entity.UserId = c.GetLocals(config.AppServerTokenKey).(string)
 		err = service.Modify(entity)
 		if err != nil {
 			sender.Fail(err.Error())

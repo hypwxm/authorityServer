@@ -1,8 +1,8 @@
 package database
 
 import (
-	"database/sql"
 	"babygrowing/util"
+	"database/sql"
 )
 
 type BaseColumns struct {
@@ -17,13 +17,11 @@ type BaseColumns struct {
 func (s *BaseColumns) Init() {
 	s.Createtime = util.GetCurrentMS()
 	s.Isdelete = false
-	s.Disabled = false
 	s.ID = util.GetUuid()
 }
 
-
 type BaseIDColumns struct {
-	ID         string        `json:"id" db:"id"`
+	ID string `json:"id" db:"id"`
 }
 
 func (s *BaseIDColumns) Init() {

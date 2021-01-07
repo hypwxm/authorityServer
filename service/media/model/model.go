@@ -21,7 +21,7 @@ type Media struct {
 	Size       int    `db:"size" json:"size"`
 }
 
-func (self *Media) Insert() (string, error) {
+func (self *Media) Insert(tx ...*sqlx.Tx) (string, error) {
 	var err error
 
 	if strings.TrimSpace(self.UserID) == "" {
@@ -34,9 +34,18 @@ func (self *Media) Insert() (string, error) {
 		return "", errors.New(fmt.Sprintf("未知业务"))
 	}
 
-	db := pgsql.Open()
+	var ltx *sqlx.Tx
+	var stmt *sqlx.NamedStmt
+	if len(tx) > 0 {
+		ltx = tx[0]
+	}
+	if ltx != nil {
+		stmt, err = ltx.PrepareNamed(insertSql())
+	} else {
+		db := pgsql.Open()
+		stmt, err = db.PrepareNamed(insertSql())
+	}
 
-	stmt, err := db.PrepareNamed(insertSql())
 	if err != nil {
 		return "", err
 	}
@@ -59,18 +68,21 @@ func InitMedias(list []*Media, businessName string, businessId string, creator s
 		v.Init()
 		v.Business = businessName
 		v.BusinessId = businessId
-		v.UserID = creator
+		// 有一种情况是之前人创建的虽然重新插入，但是前端把之前的创建者传过来了，就重新保存下，不能覆盖
+		if v.UserID == "" {
+			v.UserID = creator
+		}
 	}
 	return list
 }
 
-func StoreMedias(list []*Media) error {
+func StoreMedias(list []*Media, tx ...*sqlx.Tx) error {
 	var err error
 	for _, v := range list {
 		if v == nil {
 			return fmt.Errorf("文件错误")
 		}
-		_, err = v.Insert()
+		_, err = v.Insert(tx...)
 		if err != nil {
 			return err
 		}
@@ -137,25 +149,33 @@ func (self *Media) GetCount(db *sqlx.DB, query *Query, whereSql ...string) (int,
 }
 
 type DeleteQuery struct {
-	IDs pq.StringArray `db:"ids"`
+	IDs         pq.StringArray `db:"ids"`
+	Businesses  pq.StringArray `json:"businesses" db:"businesses"`
+	BusinessIds pq.StringArray `json:"businessIds" db:"business_ids"`
 }
 
 // 删除，批量删除
-func (self *Media) Delete(query *DeleteQuery) error {
+func (self *Media) Delete(query *DeleteQuery, tx ...*sqlx.Tx) error {
 	if query == nil {
 		return errors.New("无操作条件")
 	}
-	if len(query.IDs) == 0 {
+	if len(query.IDs) == 0 && len(query.BusinessIds) == 0 {
 		return errors.New("操作条件错误")
 	}
-	for _, v := range query.IDs {
-		if strings.TrimSpace(v) == "" {
-			return errors.New("操作条件错误")
-		}
-	}
 
-	db := pgsql.Open()
-	stmt, err := db.PrepareNamed(delSql())
+	var ltx *sqlx.Tx
+	if len(tx) > 0 {
+		ltx = tx[0]
+	}
+	var stmt *sqlx.NamedStmt
+	var err error
+	if ltx != nil {
+		// 通过事务来删除
+		stmt, err = ltx.PrepareNamed(delSql(query))
+	} else {
+		db := pgsql.Open()
+		stmt, err = db.PrepareNamed(delSql(query))
+	}
 	if err != nil {
 		return err
 	}

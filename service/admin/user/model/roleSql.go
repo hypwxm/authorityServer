@@ -10,7 +10,7 @@ func roleInsertSql() string {
 	return fmt.Sprintf(`insert into %s 
 	(user_id, org_id, role_id)
 	select :user_id, :org_id, :role_id`,
-	role_table_name,
+		role_table_name,
 	)
 }
 
@@ -18,7 +18,7 @@ func roleListSql() (whereSql string) {
 	var selectSql = fmt.Sprintf(`SELECT 
 				%[1]s.*,
 				%[2]s.*
-				FROM %[1]s left join %[2]s on %[1]s.role_id=%[2]s.id WHERE 1=1 and %[2]s.isdelete=false and %[1]s.user_id=any(:user_ids) `, table_name, "g_admin_role")
+				FROM %[1]s inner join %[2]s on %[1]s.role_id=%[2]s.id WHERE 1=1 and %[2]s.isdelete=false and %[1]s.user_id=any(:user_ids) `, role_table_name, "g_admin_role")
 
 	return selectSql
 }
