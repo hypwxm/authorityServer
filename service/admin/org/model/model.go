@@ -169,9 +169,11 @@ func (self *GOrg) GetCount(db *sqlx.DB, query *Query, whereSql ...string) (int64
 }
 
 type UpdateByIDQuery struct {
-	ID   string `db:"id"`
-	Name string `db:"name"`
+	ID    string              `db:"id"`
+	Name  string              `db:"name"`
+	Media []*mediaModel.Media `json:"media" db:"-"`
 
+	Disabled   bool  `json:"disabled" db:"disabled"`
 	Updatetime int64 `db:"updatetime"`
 }
 
