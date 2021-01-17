@@ -59,21 +59,31 @@ func (self *Media) Insert(tx ...*sqlx.Tx) (string, error) {
 	return self.ID, nil
 }
 
+/**
+ * 初始化媒体信息
+ * 前端回传过来url和size信息，
+ * business和businessId由后台对应的业务生成，
+ * creator为当前的登陆信息中取
+ *
+ * 初始化的时候需要考虑 list参数中的其中对象中是否已经存在business，id等信息，
+ * 因为对业务进行编辑的时候，涉及到媒体时，会把原来的媒体全部删除，再重新插入，那么有以上信息的话，就不对这个媒体信息重新设置数据，而是直接插入
+ */
 func InitMedias(list []*Media, businessName string, businessId string, creator string) []*Media {
+	medias := make([]*Media, 0)
 	for _, v := range list {
 		if v == nil {
 			return nil
-
 		}
-		v.Init()
-		v.Business = businessName
-		v.BusinessId = businessId
-		// 有一种情况是之前人创建的虽然重新插入，但是前端把之前的创建者传过来了，就重新保存下，不能覆盖
-		if v.UserID == "" {
+		// 有一种情况是这个媒体是之前的信息，就不进行重新保存了
+		if !(v.Business != "" && v.BusinessId != "" && v.UserID != "" && v.ID != "") {
+			v.Init()
+			v.Business = businessName
+			v.BusinessId = businessId
 			v.UserID = creator
 		}
+		medias = append(medias, v)
 	}
-	return list
+	return medias
 }
 
 func StoreMedias(list []*Media, tx ...*sqlx.Tx) error {
@@ -149,8 +159,10 @@ func (self *Media) GetCount(db *sqlx.DB, query *Query, whereSql ...string) (int,
 }
 
 type DeleteQuery struct {
-	IDs         pq.StringArray `db:"ids"`
-	Businesses  pq.StringArray `json:"businesses" db:"businesses"`
+	IDs pq.StringArray `db:"ids"`
+	// 存储媒体的业务名称，一般为对应的业务的主表的名称
+	Businesses pq.StringArray `json:"businesses" db:"businesses"`
+	// 业务主表存储的对应的主键id
 	BusinessIds pq.StringArray `json:"businessIds" db:"business_ids"`
 }
 

@@ -44,6 +44,7 @@ func modify(c rider.Context) {
 			sender.Fail(err.Error())
 			return
 		}
+		entity.UserId = c.GetLocals(config.AppServerTokenKey).(string)
 		err = service.Modify(entity)
 		if err != nil {
 			sender.Fail(err.Error())

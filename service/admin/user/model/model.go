@@ -230,6 +230,9 @@ type Query struct {
 	Keywords string `db:"keywords"`
 	Status   int    `db:"status"`
 	OrgId    string `db:"org_id"`
+
+	// 查询多个组织，当这个参数的长度大于0时，orgId将会失效
+	OrgIds pq.StringArray `db:"org_ids"`
 }
 
 type ListModel struct {

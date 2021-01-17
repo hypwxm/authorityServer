@@ -169,9 +169,10 @@ func (self *GOrg) GetCount(db *sqlx.DB, query *Query, whereSql ...string) (int64
 }
 
 type UpdateByIDQuery struct {
-	ID    string              `db:"id"`
-	Name  string              `db:"name"`
-	Media []*mediaModel.Media `json:"media" db:"-"`
+	ID     string `json:"id" db:"id"`
+	UserId string
+	Name   string              `db:"name"`
+	Media  []*mediaModel.Media `json:"media" db:"-"`
 
 	Disabled   bool  `json:"disabled" db:"disabled"`
 	Updatetime int64 `db:"updatetime"`
@@ -188,7 +189,12 @@ func (self *GOrg) Update(query *UpdateByIDQuery) error {
 	}
 
 	db := pgsql.Open()
-	stmt, err := db.PrepareNamed(updateSql())
+	tx, err := db.Beginx()
+	if err != nil {
+		return err
+	}
+	defer tx.Rollback()
+	stmt, err := tx.PrepareNamed(updateSql())
 	if err != nil {
 		return err
 	}
@@ -198,6 +204,25 @@ func (self *GOrg) Update(query *UpdateByIDQuery) error {
 	if err != nil {
 		return err
 	}
+
+	// 先把媒体文件插入数据库
+	err = mediaService.Del(&mediaModel.DeleteQuery{
+		Businesses:  []string{BusinessName},
+		BusinessIds: []string{query.ID},
+	}, tx)
+	if err != nil {
+		return err
+	}
+	medias := mediaService.InitMedias(query.Media, BusinessName, query.ID, query.UserId)
+	err = mediaService.MultiCreate(medias, tx)
+	if err != nil {
+		return err
+	}
+	err = tx.Commit()
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
