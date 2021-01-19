@@ -106,7 +106,6 @@ func TestAdminRoleInit(t *testing.T) {
 	}
 }
 
-
 func TestAdminUserRoleInit(t *testing.T) {
 	if config.Env != "development" {
 		log.Fatalln("环境错误")
@@ -114,6 +113,22 @@ func TestAdminUserRoleInit(t *testing.T) {
 	db := pgsql.Open()
 
 	sql, err := ioutil.ReadFile("sqls/g_admin_user_role.sql")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	_, err = db.Exec(string(sql))
+	if err != nil {
+		log.Fatalln(err)
+	}
+}
+
+func TestGMenuInit(t *testing.T) {
+	if config.Env != "development" {
+		log.Fatalln("环境错误")
+	}
+	db := pgsql.Open()
+
+	sql, err := ioutil.ReadFile("sqls/g_menu.sql")
 	if err != nil {
 		log.Fatalln(err)
 	}
