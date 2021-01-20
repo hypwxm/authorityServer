@@ -1,15 +1,16 @@
 package model
 
 import (
-	"errors"
+	"babygrowing/DB/pgsql"
+	"babygrowing/util/database"
 	"fmt"
 	"log"
 	"strings"
-	"babygrowing/DB/pgsql"
-	"babygrowing/util/database"
+
+	"github.com/lib/pq"
 )
 
-type WbAdminRoleMenuPermission struct {
+type GRoleMenu struct {
 	database.BaseColumns
 
 	RoleId string `json:"roleId" db:"role_id"`
@@ -21,10 +22,10 @@ type SaveQuery struct {
 	MenuIds []string
 }
 
-func (self *WbAdminRoleMenuPermission) Save(query *SaveQuery) (string, error) {
+func (self *GRoleMenu) Save(query *SaveQuery) (string, error) {
 	var err error
 	if strings.TrimSpace(query.RoleId) == "" {
-		return "", errors.New(fmt.Sprintf("操作错误"))
+		return "", fmt.Errorf("操作错误")
 	}
 	db := pgsql.Open()
 	tx, err := db.Beginx()
@@ -32,16 +33,13 @@ func (self *WbAdminRoleMenuPermission) Save(query *SaveQuery) (string, error) {
 		return "", err
 	}
 	defer tx.Rollback()
-	_, err = tx.Exec(deleteSql(query.RoleId))
-	if err != nil {
-		return "", err
-	}
+
 	for _, v := range query.MenuIds {
 		stmt, err := tx.PrepareNamed(saveSql())
 		if err != nil {
 			return "", err
 		}
-		var _query = &WbAdminRoleMenuPermission{
+		var _query = &GRoleMenu{
 			MenuId: v,
 			RoleId: query.RoleId,
 		}
@@ -62,30 +60,19 @@ func (self *WbAdminRoleMenuPermission) Save(query *SaveQuery) (string, error) {
 	return self.ID, nil
 }
 
-type GetQuery struct {
-	ID string `db:"id"`
-}
-
-type GetModel struct {
-	WbAdminRoleMenuPermission
-	Like         bool `json:"like" db:"like"`
-	TotalLike    int  `json:"totalLike" db:"total_like"`
-	TotalComment int  `json:"totalComment" db:"total_comment"`
-}
-
 type Query struct {
 	pgsql.BaseQuery
 	RoleId string `db:"role_id"`
 }
 
 type ListModel struct {
-	WbAdminRoleMenuPermission
+	GRoleMenu
 	ParentId string `json:"parentId" db:"parent_id"`
 	Name     string `json:"name" db:"name"`
 	Path     string `json:"path" db:"path"`
 }
 
-func (self *WbAdminRoleMenuPermission) List(query *Query) ([]*ListModel, error) {
+func (self *GRoleMenu) List(query *Query) ([]*ListModel, error) {
 	if query == nil {
 		query = new(Query)
 	}
@@ -111,4 +98,26 @@ func (self *WbAdminRoleMenuPermission) List(query *Query) ([]*ListModel, error) 
 		list = append(list, data)
 	}
 	return list, nil
+}
+
+type DeleteQuery struct {
+	RoleId  string         `db:"role_id"`
+	MenuIds pq.StringArray `db:"menu_ids"`
+}
+
+func (self *GRoleMenu) Delete(query *DeleteQuery) error {
+	var err error
+	if strings.TrimSpace(query.RoleId) == "" {
+		return fmt.Errorf("操作错误")
+	}
+	db := pgsql.Open()
+	stmt, err := db.PrepareNamed(deleteSql())
+	if err != nil {
+		return err
+	}
+	_, err = stmt.Exec(query)
+	if err != nil {
+		return err
+	}
+	return nil
 }

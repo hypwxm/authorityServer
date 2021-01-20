@@ -5,9 +5,13 @@ import (
 )
 
 func Create(query *model.SaveQuery) (string, error) {
-	return new(model.WbAdminRoleMenuPermission).Save(query)
+	return new(model.GRoleMenu).Save(query)
+}
+
+func Del(query *model.DeleteQuery) error {
+	return new(model.GRoleMenu).Delete(query)
 }
 
 func List(query *model.Query) ([]*model.ListModel, error) {
-	return new(model.WbAdminRoleMenuPermission).List(query)
+	return new(model.GRoleMenu).List(query)
 }

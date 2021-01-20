@@ -1,11 +1,12 @@
 package controller
 
 import (
-	"encoding/json"
-	"github.com/hypwxm/rider"
 	"babygrowing/service/admin/rolePermission/menu/model"
 	"babygrowing/service/admin/rolePermission/menu/service"
 	"babygrowing/util/response"
+	"encoding/json"
+
+	"github.com/hypwxm/rider"
 )
 
 func create(c rider.Context) {
@@ -42,6 +43,25 @@ func list(c rider.Context) {
 			return
 		}
 		sender.Success(list)
+	})()
+	c.SendJson(200, sender)
+}
+
+func del(c rider.Context) {
+	sender := response.NewSender()
+	(func() {
+		query := new(model.DeleteQuery)
+		err := json.Unmarshal(c.Body(), &query)
+		if err != nil {
+			sender.Fail(err.Error())
+			return
+		}
+		err = service.Del(query)
+		if err != nil {
+			sender.Fail(err.Error())
+			return
+		}
+		sender.Success("")
 	})()
 	c.SendJson(200, sender)
 }
