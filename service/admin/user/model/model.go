@@ -371,7 +371,7 @@ func (self *GAdminUser) Update(query *UpdateByIDQuery) error {
 
 	// 如果password有更新的话
 	if strings.TrimSpace(query.Password) != "" {
-		if util.ValidatePwd(query.Password) {
+		if !util.ValidatePwd(query.Password) {
 			return fmt.Errorf("密码太短")
 		}
 		user, err := self.Get(&GAdminUser{BaseColumns: database.BaseColumns{ID: query.ID}})
