@@ -1,10 +1,10 @@
 module babygrowing
 
-go 1.14
+go 1.15
 
 require (
 	github.com/aliyun/alibaba-cloud-sdk-go v1.60.285
-	github.com/hypwxm/rider v1.2.0
+	github.com/hypwxm/rider v1.2.1
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/lib/pq v1.2.0
