@@ -23,7 +23,8 @@ func listSql(query *Query) (fullSql string) {
 				%[1]s.menu_id,
 				%[2]s.parent_id,
 				%[2]s.name,
-				%[2]s.path
+				%[2]s.path,
+				%[2]s.icon
 				FROM %[1]s inner join %[2]s on %[1]s.menu_id=%[2]s.id WHERE 1=1 `, table_name, "g_menu")
 	whereSql := pgsql.BaseWhere(query.BaseQuery, table_name)
 	whereSql = whereSql + fmt.Sprintf(" and %[1]s.role_id=any(:role_ids)", table_name)

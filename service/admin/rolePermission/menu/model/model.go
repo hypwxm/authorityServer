@@ -78,6 +78,7 @@ type ListModel struct {
 	ParentId string `json:"parentId" db:"parent_id"`
 	Name     string `json:"name" db:"name"`
 	Path     string `json:"path" db:"path"`
+	Icon     string `json:"icon" db:"icon"`
 }
 
 func (self *GRoleMenu) List(query *Query) ([]*ListModel, error) {
