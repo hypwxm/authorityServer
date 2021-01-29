@@ -2,7 +2,13 @@ package model
 
 import (
 	"babygrowing/DB/pgsql"
+	menuModel "babygrowing/service/admin/menu/model"
+	menuService "babygrowing/service/admin/menu/service"
+
+	userModel "babygrowing/service/admin/user/model"
+	userService "babygrowing/service/admin/user/service"
 	"babygrowing/util/database"
+
 	"fmt"
 	"log"
 	"strings"
@@ -62,7 +68,9 @@ func (self *GRoleMenu) Save(query *SaveQuery) (string, error) {
 
 type Query struct {
 	pgsql.BaseQuery
-	RoleId string `db:"role_id"`
+	RoleIds pq.StringArray `db:"role_ids"`
+
+	UserId string
 }
 
 type ListModel struct {
@@ -70,12 +78,54 @@ type ListModel struct {
 	ParentId string `json:"parentId" db:"parent_id"`
 	Name     string `json:"name" db:"name"`
 	Path     string `json:"path" db:"path"`
+	Icon     string `json:"icon" db:"icon"`
 }
 
 func (self *GRoleMenu) List(query *Query) ([]*ListModel, error) {
 	if query == nil {
 		query = new(Query)
 	}
+	var list = make([]*ListModel, 0)
+
+	if len(query.RoleIds) == 0 {
+		// 如果roleid为空，去userId对应的权限，
+		//给别人分配权限的时候只能以自己拥有的权限为基准
+		if query.UserId == "" {
+			return nil, fmt.Errorf("操作错误")
+		}
+		user, err := userService.Get(&userModel.GetQuery{ID: query.UserId})
+		if err != nil {
+			return nil, err
+		}
+
+		if user.Account != "admin" {
+			// 究极管理员无需判断，最高权限
+			for _, v := range user.Roles {
+				query.RoleIds = append(query.RoleIds, v.RoleId)
+			}
+			if len(query.RoleIds) == 0 {
+				return nil, fmt.Errorf("操作错误")
+			}
+		} else {
+			ms, _, err := menuService.List(&menuModel.Query{})
+			if err != nil {
+				return nil, err
+			}
+
+			for _, v := range ms {
+				list = append(list, &ListModel{
+					Name:     v.Name,
+					ParentId: v.ParentId,
+					Path:     v.Path,
+					GRoleMenu: GRoleMenu{
+						MenuId: v.ID,
+					},
+				})
+			}
+			return list, nil
+		}
+	}
+
 	db := pgsql.Open()
 	fullSql := listSql(query)
 	stmt, err := db.PrepareNamed(fullSql)
@@ -88,7 +138,6 @@ func (self *GRoleMenu) List(query *Query) ([]*ListModel, error) {
 		return nil, err
 	}
 	defer rows.Close()
-	var list = make([]*ListModel, 0)
 	for rows.Next() {
 		var data = new(ListModel)
 		err = rows.StructScan(&data)

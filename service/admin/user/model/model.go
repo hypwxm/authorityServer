@@ -233,6 +233,8 @@ type Query struct {
 
 	// 查询多个组织，当这个参数的长度大于0时，orgId将会失效
 	OrgIds pq.StringArray `db:"org_ids"`
+
+	RoleIds pq.StringArray `db:"role_ids"`
 }
 
 type ListModel struct {
@@ -371,7 +373,7 @@ func (self *GAdminUser) Update(query *UpdateByIDQuery) error {
 
 	// 如果password有更新的话
 	if strings.TrimSpace(query.Password) != "" {
-		if util.ValidatePwd(query.Password) {
+		if !util.ValidatePwd(query.Password) {
 			return fmt.Errorf("密码太短")
 		}
 		user, err := self.Get(&GAdminUser{BaseColumns: database.BaseColumns{ID: query.ID}})

@@ -53,6 +53,10 @@ func updateSql() string {
 	return fmt.Sprintf("update %s set updatetime=:updatetime %s where id=:id and isdelete=false", table_name, updateSql)
 }
 
+func hasUser() string {
+	return fmt.Sprintf("select count(role_id) from %s where role_id=any(:ids)", "g_admin_user_role")
+}
+
 func delSql() string {
 	return fmt.Sprintf("update %s set isdelete=true where id=any(:ids)", table_name)
 }

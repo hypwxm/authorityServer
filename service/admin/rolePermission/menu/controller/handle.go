@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"babygrowing/config"
 	"babygrowing/service/admin/rolePermission/menu/model"
 	"babygrowing/service/admin/rolePermission/menu/service"
 	"babygrowing/util/response"
@@ -37,6 +38,9 @@ func list(c rider.Context) {
 			sender.Fail(err.Error())
 			return
 		}
+		// 如果前段没传角色id过来，就根据当前的登录信息的角色来
+		userId := c.GetLocals(config.AppServerTokenKey).(string)
+		query.UserId = userId
 		list, err := service.List(query)
 		if err != nil {
 			sender.Fail(err.Error())

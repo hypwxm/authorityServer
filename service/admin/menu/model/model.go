@@ -80,6 +80,8 @@ type Query struct {
 	pgsql.BaseQuery
 	Keywords string `db:"keywords"`
 	Status   int    `db:"status"`
+
+	UserId string
 }
 
 type ListModel struct {

@@ -32,8 +32,8 @@ func listSql(query *Query) (whereSql string, fullSql string) {
 				%[1]s.contact_way
 				FROM %[1]s WHERE 1=1 and %[1]s.isdelete=false`, table_name)
 
-	// 如果是以组织纬度进行查询，要以"用户角色"表作为主表
-	if strings.TrimSpace(query.OrgId) != "" || len(query.OrgIds) > 0 {
+	// 如果是以组织或者角色维度进行查询，要以"用户角色"表作为主表
+	if strings.TrimSpace(query.OrgId) != "" || len(query.OrgIds) > 0 || len(query.RoleIds) > 0 {
 		selectSql = fmt.Sprintf(`SELECT 
 					%[2]s.org_id,
 					%[1]s.id,
@@ -59,6 +59,9 @@ func listSql(query *Query) (whereSql string, fullSql string) {
 	}
 	if len(query.OrgIds) > 0 {
 		whereSql = whereSql + fmt.Sprintf(" and (%[1]s.org_id=any(:org_ids))", "g_admin_user_role")
+	}
+	if len(query.RoleIds) > 0 {
+		whereSql = whereSql + fmt.Sprintf(" and (%[1]s.role_id=any(:role_ids))", "g_admin_user_role")
 	}
 	optionSql := pgsql.BaseOption(query.BaseQuery, table_name)
 	return whereSql, selectSql + whereSql + optionSql

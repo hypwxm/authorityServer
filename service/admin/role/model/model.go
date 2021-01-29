@@ -190,7 +190,23 @@ func (self *GAdminRole) Delete(query *DeleteQuery) error {
 	}
 
 	db := pgsql.Open()
-	stmt, err := db.PrepareNamed(delSql())
+
+	// 角色删除前需要判断没有对应的关联用户
+	stmt, err := db.PrepareNamed(hasUser())
+	if err != nil {
+		return err
+	}
+	row := stmt.QueryRow(query)
+	var count int
+
+	if err := row.Scan(&count); err != nil {
+		return err
+	}
+	if count > 0 {
+		return fmt.Errorf("存在关联用户，不能删除，如有必要可以选择对该角色进行禁用")
+	}
+
+	stmt, err = db.PrepareNamed(delSql())
 	if err != nil {
 		return err
 	}
