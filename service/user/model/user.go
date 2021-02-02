@@ -1,21 +1,21 @@
 package model
 
 import (
+	"babygrowing/DB/pgsql"
+	"babygrowing/util/database"
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/hypwxm/rider/utils/cryptos"
-	"github.com/lib/pq"
 	"log"
 	"strings"
-	"babygrowing/DB/pgsql"
-	"babygrowing/service/user/model/houseModel"
-	"babygrowing/util/database"
+
+	"github.com/hypwxm/rider/utils/cryptos"
+	"github.com/lib/pq"
 
 	"github.com/jmoiron/sqlx"
 )
 
-type WbUser struct {
+type GMember struct {
 	database.BaseColumns
 
 	Nickname  string `json:"nickname" db:"nickname"`
@@ -28,76 +28,59 @@ type WbUser struct {
 	Account  string `json:"account" db:"account"`
 	Password string `json:"password" db:"password"`
 	Salt     string `json:"-" db:"salt"`
-
-	Type sql.NullString `db:"type"`
-
-	House []houseModel.WbUserHouse `json:"house" db:"-"` // 房屋
 }
 
-func (self *WbUser) Insert() (string, error) {
+/*
+ * Insert
+ * 创建会员，会员注册
+ */
+func (gm *GMember) Insert() (string, error) {
 	var err error
 
 	// 必须有登录账号
-	if strings.TrimSpace(self.Account) == "" {
-		return "", errors.New(fmt.Sprintf("新用户账号不能为空"))
+	if strings.TrimSpace(gm.Account) == "" {
+		return "", fmt.Errorf("新用户账号不能为空")
 	}
 	// 必须有登录密码
-	if strings.TrimSpace(self.Password) == "" {
-		return "", errors.New(fmt.Sprintf("新用户密码不能为空"))
+	if strings.TrimSpace(gm.Password) == "" {
+		return "", fmt.Errorf("新用户密码不能为空")
 	}
 
-	self.BaseColumns.Init()
+	gm.BaseColumns.Init()
 
 	// 为新用户创建唯一盐
-	self.Salt = cryptos.RandString()
-	self.Password = SignPwd(self.Password, self.Salt)
+	gm.Salt = cryptos.RandString()
+	gm.Password = SignPwd(gm.Password, gm.Salt)
 
 	db := pgsql.Open()
-	tx, err := db.Beginx()
-	if err != nil {
-		return "", err
-	}
-	defer tx.Rollback()
 	// 插入判断用户登录账号是否已经存在
-	stmt, err := tx.PrepareNamed("insert into wb_user (createtime, isdelete, disabled, nickname, realname, firstname, lastname, account, password, salt, type, id) select :createtime, :isdelete, :disabled, :nickname, :realname, :firstname, :lastname, :account, :password, :salt, :type, :id where not exists(select 1 from wb_user where account = :account and isdelete='false') returning id")
+	stmt, err := db.PrepareNamed("insert into wb_user (createtime, isdelete, disabled, nickname, realname, firstname, lastname, account, password, salt, id) select :createtime, :isdelete, :disabled, :nickname, :realname, :firstname, :lastname, :account, :password, :salt, :id where not exists(select 1 from wb_user where account = :account and isdelete='false') returning id")
 
 	if err != nil {
 		return "", err
 	}
 	log.Println(stmt.QueryString)
-	var lastId string
-	err = stmt.Get(&lastId, self)
+	var lastID string
+	err = stmt.Get(&lastID, gm)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return "", errors.New("该手机号已被注册")
+			return "", errors.New("该账号已被注册")
 		}
 		return "", err
 	}
-	for k, _ := range self.House {
-		self.House[k].UserId = self.ID
-	}
-	err = houseModel.MultiInsert(self.House, tx)
-	if err != nil {
-		return "", err
-	}
-	err = tx.Commit()
-	if err != nil {
-		return "", err
-	}
-
-	return self.ID, nil
+	return gm.ID, nil
 }
 
 type GetQuery struct {
 	ID string `db:"id"`
 }
 
-func (self *WbUser) GetByID(db *sqlx.DB, query *GetQuery) (*WbUser, error) {
+func (self *GMember) GetByID(db *sqlx.DB, query *GetQuery) (*GMember, error) {
 	stmt, err := db.PrepareNamed("select * from wb_user where id=:id")
 	if err != nil {
 		return nil, err
 	}
-	var user = new(WbUser)
+	var user = new(GMember)
 	err = stmt.Get(user, query)
 	if err != nil {
 		return nil, err
@@ -109,7 +92,7 @@ type Query struct {
 	pgsql.BaseQuery
 }
 
-func (self *WbUser) List(query *Query) ([]*WbUser, int64, error) {
+func (self *GMember) List(query *Query) ([]*GMember, int64, error) {
 	if query == nil {
 		query = new(Query)
 	}
@@ -136,9 +119,9 @@ func (self *WbUser) List(query *Query) ([]*WbUser, int64, error) {
 	}
 	defer rows.Close()
 
-	var users = make([]*WbUser, 0)
+	var users = make([]*GMember, 0)
 	for rows.Next() {
-		var user = new(WbUser)
+		var user = new(GMember)
 		err = rows.StructScan(&user)
 		if err != nil {
 			return nil, 0, err
@@ -150,7 +133,7 @@ func (self *WbUser) List(query *Query) ([]*WbUser, int64, error) {
 
 }
 
-func (self *WbUser) GetCount(db *sqlx.DB, query *Query, whereSql ...string) (int64, error) {
+func (self *GMember) GetCount(db *sqlx.DB, query *Query, whereSql ...string) (int64, error) {
 	if query == nil {
 		query = new(Query)
 	}
@@ -175,7 +158,7 @@ type UpdateByIDQuery struct {
 
 // 更新,根据用户id和数据id进行更新
 // 部分字段不允许更新，userID, id
-func (self *WbUser) Update(query *UpdateByIDQuery) error {
+func (self *GMember) Update(query *UpdateByIDQuery) error {
 	if query == nil {
 		return errors.New("无更新条件")
 	}
@@ -209,7 +192,7 @@ type DeleteQuery struct {
 }
 
 // 删除，批量删除
-func (self *WbUser) Delete(db *sqlx.DB, query *DeleteQuery) error {
+func (self *GMember) Delete(db *sqlx.DB, query *DeleteQuery) error {
 	if query == nil {
 		return errors.New("无操作条件")
 	}
@@ -236,7 +219,7 @@ type DisabledQuery struct {
 }
 
 // 启用禁用店铺
-func (self *WbUser) ToggleDisabled(db *sqlx.DB, query *DisabledQuery) error {
+func (self *GMember) ToggleDisabled(db *sqlx.DB, query *DisabledQuery) error {
 	if query == nil {
 		return errors.New("无操作条件")
 	}
@@ -252,7 +235,7 @@ func (self *WbUser) ToggleDisabled(db *sqlx.DB, query *DisabledQuery) error {
 }
 
 // 根据条件获取单个用户
-func (self *WbUser) Get(query *WbUser) (*WbUser, error) {
+func (self *GMember) Get(query *GMember) (*GMember, error) {
 	db := pgsql.Open()
 
 	var selectSql = `
@@ -273,7 +256,7 @@ func (self *WbUser) Get(query *WbUser) (*WbUser, error) {
 	if err != nil {
 		return nil, err
 	}
-	var user = new(WbUser)
+	var user = new(GMember)
 	err = stmt.QueryRow(query).StructScan(user)
 	if err != nil {
 		return nil, err
