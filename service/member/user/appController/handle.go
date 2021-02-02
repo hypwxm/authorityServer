@@ -2,8 +2,8 @@ package appController
 
 import (
 	"babygrowing/config"
-	"babygrowing/service/user/model"
-	"babygrowing/service/user/service"
+	"babygrowing/service/member/user/model"
+	"babygrowing/service/member/user/service"
 	"babygrowing/util/response"
 	"encoding/json"
 

@@ -10,10 +10,10 @@ import (
 	controller7 "babygrowing/service/admin/user/controller"
 
 	controller2 "babygrowing/service/auth/controller"
-	daily "babygrowing/service/daily/controller"
+	daily "babygrowing/service/member/daily/controller"
+	controller3 "babygrowing/service/member/mybabies/controller"
+	"babygrowing/service/member/user/controller"
 	controller12 "babygrowing/service/menu/controller"
-	controller3 "babygrowing/service/mybabies/controller"
-	"babygrowing/service/user/controller"
 	controller14 "babygrowing/service/webSource/controller"
 
 	"github.com/hypwxm/rider"

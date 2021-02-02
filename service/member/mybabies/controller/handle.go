@@ -2,8 +2,8 @@ package controller
 
 import (
 	"babygrowing/config"
-	"babygrowing/service/daily/model"
-	"babygrowing/service/daily/service"
+	"babygrowing/service/member/mybabies/model"
+	"babygrowing/service/member/mybabies/service"
 	"babygrowing/util/response"
 	"encoding/json"
 
@@ -13,13 +13,16 @@ import (
 func create(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		entity := new(model.GDaily)
+		entity := new(model.GMyBabies)
 		err := json.Unmarshal(c.Body(), &entity)
 		if err != nil {
 			sender.Fail(err.Error())
 			return
 		}
-		entity.UserId = c.GetLocals(config.AppServerTokenKey).(string)
+		entity.UserID = c.GetLocals(config.AppServerTokenKey).(string)
+
+		entity.UserID = c.GetLocals(config.AppServerTokenKey).(string)
+
 		id, err := service.Create(entity)
 		if err != nil {
 			sender.Fail(err.Error())
@@ -102,6 +105,25 @@ func get(c rider.Context) {
 			return
 		}
 		sender.Success(entity)
+	})()
+	c.SendJson(200, sender)
+}
+
+func toggleDisabled(c rider.Context) {
+	sender := response.NewSender()
+	(func() {
+		query := new(model.DisabledQuery)
+		err := json.Unmarshal(c.Body(), &query)
+		if err != nil {
+			sender.Fail(err.Error())
+			return
+		}
+		err = service.ToggleDisabled(query)
+		if err != nil {
+			sender.Fail(err.Error())
+			return
+		}
+		sender.Success("")
 	})()
 	c.SendJson(200, sender)
 }

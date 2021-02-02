@@ -1,6 +1,6 @@
-drop table if exists wb_user;
+drop table if exists g_member;
 
-CREATE TABLE if not exists wb_user
+CREATE TABLE if not exists g_member
 (
     id         varchar(128) not null unique primary key,
     createtime bigint       not null,
@@ -17,12 +17,10 @@ CREATE TABLE if not exists wb_user
 
     account    varchar(32)  not null unique,
     password   varchar(32)  not null,
-    salt       varchar(32)  not null,
-    type       varchar(32)
+    salt       varchar(32)  not null
 );
 
-create index wb_user_createtime_index on wb_user (createtime);
-comment on column wb_user.type is '1:居民用户';
+create index g_member_createtime_index on g_member (createtime);
 
 
 

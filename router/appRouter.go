@@ -3,7 +3,7 @@ package router
 import (
 	"babygrowing/middleware"
 	controller2 "babygrowing/service/auth/controller"
-	appController2 "babygrowing/service/user/appController"
+	appController2 "babygrowing/service/member/user/appController"
 
 	"github.com/hypwxm/rider"
 )

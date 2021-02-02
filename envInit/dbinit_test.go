@@ -153,3 +153,19 @@ func TestGRoleMenuInit(t *testing.T) {
 		log.Fatalln(err)
 	}
 }
+
+func TestGMemberInit(t *testing.T) {
+	if config.Env != "development" {
+		log.Fatalln("环境错误")
+	}
+	db := pgsql.Open()
+
+	sql, err := ioutil.ReadFile("sqls/g_member.sql")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	_, err = db.Exec(string(sql))
+	if err != nil {
+		log.Fatalln(err)
+	}
+}
