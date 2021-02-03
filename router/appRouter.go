@@ -3,7 +3,9 @@ package router
 import (
 	"babygrowing/middleware"
 	controller2 "babygrowing/service/auth/controller"
-	appController2 "babygrowing/service/member/user/appController"
+	daily "babygrowing/service/member/daily/controller"
+	controller3 "babygrowing/service/member/mybabies/controller"
+	"babygrowing/service/member/user/controller"
 
 	"github.com/hypwxm/rider"
 )
@@ -14,7 +16,10 @@ func AppRouter() *rider.Router {
 
 	route.Kid("/auth", middleware.AppAuth(), controller2.Router())
 
-	route.Kid("/user", middleware.AppAuth(), appController2.Router())
+	route.Kid("/user", middleware.Auth(), controller.Router())
+
+	route.Kid("/mybabies", middleware.Auth(), controller3.Router())
+	route.Kid("/babyGrowning", middleware.Auth(), daily.Router())
 
 	return route
 }
