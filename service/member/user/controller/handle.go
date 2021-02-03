@@ -68,3 +68,22 @@ func modify(c rider.Context) {
 	})()
 	c.SendJson(200, sender)
 }
+
+func toggleDisabled(c rider.Context) {
+	sender := response.NewSender()
+	(func() {
+		query := new(model.DisabledQuery)
+		err := json.Unmarshal(c.Body(), &query)
+		if err != nil {
+			sender.Fail(err.Error())
+			return
+		}
+		err = service.ToggleDisabled(query)
+		if err != nil {
+			sender.Fail(err.Error())
+			return
+		}
+		sender.Success("")
+	})()
+	c.SendJson(200, sender)
+}

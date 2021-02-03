@@ -19,3 +19,7 @@ func GetUser(query *model.GMember) (*model.GMember, error) {
 func Modify(query *model.UpdateByIDQuery) error {
 	return new(model.GMember).Update(query)
 }
+
+func ToggleDisabled(query *model.DisabledQuery) error {
+	return new(model.GMember).ToggleDisabled(query)
+}

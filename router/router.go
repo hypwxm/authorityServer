@@ -30,6 +30,7 @@ func Router() *rider.Router {
 	route.Kid("/adminorg", middleware.Auth(), orgController.Router())
 	route.Kid("/adminmenu", middleware.Auth(), menuController.Router())
 	route.Kid("/adminrolemenu", middleware.Auth(), roleMenuController.Router())
+	route.Kid("/member", middleware.Auth(), MemberRouter())
 
 	return route
 }

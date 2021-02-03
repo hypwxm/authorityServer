@@ -54,7 +54,7 @@ func (gm *GMember) Insert() (string, error) {
 
 	db := pgsql.Open()
 	// 插入判断用户登录账号是否已经存在
-	stmt, err := db.PrepareNamed("insert into wb_user (createtime, isdelete, disabled, nickname, realname, firstname, lastname, account, password, salt, id) select :createtime, :isdelete, :disabled, :nickname, :realname, :firstname, :lastname, :account, :password, :salt, :id where not exists(select 1 from wb_user where account = :account and isdelete='false') returning id")
+	stmt, err := db.PrepareNamed("insert into g_member (createtime, isdelete, disabled, nickname, realname, firstname, lastname, account, password, salt, id) select :createtime, :isdelete, :disabled, :nickname, :realname, :firstname, :lastname, :account, :password, :salt, :id where not exists(select 1 from g_member where account = :account and isdelete='false') returning id")
 
 	if err != nil {
 		return "", err
@@ -76,7 +76,7 @@ type GetQuery struct {
 }
 
 func (self *GMember) GetByID(db *sqlx.DB, query *GetQuery) (*GMember, error) {
-	stmt, err := db.PrepareNamed("select * from wb_user where id=:id")
+	stmt, err := db.PrepareNamed("select * from g_member where id=:id")
 	if err != nil {
 		return nil, err
 	}
@@ -97,7 +97,7 @@ func (self *GMember) List(query *Query) ([]*GMember, int64, error) {
 		query = new(Query)
 	}
 	db := pgsql.Open()
-	var selectSql = `SELECT * FROM wb_user WHERE 1=1 `
+	var selectSql = `SELECT * FROM g_member WHERE 1=1 `
 	var whereSql = ""
 	whereSql = pgsql.BaseWhere(query.BaseQuery)
 
@@ -126,6 +126,8 @@ func (self *GMember) List(query *Query) ([]*GMember, int64, error) {
 		if err != nil {
 			return nil, 0, err
 		}
+		user.Password = ""
+		user.Salt = ""
 		users = append(users, user)
 	}
 
@@ -137,7 +139,7 @@ func (self *GMember) GetCount(db *sqlx.DB, query *Query, whereSql ...string) (in
 	if query == nil {
 		query = new(Query)
 	}
-	stmt, err := db.PrepareNamed("select count(*) from wb_user where 1=1 " + strings.Join(whereSql, " "))
+	stmt, err := db.PrepareNamed("select count(*) from g_member where 1=1 " + strings.Join(whereSql, " "))
 	if err != nil {
 		return 0, err
 	}
@@ -175,7 +177,7 @@ func (self *GMember) Update(query *UpdateByIDQuery) error {
 
 	db := pgsql.Open()
 
-	stmt, err := db.PrepareNamed("update wb_user set id=:id  " + updateSql + " where id=:id and isdelete=false and disabled=false")
+	stmt, err := db.PrepareNamed("update g_member set id=:id  " + updateSql + " where id=:id and isdelete=false and disabled=false")
 	if err != nil {
 		return err
 	}
@@ -205,7 +207,7 @@ func (self *GMember) Delete(db *sqlx.DB, query *DeleteQuery) error {
 		}
 	}
 
-	stmt, err := db.PrepareNamed("update wb_user set isdelete=true where id=any(:ids)")
+	stmt, err := db.PrepareNamed("update g_member set isdelete=true where id=any(:ids)")
 	if err != nil {
 		return err
 	}
@@ -219,14 +221,15 @@ type DisabledQuery struct {
 }
 
 // 启用禁用店铺
-func (self *GMember) ToggleDisabled(db *sqlx.DB, query *DisabledQuery) error {
+func (self *GMember) ToggleDisabled(query *DisabledQuery) error {
 	if query == nil {
 		return errors.New("无操作条件")
 	}
 	if strings.TrimSpace(query.ID) == "" {
 		return errors.New("操作条件错误")
 	}
-	stmt, err := db.PrepareNamed("update wb_user set disabled=:disabled where id=:id and isdelete=false")
+	db := pgsql.Open()
+	stmt, err := db.PrepareNamed("update g_member set disabled=:disabled where id=:id and isdelete=false")
 	if err != nil {
 		return err
 	}
@@ -239,7 +242,7 @@ func (self *GMember) Get(query *GMember) (*GMember, error) {
 	db := pgsql.Open()
 
 	var selectSql = `
-		select * from wb_user 
+		select * from g_member 
 	`
 	var whereSql = `
 		where 1=1 

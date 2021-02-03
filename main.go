@@ -1,14 +1,15 @@
 package main
 
 import (
-	"github.com/hypwxm/rider"
-	"github.com/hypwxm/rider/modules"
-	"log"
-	"os"
-	"path/filepath"
 	baseControl "babygrowing/base_control"
 	"babygrowing/config"
 	"babygrowing/router"
+	"log"
+	"os"
+	"path/filepath"
+
+	"github.com/hypwxm/rider"
+	"github.com/hypwxm/rider/modules"
 )
 
 func main() {
@@ -25,7 +26,7 @@ func main() {
 	baseControl.Init(app)
 
 	app.Kid("/server", router.Router())
-	app.Kid("/app", router.AppRouter())
+	// app.Kid("/app", router.AppRouter())
 
 	// modules.DefaultSecureConfig.XFrameOptions = "ALLOW-FROM http://localhost:9527"
 	app.USE(modules.SecureHeader())
