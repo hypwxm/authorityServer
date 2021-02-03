@@ -4,8 +4,8 @@ import (
 	"babygrowing/config"
 	adminUserModel "babygrowing/service/admin/user/model"
 	adminUserService "babygrowing/service/admin/user/service"
-	"babygrowing/service/user/model"
-	"babygrowing/service/user/service"
+	"babygrowing/service/member/user/model"
+	"babygrowing/service/member/user/service"
 	"babygrowing/util"
 	"babygrowing/util/database"
 	"babygrowing/util/response"
@@ -70,7 +70,7 @@ func loginAdmin(c rider.Context) {
 func appLogin(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		user := new(model.WbUser)
+		user := new(model.GMember)
 		err := json.Unmarshal(c.Body(), &user)
 		if err != nil {
 			sender.Fail(util.ErrorFormat(err))
@@ -80,7 +80,7 @@ func appLogin(c rider.Context) {
 			sender.Fail("账号或密码错误")
 			return
 		}
-		user, err = service.GetUser(&model.WbUser{
+		user, err = service.GetUser(&model.GMember{
 			Account:  user.Account,
 			Password: user.Password,
 		})
@@ -98,7 +98,7 @@ func appLogin(c rider.Context) {
 func loginAppUser(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		user, err := service.GetUser(&model.WbUser{
+		user, err := service.GetUser(&model.GMember{
 			BaseColumns: database.BaseColumns{
 				ID: c.GetLocals(config.AppUserTokenKey).(string),
 			},
