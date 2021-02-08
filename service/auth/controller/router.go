@@ -10,7 +10,7 @@ func Router() *rider.Router {
 	route.POST("/open/admin/login", login)
 	route.POST("/admin/loginUser", loginAdmin)
 
-	route.POST("/open/app/login", appLogin)
+	route.POST("/open/member/login", memberLogin)
 	route.POST("/app/loginUser", loginAppUser)
 
 	return route

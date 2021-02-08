@@ -67,7 +67,7 @@ func loginAdmin(c rider.Context) {
 	c.SendJson(200, sender)
 }
 
-func appLogin(c rider.Context) {
+func memberLogin(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
 		user := new(model.GMember)
