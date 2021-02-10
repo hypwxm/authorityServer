@@ -20,6 +20,14 @@ func Modify(query *model.UpdateByIDQuery) error {
 	return new(model.GMember).Update(query)
 }
 
+func ModifyNickname(query *model.UpdateByIDQuery) error {
+	return new(model.GMember).UpdateNickname(query)
+}
+
+func ModifyAvatar(query *model.UpdateByIDQuery) error {
+	return new(model.GMember).UpdateAvatar(query)
+}
+
 func ToggleDisabled(query *model.DisabledQuery) error {
 	return new(model.GMember).ToggleDisabled(query)
 }

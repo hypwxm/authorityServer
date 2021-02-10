@@ -69,6 +69,48 @@ func modify(c rider.Context) {
 	c.SendJson(200, sender)
 }
 
+func modifyNickname(c rider.Context) {
+	sender := response.NewSender()
+	(func() {
+		user := new(model.UpdateByIDQuery)
+		err := json.Unmarshal(c.Body(), &user)
+		if err != nil {
+			sender.Fail(err.Error())
+			return
+		}
+		userId := c.GetLocals(config.MemberTokenKey).(string)
+		user.ID = userId
+		err = service.ModifyNickname(user)
+		if err != nil {
+			sender.Fail(err.Error())
+			return
+		}
+		sender.Success("修改成功")
+	})()
+	c.SendJson(200, sender)
+}
+
+func modifyAvatar(c rider.Context) {
+	sender := response.NewSender()
+	(func() {
+		user := new(model.UpdateByIDQuery)
+		err := json.Unmarshal(c.Body(), &user)
+		if err != nil {
+			sender.Fail(err.Error())
+			return
+		}
+		userId := c.GetLocals(config.MemberTokenKey).(string)
+		user.ID = userId
+		err = service.ModifyAvatar(user)
+		if err != nil {
+			sender.Fail(err.Error())
+			return
+		}
+		sender.Success("修改成功")
+	})()
+	c.SendJson(200, sender)
+}
+
 func toggleDisabled(c rider.Context) {
 	sender := response.NewSender()
 	(func() {

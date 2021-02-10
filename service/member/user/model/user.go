@@ -2,6 +2,8 @@ package model
 
 import (
 	"babygrowing/DB/pgsql"
+	mediaModel "babygrowing/service/media/model"
+	mediaService "babygrowing/service/media/service"
 	"babygrowing/util/database"
 	"database/sql"
 	"errors"
@@ -14,6 +16,8 @@ import (
 
 	"github.com/jmoiron/sqlx"
 )
+
+const BusinessName = "member"
 
 type GMember struct {
 	database.BaseColumns
@@ -157,6 +161,7 @@ type UpdateByIDQuery struct {
 	LastName  string `db:"lastname"`
 	Phone     string `db:"phone"`
 	Avatar    string `db:"avatar"`
+	Media     []*mediaModel.Media
 }
 
 // 更新,根据用户id和数据id进行更新
@@ -224,18 +229,8 @@ func (self *GMember) UpdateAvatar(query *UpdateByIDQuery) error {
 		return errors.New("更新条件错误")
 	}
 
-	var updateSql = ""
-	// updateSql = updateSql + " ,nickname=:nickname"
-	updateSql = updateSql + " ,avatar=:avatar"
-
-	db := pgsql.Open()
-
-	stmt, err := db.PrepareNamed("update g_member set id=:id  " + updateSql + " where id=:id and isdelete=false and disabled=false")
-	if err != nil {
-		return err
-	}
-	log.Println(stmt.QueryString)
-	_, err = stmt.Exec(query)
+	medias := mediaService.InitMedias(query.Media, BusinessName, query.ID, query.ID)
+	err := mediaService.MultiCreate(medias)
 	if err != nil {
 		return err
 	}

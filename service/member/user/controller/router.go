@@ -14,6 +14,8 @@ func Router() *rider.Router {
 
 	// 修改个人信息
 	route.POST("/modify", modify)
+	route.POST("/modifyNickname", modifyNickname)
+	route.POST("/modifyAvatar", modifyAvatar)
 
 	return route
 }
