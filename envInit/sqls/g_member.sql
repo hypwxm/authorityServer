@@ -14,6 +14,7 @@ CREATE TABLE if not exists g_member
     lastname   varchar(32)  not null default '',
 
     avatar     varchar(256) not null default '',
+    phone      varchar(20) not null default '',
 
     account    varchar(32)  not null unique,
     password   varchar(32)  not null,

@@ -23,8 +23,8 @@ type GMember struct {
 	FirstName string `json:"firstName" db:"firstname"`
 	LastName  string `json:"lastName" db:"lastname"`
 
-	Avatar string `json:"avatar" db:"avatar"`
-
+	Avatar   string `json:"avatar" db:"avatar"`
+	Phone    string `json:"phone" db:"phone"`
 	Account  string `json:"account" db:"account"`
 	Password string `json:"password" db:"password"`
 	Salt     string `json:"-" db:"salt"`
@@ -155,6 +155,7 @@ type UpdateByIDQuery struct {
 	RealName  string `db:"realname"`
 	FirstName string `db:"firstname"`
 	LastName  string `db:"lastname"`
+	Phone     string `db:"phone"`
 	Avatar    string `db:"avatar"`
 }
 
@@ -169,10 +170,62 @@ func (self *GMember) Update(query *UpdateByIDQuery) error {
 	}
 
 	var updateSql = ""
-	updateSql = updateSql + " ,nickname=:nickname"
+	// updateSql = updateSql + " ,nickname=:nickname"
 	updateSql = updateSql + " ,realname=:realname"
 	updateSql = updateSql + " ,firstname=:firstname"
 	updateSql = updateSql + " ,lastname=:lastname"
+	updateSql = updateSql + " ,phone=:phone"
+
+	db := pgsql.Open()
+
+	stmt, err := db.PrepareNamed("update g_member set id=:id  " + updateSql + " where id=:id and isdelete=false and disabled=false")
+	if err != nil {
+		return err
+	}
+	log.Println(stmt.QueryString)
+	_, err = stmt.Exec(query)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (self *GMember) UpdateNickname(query *UpdateByIDQuery) error {
+	if query == nil {
+		return errors.New("无更新条件")
+	}
+	if strings.TrimSpace(query.ID) == "" {
+		return errors.New("更新条件错误")
+	}
+
+	var updateSql = ""
+	// updateSql = updateSql + " ,nickname=:nickname"
+	updateSql = updateSql + " ,nickname=:nickname"
+
+	db := pgsql.Open()
+
+	stmt, err := db.PrepareNamed("update g_member set id=:id  " + updateSql + " where id=:id and isdelete=false and disabled=false")
+	if err != nil {
+		return err
+	}
+	log.Println(stmt.QueryString)
+	_, err = stmt.Exec(query)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (self *GMember) UpdateAvatar(query *UpdateByIDQuery) error {
+	if query == nil {
+		return errors.New("无更新条件")
+	}
+	if strings.TrimSpace(query.ID) == "" {
+		return errors.New("更新条件错误")
+	}
+
+	var updateSql = ""
+	// updateSql = updateSql + " ,nickname=:nickname"
 	updateSql = updateSql + " ,avatar=:avatar"
 
 	db := pgsql.Open()

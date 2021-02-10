@@ -25,7 +25,7 @@ func main() {
 	// 基础模块，图片上传等
 	baseControl.Init(app)
 
-	app.Kid("/server", router.Router())
+	app.Kid("/", router.Router())
 	// app.Kid("/app", router.AppRouter())
 
 	// modules.DefaultSecureConfig.XFrameOptions = "ALLOW-FROM http://localhost:9527"

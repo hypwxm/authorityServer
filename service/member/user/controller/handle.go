@@ -57,7 +57,7 @@ func modify(c rider.Context) {
 			sender.Fail(err.Error())
 			return
 		}
-		userId := c.GetLocals(config.AppUserTokenKey).(string)
+		userId := c.GetLocals(config.MemberTokenKey).(string)
 		user.ID = userId
 		err = service.Modify(user)
 		if err != nil {

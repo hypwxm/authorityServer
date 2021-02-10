@@ -2,8 +2,6 @@ package controller
 
 import (
 	"babygrowing/config"
-	adminUserModel "babygrowing/service/admin/user/model"
-	adminUserService "babygrowing/service/admin/user/service"
 	"babygrowing/service/member/user/model"
 	"babygrowing/service/member/user/service"
 	"babygrowing/util"
@@ -17,54 +15,6 @@ import (
 type LoginForm struct {
 	UserName string `json:"userName"`
 	Password string `json:"password"`
-}
-
-func login(c rider.Context) {
-	sender := response.NewSender()
-	(func() {
-		var loginForm = new(LoginForm)
-		err := json.Unmarshal(c.Body(), loginForm)
-		if err != nil {
-			sender.Fail(err.Error())
-			return
-		}
-		if loginForm.Password == "" {
-			if err != nil {
-				sender.Fail("账号或密码错误")
-				return
-			}
-		}
-		user, err := adminUserService.GetUser(&adminUserModel.GAdminUser{
-			Account:  loginForm.UserName,
-			Password: loginForm.Password,
-		})
-		if err != nil {
-			sender.Fail(err.Error())
-			return
-		}
-		c.Jwt().Set(config.AppServerTokenKey, user.ID)
-		c.Jwt().Set(config.AppLoginUserName, user.Username)
-
-		sender.Success(c.Jwt().GetToken())
-	})()
-
-	c.SendJson(200, sender)
-}
-
-func loginAdmin(c rider.Context) {
-	sender := response.NewSender()
-	(func() {
-		query := new(adminUserModel.GAdminUser)
-		query.ID = c.GetLocals(config.AppServerTokenKey).(string)
-		user, err := adminUserService.GetUser(query)
-		if err != nil {
-			sender.Fail(err.Error())
-			return
-		}
-		sender.Success(user)
-	})()
-
-	c.SendJson(200, sender)
 }
 
 func memberLogin(c rider.Context) {

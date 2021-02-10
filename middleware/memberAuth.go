@@ -1,16 +1,17 @@
 package middleware
 
 import (
-	"github.com/hypwxm/rider"
-	"log"
-	"strings"
 	"babygrowing/config"
 	"babygrowing/util/response"
+	"log"
+	"strings"
+
+	"github.com/hypwxm/rider"
 )
 
-func AppAuth() rider.HandlerFunc {
+func MemberAuth() rider.HandlerFunc {
 	return func(c rider.Context) {
-		user := c.Jwt().Get(config.AppUserTokenKey)
+		user := c.Jwt().Get(config.MemberTokenKey)
 		log.Println(c.Jwt().Values())
 
 		path := c.Path()
@@ -30,7 +31,7 @@ func AppAuth() rider.HandlerFunc {
 				c.SendJson(200, sender)
 				return
 			}
-			c.SetLocals(config.AppUserTokenKey, userStr)
+			c.SetLocals(config.MemberTokenKey, userStr)
 			c.Next()
 
 		} else {

@@ -19,10 +19,7 @@ func create(c rider.Context) {
 			sender.Fail(err.Error())
 			return
 		}
-		entity.UserID = c.GetLocals(config.AppServerTokenKey).(string)
-
-		entity.UserID = c.GetLocals(config.AppServerTokenKey).(string)
-
+		entity.UserID = c.GetLocals(config.MemberTokenKey).(string)
 		id, err := service.Create(entity)
 		if err != nil {
 			sender.Fail(err.Error())
