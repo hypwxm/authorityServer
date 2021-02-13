@@ -31,11 +31,13 @@ func listSql(query *Query) (whereSql string, fullSql string) {
 		// whereSql = whereSql + fmt.Sprintf(" and (%[1]s.title like '%%%[2]s%%' or %[1]s.intro like '%%%[2]s%%' or %[1]s.content like '%%%[2]s%%')", table_name, query.Keywords)
 	}
 
-	if query.OrderBy == "" {
-		query.OrderBy = "sort asc"
-	} else {
-		query.OrderBy = "createtime desc"
-	}
+	whereSql = whereSql + fmt.Sprintf(" and %[1]s.user_id=:user_id ", table_name)
+
+	// if query.OrderBy == "" {
+	// 	query.OrderBy = "sort asc"
+	// } else {
+	// 	query.OrderBy = "createtime desc"
+	// }
 	optionSql := pgsql.BaseOption(query.BaseQuery, table_name)
 	return whereSql, selectSql + whereSql + optionSql
 }

@@ -39,6 +39,8 @@ type GDaily struct {
 	Health      string  `json:"health" db:"health"`
 	Temperature float64 `json:"temperature" db:"temperature"`
 
+	Sort int `json:"sort" db:"sort"`
+
 	Medias []*mediaModel.Media `json:"medias"`
 }
 
@@ -111,6 +113,7 @@ type Query struct {
 	pgsql.BaseQuery
 	Keywords string `db:"keywords"`
 	Status   int    `db:"status"`
+	UserId   string `db:"user_id"`
 }
 
 type ListModel struct {
@@ -120,6 +123,9 @@ type ListModel struct {
 func (self *GDaily) List(query *Query) ([]*ListModel, int64, error) {
 	if query == nil {
 		query = new(Query)
+	}
+	if query.UserId == "" {
+		return nil, 0, fmt.Errorf("参数错误")
 	}
 	db := pgsql.Open()
 	whereSql, fullSql := listSql(query)
@@ -140,17 +146,17 @@ func (self *GDaily) List(query *Query) ([]*ListModel, int64, error) {
 	}
 	defer rows.Close()
 
-	var users = make([]*ListModel, 0)
+	var list = make([]*ListModel, 0)
 	for rows.Next() {
-		var user = new(ListModel)
-		err = rows.StructScan(&user)
+		var item = new(ListModel)
+		err = rows.StructScan(&item)
 		if err != nil {
 			return nil, 0, err
 		}
-		users = append(users, user)
+		list = append(list, item)
 	}
 
-	return users, count, nil
+	return list, count, nil
 
 }
 

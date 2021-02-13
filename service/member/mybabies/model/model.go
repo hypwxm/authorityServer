@@ -111,6 +111,8 @@ func (self *GMyBabies) GetByID(query *GetQuery) (*GetModel, error) {
 
 type Query struct {
 	pgsql.BaseQuery
+
+	UserId   string `db:"user_id"`
 	Keywords string `db:"keywords"`
 }
 
