@@ -89,6 +89,20 @@ func (self *GMember) GetByID(db *sqlx.DB, query *GetQuery) (*GMember, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// 查找对应的媒体信息
+	medias, _, err := mediaService.List(&mediaModel.Query{
+		BusinessIds: []string{query.ID},
+		Businesses:  []string{BusinessName},
+	})
+
+	if err != nil {
+		return nil, err
+	}
+	if len(medias) > 0 && medias[0] != nil {
+		user.Avatar = medias[0].Url
+	}
+
 	return user, nil
 }
 
@@ -124,6 +138,7 @@ func (self *GMember) List(query *Query) ([]*GMember, int64, error) {
 	defer rows.Close()
 
 	var users = make([]*GMember, 0)
+	var ids []string = make([]string, 0)
 	for rows.Next() {
 		var user = new(GMember)
 		err = rows.StructScan(&user)
@@ -132,7 +147,27 @@ func (self *GMember) List(query *Query) ([]*GMember, int64, error) {
 		}
 		user.Password = ""
 		user.Salt = ""
+		ids = append(ids, user.ID)
 		users = append(users, user)
+	}
+
+	// 查找对应的媒体信息
+	medias, _, err := mediaService.List(&mediaModel.Query{
+		BusinessIds: ids,
+		Businesses:  []string{BusinessName},
+	})
+
+	if err != nil {
+		return nil, 0, err
+	}
+
+	for _, v := range users {
+		for _, vm := range medias {
+			if v.ID == vm.BusinessId {
+				// v.Media = append(v.Media, vm)
+				v.Avatar = vm.Url
+			}
+		}
 	}
 
 	return users, count, nil
@@ -319,5 +354,19 @@ func (self *GMember) Get(query *GMember) (*GMember, error) {
 			return nil, errors.New("密码错误")
 		}
 	}
+
+	// 查找对应的媒体信息
+	medias, _, err := mediaService.List(&mediaModel.Query{
+		BusinessIds: []string{user.ID},
+		Businesses:  []string{BusinessName},
+	})
+
+	if err != nil {
+		return nil, err
+	}
+	if len(medias) > 0 && medias[0] != nil {
+		user.Avatar = medias[0].Url
+	}
+
 	return user, nil
 }

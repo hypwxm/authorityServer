@@ -7,5 +7,5 @@ import (
 )
 
 func Init(app *rider.Rider) {
-	app.Kid("/server/common", controller.Router())
+	app.Kid("/common", controller.Router())
 }
