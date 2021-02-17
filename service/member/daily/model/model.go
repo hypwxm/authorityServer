@@ -18,7 +18,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-const BusinessName = "baby_growning"
+const BusinessName = "g_growning"
 
 type GDaily struct {
 	database.BaseColumns
@@ -73,7 +73,7 @@ func (self *GDaily) Insert() (string, error) {
 		return "", err
 	}
 
-	medias := mediaService.InitMedias(self.Medias, "BusinessName", lastId, self.UserId)
+	medias := mediaService.InitMedias(self.Medias, BusinessName, lastId, self.UserId)
 	err = mediaService.MultiCreate(medias)
 	if err != nil {
 		return "", err
@@ -147,13 +147,34 @@ func (self *GDaily) List(query *Query) ([]*ListModel, int64, error) {
 	defer rows.Close()
 
 	var list = make([]*ListModel, 0)
+	var ids []string = make([]string, 0)
+
 	for rows.Next() {
 		var item = new(ListModel)
 		err = rows.StructScan(&item)
 		if err != nil {
 			return nil, 0, err
 		}
+		ids = append(ids, item.ID)
 		list = append(list, item)
+	}
+
+	// 查找对应的媒体信息
+	medias, _, err := mediaService.List(&mediaModel.Query{
+		BusinessIds: ids,
+		Businesses:  []string{BusinessName},
+	})
+
+	if err != nil {
+		return nil, 0, err
+	}
+
+	for _, v := range list {
+		for _, vm := range medias {
+			if v.ID == vm.BusinessId {
+				v.Medias = append(v.Medias, vm)
+			}
+		}
 	}
 
 	return list, count, nil
