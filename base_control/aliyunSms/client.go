@@ -1,4 +1,4 @@
-package oss
+package aliyunSms
 
 import (
 	"github.com/aliyun/alibaba-cloud-sdk-go/services/dysmsapi"

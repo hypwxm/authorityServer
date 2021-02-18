@@ -1,6 +1,7 @@
 package baseController
 
 import (
+	"babygrowing/base_control/aliyunOss"
 	"babygrowing/logger"
 	"babygrowing/util/response"
 	"math/rand"
@@ -9,8 +10,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-
-	"babygrowing/config"
 
 	"github.com/hypwxm/rider"
 	"github.com/hypwxm/rider/utils/file"
@@ -54,10 +53,18 @@ func upload(c rider.Context) {
 		filename := createFileName(c) + filepath.Ext(formFile.Name)
 		fullfilename := filepath.Join(fullDirpath, filename)
 		fullfilename = strings.ReplaceAll(fullfilename, "\\", "/")
-		c.StoreFormFile(formFile, fullfilename)
-		storePath := filepath.Join(basePath, action, filename)
-		storePath = strings.ReplaceAll(storePath, "\\", "/")
-		sender.Success(config.Config.UPLOADERHOST + storePath)
+
+		fileurl, err := aliyunOss.UploadFileStream(formFile.File, filepath.Join(action, filename))
+		if err != nil {
+			sender.Fail(err.Error())
+			return
+		}
+		sender.Success(fileurl)
+
+		// c.StoreFormFile(formFile, fullfilename)
+		// storePath := filepath.Join(basePath, action, filename)
+		// storePath = strings.ReplaceAll(storePath, "\\", "/")
+		// sender.Success(config.Config.UPLOADERHOST + storePath)
 	})()
 	c.SendJson(200, sender)
 }
