@@ -21,6 +21,13 @@ func List(query *model.Query) ([]*model.Media, int, error) {
 	return new(model.Media).List(query)
 }
 
+func ListWithMedia(ids []string, businessName string, list interface{}, mediaName string) error {
+	return new(model.Media).ListWithMedia(&model.Query{
+		BusinessIds: ids,
+		Businesses:  []string{businessName},
+	}, list, mediaName)
+}
+
 func Del(query *model.DeleteQuery, tx ...*sqlx.Tx) error {
 	return new(model.Media).Delete(query, tx...)
 }

@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"reflect"
 	"strings"
 
 	"github.com/jmoiron/sqlx"
@@ -138,9 +139,56 @@ func (self *Media) List(query *Query) ([]*Media, int, error) {
 		}
 		list = append(list, item)
 	}
-
 	return list, count, nil
+}
 
+func (self *Media) ListWithMedia(query *Query, olist interface{}, mediaName string) error {
+	medias, _, err := self.List(query)
+	if err != nil {
+		return err
+	}
+	if mediaName == "" {
+		mediaName = "Medias"
+	}
+
+	// log.Println(reflect.ValueOf(olist).Kind())
+	// log.Println(reflect.ValueOf(olist))
+	// log.Println(reflect.TypeOf(olist))
+	// log.Println(reflect.ValueOf(olist).NumField())
+
+	v := reflect.ValueOf(olist)
+	if v.Kind() == reflect.Slice {
+		len := v.Len()
+		ret := make([]interface{}, len)
+		for i := 0; i < len; i++ {
+			ret[i] = v.Index(i).Interface()
+		}
+		for _, v := range ret {
+			// log.Println(reflect.ValueOf(v).Kind())
+			nv := reflect.ValueOf(v)
+			if nv.Kind() == reflect.Ptr {
+				// log.Println(nv.Elem(), reflect.TypeOf(v).Elem())
+				t := nv.Elem()
+				// fmt.Println("Number of fields", v.NumField())
+				// v = v.Elem()
+				m := t.FieldByName(mediaName)
+				if m.Kind() == reflect.Invalid {
+					return fmt.Errorf("mediaName定义错误")
+				}
+				// log.Println(m.Interface().([]*Media))
+				if ll, ok := m.Interface().([]*Media); ok {
+					for _, v := range medias {
+						if v.BusinessId == t.FieldByName("ID").String() {
+							ll = append(ll, v)
+							m.Set(reflect.ValueOf(ll))
+						}
+					}
+				}
+			}
+
+		}
+	}
+	return nil
 }
 
 func (self *Media) GetCount(db *sqlx.DB, query *Query, whereSql ...string) (int, error) {

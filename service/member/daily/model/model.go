@@ -160,22 +160,7 @@ func (self *GDaily) List(query *Query) ([]*ListModel, int64, error) {
 	}
 
 	// 查找对应的媒体信息
-	medias, _, err := mediaService.List(&mediaModel.Query{
-		BusinessIds: ids,
-		Businesses:  []string{BusinessName},
-	})
-
-	if err != nil {
-		return nil, 0, err
-	}
-
-	for _, v := range list {
-		for _, vm := range medias {
-			if v.ID == vm.BusinessId {
-				v.Medias = append(v.Medias, vm)
-			}
-		}
-	}
+	mediaService.ListWithMedia(ids, BusinessName, list, "")
 
 	return list, count, nil
 
