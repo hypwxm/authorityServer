@@ -15,7 +15,7 @@ func TestMyBabiesInit(t *testing.T) {
 	}
 	db := pgsql.Open()
 
-	sql, err := ioutil.ReadFile("sqls/g_my_babies.sql")
+	sql, err := ioutil.ReadFile("sqls/g_member_baby.sql")
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -32,7 +32,7 @@ func TestBabyGrowningInit(t *testing.T) {
 	}
 	db := pgsql.Open()
 
-	sql, err := ioutil.ReadFile("sqls/g_daily.sql")
+	sql, err := ioutil.ReadFile("sqls/g_member_baby_growning.sql")
 	if err != nil {
 		log.Fatalln(err)
 	}

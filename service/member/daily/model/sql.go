@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-const table_name = "g_daily"
+const table_name = "g_member_baby_growning"
 
 func GetSqlFile() ([]byte, error) {
 	b, err := ioutil.ReadFile("scheme.sql")

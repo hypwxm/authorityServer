@@ -1,6 +1,7 @@
 package router
 
 import (
+	baseControl "babygrowing/base_control"
 	"babygrowing/middleware"
 	controller2 "babygrowing/service/member/auth/controller"
 	daily "babygrowing/service/member/daily/controller"
@@ -13,6 +14,8 @@ import (
 func MemberRouter() *rider.Router {
 	route := rider.NewRouter()
 	route.USE(rider.RiderJwt("Authorization", "ni2QWN2asd23aw9d9j29j2d9aj9d!23", 10000000, nil, false))
+	// 基础模块，图片上传等
+	baseControl.Init(route)
 
 	route.Kid("/auth", middleware.MemberAuth(), controller2.Router())
 

@@ -30,5 +30,5 @@ func UploadFileStream(fd io.Reader, filename string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join("https://babygrowning-test.oss-cn-hangzhou.aliyuncs.com", filename), nil
+	return filepath.Join(OssHost, filename), nil
 }

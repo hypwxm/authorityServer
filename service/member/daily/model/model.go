@@ -18,7 +18,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-const BusinessName = "g_growning"
+const BusinessName = "g_member_baby_growning"
 
 type GDaily struct {
 	database.BaseColumns

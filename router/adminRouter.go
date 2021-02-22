@@ -11,6 +11,7 @@ import (
 
 	controller2 "babygrowing/service/auth/controller"
 
+	baseControl "babygrowing/base_control"
 	controller12 "babygrowing/service/menu/controller"
 	controller14 "babygrowing/service/webSource/controller"
 
@@ -20,6 +21,10 @@ import (
 func AdminRouter() *rider.Router {
 	route := rider.NewRouter()
 	route.USE(rider.RiderJwt("Authorization", "ni2QWN29DJQJDNI923N=-230S-23!23", 10000000, nil, false))
+
+	// 基础模块，图片上传等
+	baseControl.Init(route)
+
 	route.Kid("/auth", middleware.Auth(), controller2.Router())
 
 	route.Kid("/settings/menu", middleware.Auth(), controller12.Router())

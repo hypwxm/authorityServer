@@ -1,7 +1,6 @@
 package main
 
 import (
-	baseControl "babygrowing/base_control"
 	"babygrowing/config"
 	"babygrowing/router"
 	"log"
@@ -21,9 +20,6 @@ func main() {
 
 	wd, _ := os.Getwd()
 	app.SetStatic(filepath.Join(wd, "assets"), "/assets")
-
-	// 基础模块，图片上传等
-	baseControl.Init(app)
 
 	app.Kid("/", router.Router())
 	// app.Kid("/app", router.AppRouter())
