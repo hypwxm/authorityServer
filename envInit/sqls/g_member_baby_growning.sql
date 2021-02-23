@@ -14,6 +14,7 @@ CREATE TABLE if not exists g_member_baby_growning (
     weather varchar(128) not null default '',
     mood varchar(128) not null default '',
     health varchar(128) not null default '',
-    temperature real default 0 not null
+    temperature real default 0 not null,
+    date varchar(50) default '' not null
 );
 Create Index g_member_baby_growning_createtime_index On g_member_baby_growning (createtime);

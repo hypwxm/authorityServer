@@ -39,6 +39,8 @@ type GDaily struct {
 	Health      string  `json:"health" db:"health"`
 	Temperature float64 `json:"temperature" db:"temperature"`
 
+	Date string `json:"date" db:"date"`
+
 	Sort int `json:"sort" db:"sort"`
 
 	Medias []*mediaModel.Media `json:"medias"`
@@ -182,11 +184,18 @@ func (self *GDaily) GetCount(db *sqlx.DB, query *Query, whereSql ...string) (int
 }
 
 type UpdateByIDQuery struct {
-	ID      string `db:"id"`
-	Title   string `db:"title"`
-	Intro   string `db:"intro"`
-	Content string `db:"content"`
-	Surface string `db:"surface"`
+	ID     string  `db:"id"`
+	Weight float64 `json:"weight" db:"weight"`
+	// 今日份身高
+	Height float64 `json:"height" db:"height"`
+
+	// 今日份记录
+	Diary string `json:"diary" db:"diary"`
+
+	Weather     string  `json:"weather" db:"weather"`
+	Mood        string  `json:"mood" db:"mood"`
+	Health      string  `json:"health" db:"health"`
+	Temperature float64 `json:"temperature" db:"temperature"`
 
 	Updatetime int64 `db:"updatetime"`
 }

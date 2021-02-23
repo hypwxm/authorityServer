@@ -18,7 +18,7 @@ func GetSqlFile() ([]byte, error) {
 }
 
 func insertSql() string {
-	return fmt.Sprintf("insert into %s (createtime, isdelete, disabled, id, weight, height, diary, mood, temperature, weather, health, user_id, baby_id) select :createtime, :isdelete, :disabled, :id, :weight, :height, :diary, :mood, :temperature, :weather, :health, :user_id, :baby_id returning id", table_name)
+	return fmt.Sprintf("insert into %s (createtime, isdelete, disabled, id, weight, height, diary, mood, temperature, weather, health, date, user_id, baby_id) select :createtime, :isdelete, :disabled, :id, :weight, :height, :diary, :mood, :temperature, :weather, :health, :date, :user_id, :baby_id returning id", table_name)
 
 }
 
@@ -63,6 +63,7 @@ func updateSql() string {
 	updateSql = updateSql + " ,weather=:weather"
 	updateSql = updateSql + " ,temperature=:temperature"
 	updateSql = updateSql + " ,health=:health"
+	updateSql = updateSql + " ,date=:date"
 
 	return fmt.Sprintf("update %s set updatetime=:updatetime %s where id=:id and isdelete=false", table_name, updateSql)
 }
