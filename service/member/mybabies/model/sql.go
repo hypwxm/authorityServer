@@ -8,6 +8,7 @@ import (
 )
 
 const table_name = "g_my_babies"
+const table_name_mb = "g_member_baby"
 
 func GetSqlFile() ([]byte, error) {
 	b, err := ioutil.ReadFile("scheme.sql")
@@ -19,7 +20,10 @@ func GetSqlFile() ([]byte, error) {
 
 func insertSql() string {
 	return fmt.Sprintf("insert into %s (createtime, isdelete, disabled, id, name, birthday, gender, avatar, id_card, hobby, good_at, favorite_food, favorite_color, ambition, user_id, weight, height) select :createtime, :isdelete, :disabled, :id, :name, :birthday, :gender, :avatar, :id_card, :hobby, :good_at, :favorite_food, :favorite_color, :ambition, :user_id, :weight, :height returning id", table_name)
+}
 
+func mbInsertSql() string {
+	return fmt.Sprintf("insert into %s (createtime, isdelete, disabled, id, role_name, baby_id, member_id) select :createtime, :isdelete, :disabled, :id, :role_name, :baby_id, :member_id returning id", table_name_mb)
 }
 
 func listSql(query *Query) (whereSql string, fullSql string) {

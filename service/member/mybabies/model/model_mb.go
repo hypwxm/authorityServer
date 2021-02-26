@@ -1,3 +1,4 @@
+// 成员和宝宝的关系
 package model
 
 import (
@@ -14,51 +15,24 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type GMyBabies struct {
+// 用户和宝宝的关系
+type GMemberBaby struct {
 	database.BaseColumns
-
-	// 操作的用户
-	UserID string `json:"userId" db:"user_id"`
-	// 姓名
-	Name string `json:"name" db:"name"`
-	// 生日,(公历生日)
-	Birthday string `json:"birthday" db:"birthday"`
-	// 性别
-	Gender string `json:"gender" db:"gender"`
-	// 照片
-	Avatar string `json:"avatar" db:"avatar"`
-	// 身份证号
-	IdCard string `json:"idCard" db:"id_card"`
-	// 兴趣
-	Hobby string `json:"hobby" db:"hobby"`
-	// 特长
-	GoodAt string `json:"goodAt" db:"good_at"`
-	// 喜欢的食物
-	FavoriteFood string `json:"favoriteFood" db:"favorite_food"`
-	// 喜欢的颜色
-	FavoriteColor string `json:"favoriteColor" db:"favorite_color"`
-	// 志向
-	Ambition string `json:"ambition" db:"ambition"`
-
-	Weight float64 `json:"weight" db:"weight"`
-	Height float64 `json:"height" db:"height"`
-
 	RoleName string `json:"roleName" db:"role_name"`
+	BabyId   string `json:"babyId" db:"baby_id"`
+	MemberId string `json:"memberId" db:"member_id"`
 }
 
-func (self *GMyBabies) Insert() (string, error) {
+func (self *GMemberBaby) Insert(tx *sqlx.Tx) (string, error) {
 	var err error
 
-	if strings.TrimSpace(self.Name) == "" {
+	if strings.TrimSpace(self.RoleName) == "" {
 		return "", errors.New(fmt.Sprintf("操作错误"))
 	}
-	if strings.TrimSpace(self.Birthday) == "" {
+	if strings.TrimSpace(self.BabyId) == "" {
 		return "", errors.New(fmt.Sprintf("操作错误"))
 	}
-	if strings.TrimSpace(self.Gender) == "" {
-		return "", errors.New(fmt.Sprintf("操作错误"))
-	}
-	if strings.TrimSpace(self.UserID) == "" {
+	if strings.TrimSpace(self.MemberId) == "" {
 		return "", errors.New(fmt.Sprintf("操作错误"))
 	}
 
@@ -81,6 +55,13 @@ func (self *GMyBabies) Insert() (string, error) {
 		return "", err
 	}
 
+	// 插入关系表
+	var memberBaby = new(GMemberBaby)
+	memberBaby.BaseColumns.Init()
+	memberBaby.RoleName = self.RoleName
+	memberBaby.MemberId = self.UserID
+	memberBaby.BabyId = lastId
+
 	err = tx.Commit()
 	if err != nil {
 		return "", err
@@ -94,10 +75,10 @@ type GetQuery struct {
 }
 
 type GetModel struct {
-	GMyBabies
+	GMemberBaby
 }
 
-func (self *GMyBabies) GetByID(query *GetQuery) (*GetModel, error) {
+func (self *GMemberBaby) GetByID(query *GetQuery) (*GetModel, error) {
 	db := pgsql.Open()
 	stmt, err := db.PrepareNamed(getByIdSql())
 	if err != nil {
@@ -119,10 +100,10 @@ type Query struct {
 }
 
 type ListModel struct {
-	GMyBabies
+	GMemberBaby
 }
 
-func (self *GMyBabies) List(query *Query) ([]*ListModel, int64, error) {
+func (self *GMemberBaby) List(query *Query) ([]*ListModel, int64, error) {
 	if query == nil {
 		query = new(Query)
 	}
@@ -159,7 +140,7 @@ func (self *GMyBabies) List(query *Query) ([]*ListModel, int64, error) {
 
 }
 
-func (self *GMyBabies) GetCount(db *sqlx.DB, query *Query, whereSql ...string) (int64, error) {
+func (self *GMemberBaby) GetCount(db *sqlx.DB, query *Query, whereSql ...string) (int64, error) {
 	if query == nil {
 		query = new(Query)
 	}
@@ -206,7 +187,7 @@ type UpdateByIDQuery struct {
 
 // 更新,根据用户id和数据id进行更新
 // 部分字段不允许更新，userID, id
-func (self *GMyBabies) Update(query *UpdateByIDQuery) error {
+func (self *GMemberBaby) Update(query *UpdateByIDQuery) error {
 	if query == nil {
 		return errors.New("无更新条件")
 	}
@@ -233,7 +214,7 @@ type DeleteQuery struct {
 }
 
 // 删除，批量删除
-func (self *GMyBabies) Delete(query *DeleteQuery) error {
+func (self *GMemberBaby) Delete(query *DeleteQuery) error {
 	if query == nil {
 		return errors.New("无操作条件")
 	}
@@ -261,7 +242,7 @@ type DisabledQuery struct {
 }
 
 // 启用禁用店铺
-func (self *GMyBabies) ToggleDisabled(query *DisabledQuery) error {
+func (self *GMemberBaby) ToggleDisabled(query *DisabledQuery) error {
 	if query == nil {
 		return errors.New("无操作条件")
 	}
