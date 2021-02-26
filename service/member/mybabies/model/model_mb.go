@@ -36,14 +36,8 @@ func (self *GMemberBaby) Insert(tx *sqlx.Tx) (string, error) {
 		return "", errors.New(fmt.Sprintf("操作错误"))
 	}
 
-	db := pgsql.Open()
-	tx, err := db.Beginx()
-	if err != nil {
-		return "", err
-	}
-	defer tx.Rollback()
 	// 插入判断用户登录账号是否已经存在
-	stmt, err := tx.PrepareNamed(insertSql())
+	stmt, err := tx.PrepareNamed(mbInsertSql())
 	if err != nil {
 		return "", err
 	}
@@ -51,18 +45,6 @@ func (self *GMemberBaby) Insert(tx *sqlx.Tx) (string, error) {
 	var lastId string
 	self.BaseColumns.Init()
 	err = stmt.Get(&lastId, self)
-	if err != nil {
-		return "", err
-	}
-
-	// 插入关系表
-	var memberBaby = new(GMemberBaby)
-	memberBaby.BaseColumns.Init()
-	memberBaby.RoleName = self.RoleName
-	memberBaby.MemberId = self.UserID
-	memberBaby.BabyId = lastId
-
-	err = tx.Commit()
 	if err != nil {
 		return "", err
 	}
