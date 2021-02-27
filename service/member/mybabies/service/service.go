@@ -27,3 +27,7 @@ func Get(query *model.GetQuery) (*model.GetModel, error) {
 func ToggleDisabled(query *model.DisabledQuery) error {
 	return new(model.GMyBabies).ToggleDisabled(query)
 }
+
+func GetBabyRelations(query *model.MbQuery) ([]*model.MbListModel, error) {
+	return new(model.GMemberBabyRelation).List(query)
+}

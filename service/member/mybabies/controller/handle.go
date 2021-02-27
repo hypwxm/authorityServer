@@ -125,3 +125,23 @@ func toggleDisabled(c rider.Context) {
 	})()
 	c.SendJson(200, sender)
 }
+
+func relations(c rider.Context) {
+	sender := response.NewSender()
+	(func() {
+		query := new(model.MbQuery)
+		err := json.Unmarshal(c.Body(), &query)
+		if err != nil {
+			sender.Fail(err.Error())
+			return
+		}
+		query.UserId = c.GetLocals(config.MemberTokenKey).(string)
+		list, err := service.GetBabyRelations(query)
+		if err != nil {
+			sender.Fail(err.Error())
+			return
+		}
+		sender.Success(list)
+	})()
+	c.SendJson(200, sender)
+}

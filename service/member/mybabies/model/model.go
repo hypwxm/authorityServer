@@ -81,6 +81,15 @@ func (self *GMyBabies) Insert() (string, error) {
 		return "", err
 	}
 
+	memberBaby := new(GMemberBabyRelation)
+	memberBaby.RoleName = self.RoleName
+	memberBaby.BabyId = lastId
+	memberBaby.UserId = self.UserID
+	_, err = memberBaby.Insert(tx)
+	if err != nil {
+		return "", err
+	}
+
 	err = tx.Commit()
 	if err != nil {
 		return "", err
@@ -95,6 +104,7 @@ type GetQuery struct {
 
 type GetModel struct {
 	GMyBabies
+	Relations []*GMemberBabyRelation `json:"relations"`
 }
 
 func (self *GMyBabies) GetByID(query *GetQuery) (*GetModel, error) {
@@ -127,12 +137,12 @@ func (self *GMyBabies) List(query *Query) ([]*ListModel, int64, error) {
 		query = new(Query)
 	}
 	db := pgsql.Open()
-	whereSql, fullSql := listSql(query)
+	_, fullSql := listSql(query)
 	// 以上部分为查询条件，接下来是分页和排序
-	count, err := self.GetCount(db, query, whereSql)
-	if err != nil {
-		return nil, 0, err
-	}
+	// count, err := self.GetCount(db, query, whereSql)
+	// if err != nil {
+	// 	return nil, 0, err
+	// }
 	stmt, err := db.PrepareNamed(fullSql)
 	if err != nil {
 		return nil, 0, err
@@ -155,7 +165,7 @@ func (self *GMyBabies) List(query *Query) ([]*ListModel, int64, error) {
 		users = append(users, user)
 	}
 
-	return users, count, nil
+	return users, 0, nil
 
 }
 

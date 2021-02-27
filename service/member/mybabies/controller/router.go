@@ -13,5 +13,7 @@ func Router() *rider.Router {
 	route.POST("/get", get)
 	route.POST("/toggleDisabled", toggleDisabled)
 
+	route.POST("/relations", relations)
+
 	return route
 }

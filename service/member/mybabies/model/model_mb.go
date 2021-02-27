@@ -3,27 +3,28 @@ package model
 
 import (
 	"babygrowing/DB/pgsql"
-	"babygrowing/util"
+	memberModel "babygrowing/service/member/user/model"
+	memberService "babygrowing/service/member/user/service"
+
 	"babygrowing/util/database"
 	"errors"
 	"fmt"
 	"log"
 	"strings"
 
-	"github.com/lib/pq"
-
 	"github.com/jmoiron/sqlx"
+	"github.com/lib/pq"
 )
 
 // 用户和宝宝的关系
-type GMemberBaby struct {
+type GMemberBabyRelation struct {
 	database.BaseColumns
 	RoleName string `json:"roleName" db:"role_name"`
 	BabyId   string `json:"babyId" db:"baby_id"`
-	MemberId string `json:"memberId" db:"member_id"`
+	UserId   string `json:"userId" db:"user_id"`
 }
 
-func (self *GMemberBaby) Insert(tx *sqlx.Tx) (string, error) {
+func (self *GMemberBabyRelation) Insert(tx *sqlx.Tx) (string, error) {
 	var err error
 
 	if strings.TrimSpace(self.RoleName) == "" {
@@ -32,7 +33,7 @@ func (self *GMemberBaby) Insert(tx *sqlx.Tx) (string, error) {
 	if strings.TrimSpace(self.BabyId) == "" {
 		return "", errors.New(fmt.Sprintf("操作错误"))
 	}
-	if strings.TrimSpace(self.MemberId) == "" {
+	if strings.TrimSpace(self.UserId) == "" {
 		return "", errors.New(fmt.Sprintf("操作错误"))
 	}
 
@@ -52,151 +53,76 @@ func (self *GMemberBaby) Insert(tx *sqlx.Tx) (string, error) {
 	return self.ID, nil
 }
 
-type GetQuery struct {
-	ID string `db:"id"`
-}
-
-type GetModel struct {
-	GMemberBaby
-}
-
-func (self *GMemberBaby) GetByID(query *GetQuery) (*GetModel, error) {
-	db := pgsql.Open()
-	stmt, err := db.PrepareNamed(getByIdSql())
-	if err != nil {
-		return nil, err
-	}
-	var entity = new(GetModel)
-	err = stmt.Get(entity, query)
-	if err != nil {
-		return nil, err
-	}
-	return entity, nil
-}
-
-type Query struct {
+type MbQuery struct {
 	pgsql.BaseQuery
 
 	UserId   string `db:"user_id"`
+	BabyId   string `db:"baby_id"`
 	Keywords string `db:"keywords"`
 }
 
-type ListModel struct {
-	GMemberBaby
+type MbListModel struct {
+	GMemberBabyRelation
+	Member *memberModel.GMember
 }
 
-func (self *GMemberBaby) List(query *Query) ([]*ListModel, int64, error) {
+func (self *GMemberBabyRelation) List(query *MbQuery) ([]*MbListModel, error) {
 	if query == nil {
-		query = new(Query)
+		query = new(MbQuery)
 	}
 	db := pgsql.Open()
-	whereSql, fullSql := listSql(query)
-	// 以上部分为查询条件，接下来是分页和排序
-	count, err := self.GetCount(db, query, whereSql)
-	if err != nil {
-		return nil, 0, err
-	}
+	fullSql := mbListSql(query)
 	stmt, err := db.PrepareNamed(fullSql)
 	if err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 	log.Println(stmt.QueryString)
 
 	rows, err := stmt.Queryx(query)
 	if err != nil {
-		return nil, 0, err
+		return nil, err
 	}
 	defer rows.Close()
 
-	var users = make([]*ListModel, 0)
+	var list = make([]*MbListModel, 0)
+	var ids = make([]string, 0)
 	for rows.Next() {
-		var user = new(ListModel)
-		err = rows.StructScan(&user)
+		var item = new(MbListModel)
+		err = rows.StructScan(&item)
 		if err != nil {
-			return nil, 0, err
+			return nil, err
 		}
-		users = append(users, user)
+		list = append(list, item)
+		ids = append(ids, item.UserId)
 	}
 
-	return users, count, nil
+	members, _, err := memberService.List(&memberModel.Query{
+		BaseQuery: pgsql.BaseQuery{
+			IDs: ids,
+		},
+	})
 
-}
-
-func (self *GMemberBaby) GetCount(db *sqlx.DB, query *Query, whereSql ...string) (int64, error) {
-	if query == nil {
-		query = new(Query)
-	}
-	sqlStr := countSql(whereSql...)
-	stmt, err := db.PrepareNamed(sqlStr)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
-	var count int64
-	err = stmt.Get(&count, query)
-	log.Println(stmt.QueryString, query)
-	return count, err
+
+	for _, v := range list {
+		for _, vm := range members {
+			if v.UserId == vm.ID {
+				v.Member = vm
+			}
+		}
+	}
+	return list, nil
+
 }
 
-type UpdateByIDQuery struct {
-	ID string `db:"id"`
-	// 姓名
-	Name string `json:"name" db:"name"`
-	// 生日,(公历生日)
-	Birthday string `json:"birthday" db:"birthday"`
-	// 性别
-	Gender string `json:"gender" db:"gender"`
-	// 照片
-	Avatar string `json:"avatar" db:"avatar"`
-	// 身份证号
-	IdCard string `json:"idCard" db:"id_card"`
-	// 兴趣
-	Hobby string `json:"hobby" db:"hobby"`
-	// 特长
-	GoodAt string `json:"goodAt" db:"good_at"`
-	// 喜欢的食物
-	FavoriteFood string `json:"favoriteFood" db:"favorite_food"`
-	// 喜欢的颜色
-	FavoriteColor string `json:"favoriteColor" db:"favorite_color"`
-	// 志向
-	Ambition string `json:"ambition" db:"ambition"`
-
-	Updatetime int64 `db:"updatetime"`
-
-	Weight float64 `db:"weight"`
-
-	Height float64 `db:"height"`
-}
-
-// 更新,根据用户id和数据id进行更新
-// 部分字段不允许更新，userID, id
-func (self *GMemberBaby) Update(query *UpdateByIDQuery) error {
-	if query == nil {
-		return errors.New("无更新条件")
-	}
-	if strings.TrimSpace(query.ID) == "" {
-		return errors.New("更新条件错误")
-	}
-
-	db := pgsql.Open()
-	stmt, err := db.PrepareNamed(updateSql())
-	if err != nil {
-		return err
-	}
-	log.Println(stmt.QueryString)
-	query.Updatetime = util.GetCurrentMS()
-	_, err = stmt.Exec(query)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-type DeleteQuery struct {
+type MBDeleteQuery struct {
 	IDs pq.StringArray `db:"ids"`
 }
 
 // 删除，批量删除
-func (self *GMemberBaby) Delete(query *DeleteQuery) error {
+func (self *GMemberBabyRelation) Delete(query *DeleteQuery) error {
 	if query == nil {
 		return errors.New("无操作条件")
 	}
@@ -210,29 +136,7 @@ func (self *GMemberBaby) Delete(query *DeleteQuery) error {
 	}
 
 	db := pgsql.Open()
-	stmt, err := db.PrepareNamed(delSql())
-	if err != nil {
-		return err
-	}
-	_, err = stmt.Exec(query)
-	return err
-}
-
-type DisabledQuery struct {
-	Disabled bool   `db:"disabled"`
-	ID       string `db:"id"`
-}
-
-// 启用禁用店铺
-func (self *GMemberBaby) ToggleDisabled(query *DisabledQuery) error {
-	if query == nil {
-		return errors.New("无操作条件")
-	}
-	if strings.TrimSpace(query.ID) == "" {
-		return errors.New("操作条件错误")
-	}
-	db := pgsql.Open()
-	stmt, err := db.PrepareNamed(toggleSql())
+	stmt, err := db.PrepareNamed(mbdelSql())
 	if err != nil {
 		return err
 	}

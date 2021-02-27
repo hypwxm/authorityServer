@@ -7,8 +7,8 @@ import (
 	"strings"
 )
 
-const table_name = "g_my_babies"
-const table_name_mb = "g_member_baby"
+const table_name = "g_member_baby"
+const table_name_mb = "g_member_baby_relation"
 
 func GetSqlFile() ([]byte, error) {
 	b, err := ioutil.ReadFile("scheme.sql")
@@ -23,11 +23,13 @@ func insertSql() string {
 }
 
 func mbInsertSql() string {
-	return fmt.Sprintf("insert into %s (createtime, isdelete, disabled, id, role_name, baby_id, member_id) select :createtime, :isdelete, :disabled, :id, :role_name, :baby_id, :member_id returning id", table_name_mb)
+	return fmt.Sprintf("insert into %s (createtime, isdelete, disabled, id, role_name, baby_id, user_id) select :createtime, :isdelete, :disabled, :id, :role_name, :baby_id, :user_id returning id", table_name_mb)
 }
 
 func listSql(query *Query) (whereSql string, fullSql string) {
 	var selectSql = fmt.Sprintf(`SELECT 
+				%[2]s.role_name,
+				%[2]s.user_id,
 				%[1]s.id,
 				%[1]s.createtime,
 				%[1]s.updatetime,
@@ -41,19 +43,19 @@ func listSql(query *Query) (whereSql string, fullSql string) {
 				%[1]s.favorite_food, 
 				%[1]s.favorite_color, 
 				%[1]s.ambition
-				FROM %[1]s WHERE 1=1 `, table_name)
+				FROM %[2]s left join %[1]s on %[2]s.baby_id=%[1]s.id WHERE 1=1 `, table_name, table_name_mb)
 	whereSql = pgsql.BaseWhere(query.BaseQuery, table_name)
 	if strings.TrimSpace(query.Keywords) != "" {
 		// whereSql = whereSql + fmt.Sprintf(" and (%[1]s.title like '%%%[2]s%%' or %[1]s.intro like '%%%[2]s%%' or %[1]s.content like '%%%[2]s%%')", table_name, query.Keywords)
 	}
 	if query.UserId != "" {
-		whereSql = whereSql + fmt.Sprintf(" and %[1]s.user_id=:user_id ", table_name)
+		whereSql = whereSql + fmt.Sprintf(" and %[1]s.user_id=:user_id ", table_name_mb)
 	}
 
 	if query.OrderBy == "" {
 		// query.OrderBy = "sort asc"
 	}
-	optionSql := pgsql.BaseOption(query.BaseQuery, table_name)
+	optionSql := pgsql.BaseOption(query.BaseQuery, table_name_mb)
 	return whereSql, selectSql + whereSql + optionSql
 }
 
@@ -94,4 +96,31 @@ func delSql() string {
 
 func toggleSql() string {
 	return fmt.Sprintf("update %s set disabled=:disabled where id=:id and isdelete=false", table_name)
+}
+
+func mbdelSql() string {
+	return fmt.Sprintf("update %s set isdelete=true where id=any(:ids)", table_name_mb)
+}
+
+func mbListSql(query *MbQuery) (whereSql string) {
+	var selectSql = fmt.Sprintf(`SELECT 
+				%[1]s.*
+				FROM %[1]s WHERE 1=1 `, table_name_mb)
+	whereSql = pgsql.BaseWhere(query.BaseQuery, table_name_mb)
+	if strings.TrimSpace(query.Keywords) != "" {
+		// whereSql = whereSql + fmt.Sprintf(" and (%[1]s.title like '%%%[2]s%%' or %[1]s.intro like '%%%[2]s%%' or %[1]s.content like '%%%[2]s%%')", table_name, query.Keywords)
+	}
+	if query.UserId != "" {
+		whereSql = whereSql + fmt.Sprintf(" and %[1]s.user_id=:user_id ", table_name_mb)
+	}
+
+	if query.BabyId != "" {
+		whereSql = whereSql + fmt.Sprintf(" and %[1]s.baby_id=:baby_id ", table_name_mb)
+	}
+
+	if query.OrderBy == "" {
+		// query.OrderBy = "sort asc"
+	}
+	optionSql := pgsql.BaseOption(query.BaseQuery, table_name_mb)
+	return selectSql + whereSql + optionSql
 }

@@ -169,3 +169,19 @@ func TestGMemberInit(t *testing.T) {
 		log.Fatalln(err)
 	}
 }
+
+func TestGMemberBabyRelationInit(t *testing.T) {
+	if config.Env != "development" {
+		log.Fatalln("环境错误")
+	}
+	db := pgsql.Open()
+
+	sql, err := ioutil.ReadFile("sqls/g_member_baby_relation.sql")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	_, err = db.Exec(string(sql))
+	if err != nil {
+		log.Fatalln(err)
+	}
+}
