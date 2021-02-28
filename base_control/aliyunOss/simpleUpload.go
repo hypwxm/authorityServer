@@ -12,7 +12,7 @@ import (
 func UploadFileStream(fd io.Reader, filename string) (string, error) {
 	client := CreateClient()
 	// 获取存储空间。
-	bucket, err := client.Bucket("babygrowning-test")
+	bucket, err := client.Bucket(OssConfig["bucket"])
 	if err != nil {
 		fmt.Println("Error:", err)
 		os.Exit(-1)
@@ -30,5 +30,5 @@ func UploadFileStream(fd io.Reader, filename string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(OssHost, filename), nil
+	return filepath.Join(OssConfig["host"], filename), nil
 }

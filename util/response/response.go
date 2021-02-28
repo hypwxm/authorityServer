@@ -1,6 +1,6 @@
 package response
 
-import "babygrowing/logger"
+import "babygrow/logger"
 
 type Sender struct {
 	Code    int         `json:"code"`

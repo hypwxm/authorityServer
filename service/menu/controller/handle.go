@@ -1,16 +1,16 @@
 package controller
 
 import (
-	"babygrowing/config"
-	adminUserModel "babygrowing/service/admin/user/model"
-	"babygrowing/service/menu/model"
-	"babygrowing/service/menu/service"
-	"babygrowing/util/response"
+	"babygrow/config"
+	adminUserModel "babygrow/service/admin/user/model"
+	"babygrow/service/menu/model"
+	"babygrow/service/menu/service"
+	"babygrow/util/response"
 	"encoding/json"
 
 	"github.com/hypwxm/rider"
 
-	adminUserService "babygrowing/service/admin/user/service"
+	adminUserService "babygrow/service/admin/user/service"
 )
 
 func create(c rider.Context) {

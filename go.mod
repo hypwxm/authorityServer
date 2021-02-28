@@ -1,4 +1,4 @@
-module babygrowing
+module babygrow
 
 go 1.15
 

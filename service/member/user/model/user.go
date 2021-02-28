@@ -1,10 +1,10 @@
 package model
 
 import (
-	"babygrowing/DB/pgsql"
-	mediaModel "babygrowing/service/media/model"
-	mediaService "babygrowing/service/media/service"
-	"babygrowing/util/database"
+	"babygrow/DB/pgsql"
+	mediaModel "babygrow/service/media/model"
+	mediaService "babygrow/service/media/service"
+	"babygrow/util/database"
 	"database/sql"
 	"errors"
 	"fmt"

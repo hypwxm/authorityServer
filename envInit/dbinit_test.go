@@ -1,8 +1,8 @@
 package envinit
 
 import (
-	"babygrowing/DB/pgsql"
-	"babygrowing/config"
+	"babygrow/DB/pgsql"
+	"babygrow/config"
 	"io/ioutil"
 
 	"log"
@@ -25,14 +25,14 @@ func TestMyBabiesInit(t *testing.T) {
 	}
 }
 
-func TestBabyGrowningInit(t *testing.T) {
+func TestBabyGrowInit(t *testing.T) {
 	if config.Env != "development" {
 		log.Fatalln("环境错误")
 
 	}
 	db := pgsql.Open()
 
-	sql, err := ioutil.ReadFile("sqls/g_member_baby_growning.sql")
+	sql, err := ioutil.ReadFile("sqls/g_member_baby_grow.sql")
 	if err != nil {
 		log.Fatalln(err)
 	}

@@ -1,7 +1,7 @@
 package service
 
 import (
-	"babygrowing/service/menu/model"
+	"babygrow/service/menu/model"
 )
 
 func Create(entity *model.WbSettingsMenu) (string, error) {

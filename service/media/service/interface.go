@@ -1,6 +1,6 @@
 package service
 
-import "babygrowing/service/media/model"
+import "babygrow/service/media/model"
 
 type MapperInterface interface {
 	GetId() string

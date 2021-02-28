@@ -1,7 +1,7 @@
 package model
 
 import (
-	"babygrowing/DB/pgsql"
+	"babygrow/DB/pgsql"
 	"fmt"
 )
 

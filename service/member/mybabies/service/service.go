@@ -1,7 +1,7 @@
 package service
 
 import (
-	"babygrowing/service/member/mybabies/model"
+	"babygrow/service/member/mybabies/model"
 )
 
 func Create(entity *model.GMyBabies) (string, error) {

@@ -2,13 +2,14 @@ package pgsql
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
-	"strings"
 )
 
 type BaseQuery struct {
-	IDs       pq.StringArray `db:"ids"`
+	IDs       pq.StringArray `json:"ids" db:"ids"`
 	Current   int            `db:"current"`
 	PageSize  int            `db:"pagesize"`
 	Offset    int            `db:"offset"`

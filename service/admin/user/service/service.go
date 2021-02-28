@@ -1,7 +1,7 @@
 package service
 
 import (
-	"babygrowing/service/admin/user/model"
+	"babygrow/service/admin/user/model"
 )
 
 func Create(entity *model.GAdminUser) (string, error) {

@@ -1,10 +1,10 @@
 package baseController
 
 import (
-	"babygrowing/base_control/aliyunOss"
-	"babygrowing/config"
-	"babygrowing/logger"
-	"babygrowing/util/response"
+	"babygrow/base_control/aliyunOss"
+	"babygrow/config"
+	"babygrow/logger"
+	"babygrow/util/response"
 	"math/rand"
 	"os"
 	"path/filepath"

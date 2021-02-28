@@ -1,12 +1,12 @@
 package model
 
 import (
+	"babygrow/DB/pgsql"
+	"babygrow/util/database"
 	"errors"
 	"fmt"
 	"log"
 	"strings"
-	"babygrowing/DB/pgsql"
-	"babygrowing/util/database"
 )
 
 type WbAdminRoleMenuPermission struct {
@@ -17,7 +17,7 @@ type WbAdminRoleMenuPermission struct {
 }
 
 type SaveQuery struct {
-	RoleId  string `db:"role_id"`
+	RoleId    string `db:"role_id"`
 	SourceIds []string
 }
 
@@ -43,7 +43,7 @@ func (self *WbAdminRoleMenuPermission) Save(query *SaveQuery) (string, error) {
 		}
 		var _query = &WbAdminRoleMenuPermission{
 			SourceId: v,
-			RoleId: query.RoleId,
+			RoleId:   query.RoleId,
 		}
 		_query.BaseColumns.Init()
 		log.Println(stmt.QueryString, *_query)

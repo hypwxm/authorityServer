@@ -1,10 +1,10 @@
 package controller
 
 import (
-	"babygrowing/config"
-	"babygrowing/service/admin/org/model"
-	"babygrowing/service/admin/org/service"
-	"babygrowing/util/response"
+	"babygrow/config"
+	"babygrow/service/admin/org/model"
+	"babygrow/service/admin/org/service"
+	"babygrow/util/response"
 	"encoding/json"
 	"strings"
 

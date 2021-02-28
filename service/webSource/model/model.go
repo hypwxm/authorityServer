@@ -1,14 +1,15 @@
 package model
 
 import (
+	"babygrow/DB/pgsql"
+	"babygrow/util"
+	"babygrow/util/database"
 	"errors"
 	"fmt"
-	"github.com/lib/pq"
 	"log"
 	"strings"
-	"babygrowing/DB/pgsql"
-	"babygrowing/util"
-	"babygrowing/util/database"
+
+	"github.com/lib/pq"
 
 	"github.com/jmoiron/sqlx"
 )

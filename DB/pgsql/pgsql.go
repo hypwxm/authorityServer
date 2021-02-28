@@ -1,8 +1,8 @@
 package pgsql
 
 import (
-	"babygrowing/config"
-	"babygrowing/logger"
+	"babygrow/config"
+	"babygrow/logger"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"

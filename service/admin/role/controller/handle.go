@@ -1,9 +1,9 @@
 package controller
 
 import (
-	"babygrowing/service/admin/role/model"
-	"babygrowing/service/admin/role/service"
-	"babygrowing/util/response"
+	"babygrow/service/admin/role/model"
+	"babygrow/service/admin/role/service"
+	"babygrow/util/response"
 	"encoding/json"
 
 	"github.com/hypwxm/rider"

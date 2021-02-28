@@ -1,10 +1,10 @@
 package controller
 
 import (
-	"babygrowing/config"
-	"babygrowing/service/member/mybabies/model"
-	"babygrowing/service/member/mybabies/service"
-	"babygrowing/util/response"
+	"babygrow/config"
+	"babygrow/service/member/mybabies/model"
+	"babygrow/service/member/mybabies/service"
+	"babygrow/util/response"
 	"encoding/json"
 
 	"github.com/hypwxm/rider"

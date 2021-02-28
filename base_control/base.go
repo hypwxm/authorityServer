@@ -1,7 +1,7 @@
 package baseControl
 
 import (
-	"babygrowing/base_control/controller"
+	"babygrow/base_control/controller"
 
 	"github.com/hypwxm/rider"
 )

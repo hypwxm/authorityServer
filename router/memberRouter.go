@@ -1,12 +1,12 @@
 package router
 
 import (
-	baseControl "babygrowing/base_control"
-	"babygrowing/middleware"
-	controller2 "babygrowing/service/member/auth/controller"
-	daily "babygrowing/service/member/daily/controller"
-	controller3 "babygrowing/service/member/mybabies/controller"
-	"babygrowing/service/member/user/controller"
+	baseControl "babygrow/base_control"
+	"babygrow/middleware"
+	controller2 "babygrow/service/member/auth/controller"
+	daily "babygrow/service/member/daily/controller"
+	controller3 "babygrow/service/member/mybabies/controller"
+	"babygrow/service/member/user/controller"
 
 	"github.com/hypwxm/rider"
 )
@@ -22,7 +22,7 @@ func MemberRouter() *rider.Router {
 	route.Kid("/", middleware.MemberAuth(), controller.Router())
 
 	route.Kid("/mybabies", middleware.MemberAuth(), controller3.Router())
-	route.Kid("/babyGrowning", middleware.MemberAuth(), daily.Router())
+	route.Kid("/babyGrow", middleware.MemberAuth(), daily.Router())
 
 	return route
 }

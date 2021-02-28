@@ -1,13 +1,13 @@
 package model
 
 import (
-	"babygrowing/DB/pgsql"
+	"babygrow/DB/pgsql"
 	"fmt"
 	"io/ioutil"
 	"strings"
 )
 
-const table_name = "g_member_baby_growning"
+const table_name = "g_member_baby_grow"
 
 func GetSqlFile() ([]byte, error) {
 	b, err := ioutil.ReadFile("scheme.sql")
@@ -32,6 +32,10 @@ func listSql(query *Query) (whereSql string, fullSql string) {
 	}
 
 	whereSql = whereSql + fmt.Sprintf(" and %[1]s.user_id=:user_id ", table_name)
+
+	if query.BabyId != "" {
+		whereSql = whereSql + fmt.Sprintf(" and %[1]s.baby_id=:baby_id ", table_name)
+	}
 
 	// if query.OrderBy == "" {
 	// 	query.OrderBy = "sort asc"

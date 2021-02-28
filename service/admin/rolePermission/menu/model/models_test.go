@@ -1,10 +1,10 @@
 package model
 
 import (
+	"babygrow/DB/pgsql"
+	"babygrow/config"
 	"io/ioutil"
 	"testing"
-	"babygrowing/DB/pgsql"
-	"babygrowing/config"
 )
 
 func TestModels(t *testing.T) {

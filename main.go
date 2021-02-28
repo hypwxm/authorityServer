@@ -1,8 +1,8 @@
 package main
 
 import (
-	"babygrowing/config"
-	"babygrowing/router"
+	"babygrow/config"
+	"babygrow/router"
 	"log"
 	"os"
 	"path/filepath"

@@ -1,7 +1,7 @@
 package service
 
 import (
-	"babygrowing/service/webSource/model"
+	"babygrow/service/webSource/model"
 )
 
 func Create(entity *model.WbSettingsSource) (string, error) {

@@ -1,9 +1,9 @@
 package model
 
 import (
+	"babygrow/DB/pgsql"
 	"fmt"
 	"strings"
-	"babygrowing/DB/pgsql"
 )
 
 const table_name = "wb_settings_source"

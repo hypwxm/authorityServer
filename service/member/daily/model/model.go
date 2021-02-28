@@ -1,12 +1,12 @@
 package model
 
 import (
-	"babygrowing/DB/pgsql"
-	mediaModel "babygrowing/service/media/model"
-	mediaService "babygrowing/service/media/service"
+	"babygrow/DB/pgsql"
+	mediaModel "babygrow/service/media/model"
+	mediaService "babygrow/service/media/service"
 
-	"babygrowing/util"
-	"babygrowing/util/database"
+	"babygrow/util"
+	"babygrow/util/database"
 
 	"errors"
 	"fmt"
@@ -18,7 +18,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-const BusinessName = "g_member_baby_growning"
+const BusinessName = "g_member_baby_grow"
 
 type GDaily struct {
 	database.BaseColumns
@@ -116,6 +116,7 @@ type Query struct {
 	Keywords string `db:"keywords"`
 	Status   int    `db:"status"`
 	UserId   string `db:"user_id"`
+	BabyId   string `db:"baby_id"`
 }
 
 type ListModel struct {
@@ -140,7 +141,7 @@ func (self *GDaily) List(query *Query) ([]*ListModel, int64, error) {
 	if err != nil {
 		return nil, 0, err
 	}
-	log.Println(stmt.QueryString)
+	log.Printf("%s, %+v", stmt.QueryString, *query)
 
 	rows, err := stmt.Queryx(query)
 	if err != nil {

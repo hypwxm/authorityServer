@@ -1,7 +1,7 @@
 package database
 
 import (
-	"babygrowing/util"
+	"babygrow/util"
 	"database/sql"
 )
 

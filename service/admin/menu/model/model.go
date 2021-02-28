@@ -1,10 +1,10 @@
 package model
 
 import (
-	"babygrowing/DB/pgsql"
+	"babygrow/DB/pgsql"
 
-	"babygrowing/util"
-	"babygrowing/util/database"
+	"babygrow/util"
+	"babygrow/util/database"
 
 	"errors"
 	"fmt"

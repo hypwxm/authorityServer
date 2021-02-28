@@ -1,8 +1,8 @@
 package model
 
 import (
+	"babygrow/DB/pgsql"
 	"fmt"
-	"babygrowing/DB/pgsql"
 )
 
 const table_name = "wb_admin_role_source_permission"

@@ -1,7 +1,7 @@
 package service
 
 import (
-	"babygrowing/service/admin/menu/model"
+	"babygrow/service/admin/menu/model"
 )
 
 func Create(entity *model.GMenu) (string, error) {

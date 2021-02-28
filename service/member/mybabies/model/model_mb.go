@@ -2,11 +2,11 @@
 package model
 
 import (
-	"babygrowing/DB/pgsql"
-	memberModel "babygrowing/service/member/user/model"
-	memberService "babygrowing/service/member/user/service"
+	"babygrow/DB/pgsql"
+	memberModel "babygrow/service/member/user/model"
+	memberService "babygrow/service/member/user/service"
 
-	"babygrowing/util/database"
+	"babygrow/util/database"
 	"errors"
 	"fmt"
 	"log"

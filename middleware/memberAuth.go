@@ -1,8 +1,8 @@
 package middleware
 
 import (
-	"babygrowing/config"
-	"babygrowing/util/response"
+	"babygrow/config"
+	"babygrow/util/response"
 	"strings"
 
 	"github.com/hypwxm/rider"

@@ -1,7 +1,7 @@
 package service
 
 import (
-	"babygrowing/service/media/model"
+	"babygrow/service/media/model"
 
 	"github.com/jmoiron/sqlx"
 )

@@ -1,7 +1,7 @@
 package service
 
 import (
-	"babygrowing/service/admin/rolePermission/menu/model"
+	"babygrow/service/admin/rolePermission/menu/model"
 )
 
 func Create(query *model.SaveQuery) (string, error) {
