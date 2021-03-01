@@ -15,7 +15,7 @@ var OssConfigDev = map[string]string{
 }
 
 var OssConfigProd = map[string]string{
-	"host":     "babygrow.oss-cn-hangzhou-internal.aliyuncs.com",
+	"host":     "https://babygrow.oss-cn-hangzhou.aliyuncs.com",
 	"bucket":   "babygrow",
 	"endpoint": "oss-cn-hangzhou-internal.aliyuncs.com",
 }
