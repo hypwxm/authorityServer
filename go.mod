@@ -6,7 +6,7 @@ require (
 	github.com/aliyun/alibaba-cloud-sdk-go v1.60.285
 	github.com/aliyun/aliyun-oss-go-sdk v2.1.6+incompatible
 	github.com/go-delve/delve v1.6.0 // indirect
-	github.com/hypwxm/rider v1.2.1
+	github.com/hypwxm/rider v1.2.5
 	github.com/jmoiron/sqlx v1.2.0
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/lib/pq v1.2.0

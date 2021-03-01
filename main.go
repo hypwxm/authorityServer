@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/hypwxm/rider"
 	"github.com/hypwxm/rider/modules"
@@ -14,6 +15,7 @@ import (
 func main() {
 
 	app := rider.New()
+	app.SetHttpReadTimeout(120 * time.Second)
 	app.Logger(8)
 
 	log.SetFlags(log.Ldate | log.Ltime | log.Llongfile)
