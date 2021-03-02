@@ -18,7 +18,7 @@ const ENV_DEV = "development"
 const ENV_PROD = "product"
 const ENV_TEST = "test"
 
-const Env = ENV_PROD
+const Env = ENV_DEV
 
 var Config = config{}
 

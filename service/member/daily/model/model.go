@@ -121,6 +121,11 @@ type Query struct {
 
 type ListModel struct {
 	GDaily
+	RoleName string `json:"userRoleName" db:"user_role_name"`
+	Account  string `json:"userAccount" db:"user_account"`
+	RealName string `json:"userRealName" db:"user_realname"`
+	Nickname string `json:"userNickname" db:"user_nickname"`
+	Phone    string `json:"userPhone" db:"user_phone"`
 }
 
 func (self *GDaily) List(query *Query) ([]*ListModel, int64, error) {
@@ -151,7 +156,7 @@ func (self *GDaily) List(query *Query) ([]*ListModel, int64, error) {
 
 	var list = make([]*ListModel, 0)
 	var ids []string = make([]string, 0)
-
+	var userIds []string = make([]string, 0)
 	for rows.Next() {
 		var item = new(ListModel)
 		err = rows.StructScan(&item)
@@ -159,6 +164,7 @@ func (self *GDaily) List(query *Query) ([]*ListModel, int64, error) {
 			return nil, 0, err
 		}
 		ids = append(ids, item.ID)
+		userIds = append(userIds, item.UserId)
 		list = append(list, item)
 	}
 
@@ -186,6 +192,7 @@ func (self *GDaily) GetCount(db *sqlx.DB, query *Query, whereSql ...string) (int
 
 type UpdateByIDQuery struct {
 	ID     string  `db:"id"`
+	Date   string  `db:"date"`
 	Weight float64 `json:"weight" db:"weight"`
 	// 今日份身高
 	Height float64 `json:"height" db:"height"`

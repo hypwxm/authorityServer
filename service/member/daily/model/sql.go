@@ -24,8 +24,13 @@ func insertSql() string {
 
 func listSql(query *Query) (whereSql string, fullSql string) {
 	var selectSql = fmt.Sprintf(`SELECT 
-				%[1]s.*
-				FROM %[1]s WHERE 1=1 `, table_name)
+				%[1]s.*,
+				COALESCE(%[2]s.role_name, '') as user_role_name,
+				COALESCE(%[3]s.realname, '') as user_realname,
+				COALESCE(%[3]s.account, '') as user_account,
+				COALESCE(%[3]s.phone, '') as user_phone,
+				COALESCE(%[3]s.nickname, '') as user_nickname
+				FROM %[1]s left join %[2]s on %[2]s.baby_id=%[1]s.baby_id and %[2]s.user_id=%[1]s.user_id left join %[3]s on %[1]s.user_id=%[3]s.id WHERE 1=1 `, table_name, "g_member_baby_relation", "g_member")
 	whereSql = pgsql.BaseWhere(query.BaseQuery, table_name)
 	if strings.TrimSpace(query.Keywords) != "" {
 		// whereSql = whereSql + fmt.Sprintf(" and (%[1]s.title like '%%%[2]s%%' or %[1]s.intro like '%%%[2]s%%' or %[1]s.content like '%%%[2]s%%')", table_name, query.Keywords)
@@ -67,6 +72,7 @@ func updateSql() string {
 	updateSql = updateSql + " ,weather=:weather"
 	updateSql = updateSql + " ,temperature=:temperature"
 	updateSql = updateSql + " ,health=:health"
+	updateSql = updateSql + " ,mood=:mood"
 	updateSql = updateSql + " ,date=:date"
 
 	return fmt.Sprintf("update %s set updatetime=:updatetime %s where id=:id and isdelete=false", table_name, updateSql)
