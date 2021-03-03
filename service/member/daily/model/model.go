@@ -123,12 +123,12 @@ type Query struct {
 
 type ListModel struct {
 	GDaily
-	RoleName string `json:"userRoleName" db:"user_role_name"`
-	Account  string `json:"userAccount" db:"user_account"`
-	RealName string `json:"userRealName" db:"user_realname"`
-	Nickname string `json:"userNickname" db:"user_nickname"`
-	Phone    string `json:"userPhone" db:"user_phone"`
-	Comments []*dailyCommentModel.ListModel
+	RoleName string                         `json:"userRoleName" db:"user_role_name"`
+	Account  string                         `json:"userAccount" db:"user_account"`
+	RealName string                         `json:"userRealName" db:"user_realname"`
+	Nickname string                         `json:"userNickname" db:"user_nickname"`
+	Phone    string                         `json:"userPhone" db:"user_phone"`
+	Comments []*dailyCommentModel.ListModel `json:"comments"`
 }
 
 func (self *GDaily) List(query *Query) ([]*ListModel, int64, error) {

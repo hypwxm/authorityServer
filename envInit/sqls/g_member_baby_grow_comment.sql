@@ -8,9 +8,10 @@ CREATE TABLE if not exists g_member_baby_grow_comment (
     disabled boolean default false,
     content text default '' not null,
     user_id varchar(128) not null check (user_id <> ''),
-    baby_id varchar(128) not null check (user_id <> ''),
-    dairy_id varchar(128) not null check (dairy_id <> '')
+    baby_id varchar(128) not null check (baby_id <> ''),
+    diary_id varchar(128) not null check (diary_id <> ''),
+    comment_id varchar(128) not null default ''
 );
-Create g_member_baby_grow_comment_createtime_index On g_member_baby_grow_comment (createtime);
-Create g_member_baby_grow_comment_dairy_id_index On g_member_baby_grow_comment (dairy_id);
-Create g_member_baby_grow_comment_user_id_index On g_member_baby_grow_comment (user_id);
+Create Index g_member_baby_grow_comment_createtime_index On g_member_baby_grow_comment (createtime);
+Create Index g_member_baby_grow_comment_diary_id_index On g_member_baby_grow_comment (diary_id);
+Create Index g_member_baby_grow_comment_user_id_index On g_member_baby_grow_comment (user_id);

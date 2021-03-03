@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-const table_name = "g_member_baby_grow"
+const table_name = "g_member_baby_grow_comment"
 
 func GetSqlFile() ([]byte, error) {
 	b, err := ioutil.ReadFile("scheme.sql")
@@ -18,7 +18,7 @@ func GetSqlFile() ([]byte, error) {
 }
 
 func insertSql() string {
-	return fmt.Sprintf("insert into %s (createtime, isdelete, disabled, id, weight, height, diary, mood, temperature, weather, health, date, user_id, baby_id) select :createtime, :isdelete, :disabled, :id, :weight, :height, :diary, :mood, :temperature, :weather, :health, :date, :user_id, :baby_id returning id", table_name)
+	return fmt.Sprintf("insert into %s (createtime, isdelete, disabled, id, content, user_id, baby_id, diary_id, comment_id) select :createtime, :isdelete, :disabled, :id, :content, :user_id, :baby_id, :diary_id, :comment_id returning id", table_name)
 
 }
 
@@ -40,10 +40,10 @@ func listSql(query *Query) (whereSql string, fullSql string) {
 		whereSql = whereSql + fmt.Sprintf(" and %[1]s.user_id=:user_id ", table_name)
 	}
 	if query.DiaryId != "" {
-		whereSql = whereSql + fmt.Sprintf(" and %[1]s.dairy_id=:dairy_id ", table_name)
+		whereSql = whereSql + fmt.Sprintf(" and %[1]s.diary_id=:diary_id ", table_name)
 	}
 	if len(query.DiaryIds) > 0 {
-		whereSql = whereSql + fmt.Sprintf(" and %[1]s.dairy_id=any(:dairy_ids) ", table_name)
+		whereSql = whereSql + fmt.Sprintf(" and %[1]s.diary_id=any(:diary_ids) ", table_name)
 	}
 
 	if query.BabyId != "" {

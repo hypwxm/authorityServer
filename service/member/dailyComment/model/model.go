@@ -23,11 +23,12 @@ const BusinessName = "g_member_baby_grow"
 type GDailyComment struct {
 	database.BaseColumns
 
-	Content string `json:"diary" db:"diary"`
+	Content string `json:"content" db:"content"`
 
-	UserId  string `json:"userId" db:"user_id"`
-	BabyId  string `json:"babyId" db:"baby_id"`
-	DiaryId string `json:"diaryId" db:"diary_id"`
+	UserId    string `json:"userId" db:"user_id"`
+	BabyId    string `json:"babyId" db:"baby_id"`
+	DiaryId   string `json:"diaryId" db:"diary_id"`
+	CommentId string `json:"commentId" db:"comment_id"`
 
 	Sort int `json:"sort" db:"sort"`
 
@@ -104,12 +105,12 @@ func (self *GDailyComment) GetByID(query *GetQuery) (*GetModel, error) {
 
 type Query struct {
 	pgsql.BaseQuery
-	Keywords string   `db:"keywords"`
-	Status   int      `db:"status"`
-	UserId   string   `db:"user_id"`
-	BabyId   string   `db:"baby_id"`
-	DiaryId  string   `json:"diaryId" db:"diary_id"`
-	DiaryIds []string `json:"diaryIds" db:"diary_ids"`
+	Keywords string         `db:"keywords"`
+	Status   int            `db:"status"`
+	UserId   string         `db:"user_id"`
+	BabyId   string         `db:"baby_id"`
+	DiaryId  string         `json:"diaryId" db:"diary_id"`
+	DiaryIds pq.StringArray `json:"diaryIds" db:"diary_ids"`
 }
 
 type ListModel struct {
@@ -125,9 +126,7 @@ func (self *GDailyComment) List(query *Query) ([]*ListModel, int64, error) {
 	if query == nil {
 		query = new(Query)
 	}
-	if query.UserId == "" {
-		return nil, 0, fmt.Errorf("参数错误")
-	}
+
 	db := pgsql.Open()
 	whereSql, fullSql := listSql(query)
 	// 以上部分为查询条件，接下来是分页和排序
