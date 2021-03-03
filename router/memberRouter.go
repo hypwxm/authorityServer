@@ -5,6 +5,8 @@ import (
 	"babygrow/middleware"
 	controller2 "babygrow/service/member/auth/controller"
 	daily "babygrow/service/member/daily/controller"
+	dailyComment "babygrow/service/member/dailyComment/controller"
+
 	controller3 "babygrow/service/member/mybabies/controller"
 	"babygrow/service/member/user/controller"
 
@@ -23,6 +25,7 @@ func MemberRouter() *rider.Router {
 
 	route.Kid("/mybabies", middleware.MemberAuth(), controller3.Router())
 	route.Kid("/babyGrow", middleware.MemberAuth(), daily.Router())
+	route.Kid("/babyGrowComment", middleware.MemberAuth(), dailyComment.Router())
 
 	return route
 }

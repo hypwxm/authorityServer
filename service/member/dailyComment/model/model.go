@@ -4,8 +4,6 @@ import (
 	"babygrow/DB/pgsql"
 	mediaModel "babygrow/service/media/model"
 	mediaService "babygrow/service/media/service"
-	dailyCommentModel "babygrow/service/member/dailyComment/model"
-	dailyCommentService "babygrow/service/member/dailyComment/service"
 
 	"babygrow/util"
 	"babygrow/util/database"
@@ -22,40 +20,31 @@ import (
 
 const BusinessName = "g_member_baby_grow"
 
-type GDaily struct {
+type GDailyComment struct {
 	database.BaseColumns
 
-	// 今日份体重
-	Weight float64 `json:"weight" db:"weight"`
-	// 今日份身高
-	Height float64 `json:"height" db:"height"`
+	Content string `json:"diary" db:"diary"`
 
-	// 今日份记录
-	Diary string `json:"diary" db:"diary"`
-
-	UserId string `json:"userId" db:"user_id"`
-	BabyId string `json:"babyId" db:"baby_id"`
-
-	Weather     string  `json:"weather" db:"weather"`
-	Mood        string  `json:"mood" db:"mood"`
-	Health      string  `json:"health" db:"health"`
-	Temperature float64 `json:"temperature" db:"temperature"`
-
-	Date string `json:"date" db:"date"`
+	UserId  string `json:"userId" db:"user_id"`
+	BabyId  string `json:"babyId" db:"baby_id"`
+	DiaryId string `json:"diaryId" db:"diary_id"`
 
 	Sort int `json:"sort" db:"sort"`
 
 	Medias []*mediaModel.Media `json:"medias"`
 }
 
-func (self *GDaily) Insert() (string, error) {
+func (self *GDailyComment) Insert() (string, error) {
 	var err error
 
 	if strings.TrimSpace(self.UserId) == "" {
-		return "", errors.New(fmt.Sprintf("操作错误"))
+		return "", fmt.Errorf("操作错误")
 	}
 	if strings.TrimSpace(self.BabyId) == "" {
-		return "", errors.New(fmt.Sprintf("操作错误"))
+		return "", fmt.Errorf("操作错误")
+	}
+	if strings.TrimSpace(self.DiaryId) == "" {
+		return "", fmt.Errorf("操作错误")
 	}
 
 	db := pgsql.Open()
@@ -96,10 +85,10 @@ type GetQuery struct {
 }
 
 type GetModel struct {
-	GDaily
+	GDailyComment
 }
 
-func (self *GDaily) GetByID(query *GetQuery) (*GetModel, error) {
+func (self *GDailyComment) GetByID(query *GetQuery) (*GetModel, error) {
 	db := pgsql.Open()
 	stmt, err := db.PrepareNamed(getByIdSql())
 	if err != nil {
@@ -115,23 +104,24 @@ func (self *GDaily) GetByID(query *GetQuery) (*GetModel, error) {
 
 type Query struct {
 	pgsql.BaseQuery
-	Keywords string `db:"keywords"`
-	Status   int    `db:"status"`
-	UserId   string `db:"user_id"`
-	BabyId   string `db:"baby_id"`
+	Keywords string   `db:"keywords"`
+	Status   int      `db:"status"`
+	UserId   string   `db:"user_id"`
+	BabyId   string   `db:"baby_id"`
+	DiaryId  string   `json:"diaryId" db:"diary_id"`
+	DiaryIds []string `json:"diaryIds" db:"diary_ids"`
 }
 
 type ListModel struct {
-	GDaily
+	GDailyComment
 	RoleName string `json:"userRoleName" db:"user_role_name"`
 	Account  string `json:"userAccount" db:"user_account"`
 	RealName string `json:"userRealName" db:"user_realname"`
 	Nickname string `json:"userNickname" db:"user_nickname"`
 	Phone    string `json:"userPhone" db:"user_phone"`
-	Comments []*dailyCommentModel.ListModel
 }
 
-func (self *GDaily) List(query *Query) ([]*ListModel, int64, error) {
+func (self *GDailyComment) List(query *Query) ([]*ListModel, int64, error) {
 	if query == nil {
 		query = new(Query)
 	}
@@ -174,26 +164,11 @@ func (self *GDaily) List(query *Query) ([]*ListModel, int64, error) {
 	// 查找对应的媒体信息
 	mediaService.ListWithMedia(ids, BusinessName, list, "")
 
-	// 获取评价内容
-	if comments, _, err := dailyCommentService.List(&dailyCommentModel.Query{
-		DiaryIds: ids,
-	}); err != nil {
-		return nil, 0, err
-	} else {
-		for _, v := range list {
-			for _, vm := range comments {
-				if v.ID == vm.DiaryId {
-					v.Comments = append(v.Comments, vm)
-				}
-			}
-		}
-	}
-
 	return list, count, nil
 
 }
 
-func (self *GDaily) GetCount(db *sqlx.DB, query *Query, whereSql ...string) (int64, error) {
+func (self *GDailyComment) GetCount(db *sqlx.DB, query *Query, whereSql ...string) (int64, error) {
 	if query == nil {
 		query = new(Query)
 	}
@@ -209,26 +184,17 @@ func (self *GDaily) GetCount(db *sqlx.DB, query *Query, whereSql ...string) (int
 }
 
 type UpdateByIDQuery struct {
-	ID     string  `db:"id"`
-	Date   string  `db:"date"`
-	Weight float64 `json:"weight" db:"weight"`
-	// 今日份身高
-	Height float64 `json:"height" db:"height"`
+	ID      string `db:"id"`
+	Content string `json:"diary" db:"diary"`
 
-	// 今日份记录
-	Diary string `json:"diary" db:"diary"`
-
-	Weather     string  `json:"weather" db:"weather"`
-	Mood        string  `json:"mood" db:"mood"`
-	Health      string  `json:"health" db:"health"`
-	Temperature float64 `json:"temperature" db:"temperature"`
+	Medias []*mediaModel.Media `json:"medias"`
 
 	Updatetime int64 `db:"updatetime"`
 }
 
 // 更新,根据用户id和数据id进行更新
 // 部分字段不允许更新，userID, id
-func (self *GDaily) Update(query *UpdateByIDQuery) error {
+func (self *GDailyComment) Update(query *UpdateByIDQuery) error {
 	if query == nil {
 		return errors.New("无更新条件")
 	}
@@ -255,10 +221,11 @@ type DeleteQuery struct {
 }
 
 // 删除，批量删除
-func (self *GDaily) Delete(query *DeleteQuery) error {
+func (self *GDailyComment) Delete(query *DeleteQuery) error {
 	if query == nil {
 		return errors.New("无操作条件")
 	}
+
 	if len(query.IDs) == 0 {
 		return errors.New("操作条件错误")
 	}

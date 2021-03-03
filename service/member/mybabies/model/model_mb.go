@@ -28,13 +28,13 @@ func (self *GMemberBabyRelation) Insert(tx *sqlx.Tx) (string, error) {
 	var err error
 
 	if strings.TrimSpace(self.RoleName) == "" {
-		return "", errors.New(fmt.Sprintf("操作错误"))
+		return "", fmt.Errorf("操作错误")
 	}
 	if strings.TrimSpace(self.BabyId) == "" {
-		return "", errors.New(fmt.Sprintf("操作错误"))
+		return "", fmt.Errorf("操作错误")
 	}
 	if strings.TrimSpace(self.UserId) == "" {
-		return "", errors.New(fmt.Sprintf("操作错误"))
+		return "", fmt.Errorf("操作错误")
 	}
 
 	// 插入判断用户登录账号是否已经存在
