@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-const table_name = "g_member_family"
+const table_name = "g_member_family_member"
 
 func GetSqlFile() ([]byte, error) {
 	b, err := ioutil.ReadFile("scheme.sql")
@@ -18,21 +18,21 @@ func GetSqlFile() ([]byte, error) {
 }
 
 func insertSql() string {
-	return fmt.Sprintf("insert into %s (createtime, isdelete, disabled, id, name, creator) select :createtime, :isdelete, :disabled, :id, :name, :creator returning id", table_name)
+	return fmt.Sprintf("insert into %s (createtime, isdelete, disabled, id, creator, member_id, family_id, can_invite, can_remove, can_edit, nickname, role_name) select :createtime, :isdelete, :disabled, :id, :creator, :member_id, :family_id, :can_invite, :can_remove, :can_edit, :nickname, :role_name returning id", table_name)
 
 }
 
 func listSql(query *Query) (whereSql string, fullSql string) {
 	var selectSql = fmt.Sprintf(`SELECT 
-				%[2]s.*,
-				COALESCE(%[1]s.name, '') as family_name,
-				COALESCE(%[1]s.creator, '') as family_creator
-				FROM %[1]s left join %[2]s on %[1]s.id=%[2]s.family_id WHERE 1=1 `, table_name, "g_member_family_member")
+				%[1]s.*
+				FROM %[1]s WHERE 1=1 `, table_name)
 	whereSql = pgsql.BaseWhere(query.BaseQuery, table_name)
 	if strings.TrimSpace(query.Keywords) != "" {
 		// whereSql = whereSql + fmt.Sprintf(" and (%[1]s.title like '%%%[2]s%%' or %[1]s.intro like '%%%[2]s%%' or %[1]s.content like '%%%[2]s%%')", table_name, query.Keywords)
 	}
-	whereSql = whereSql + fmt.Sprintf(" and (%[1]s.creator=:user_id or %[2]s.member_id=:user_id)", table_name, "g_member_family_member")
+	if query.Creator != "" {
+		whereSql = whereSql + fmt.Sprintf(" and %[1]s.creator=:creator ", table_name)
+	}
 
 	if query.OrderBy == "" {
 		// query.OrderBy = "sort asc"

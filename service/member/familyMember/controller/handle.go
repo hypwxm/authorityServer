@@ -2,8 +2,8 @@ package controller
 
 import (
 	"babygrow/config"
-	"babygrow/service/member/family/model"
-	"babygrow/service/member/family/service"
+	"babygrow/service/member/familyMember/model"
+	"babygrow/service/member/familyMember/service"
 	"babygrow/util/response"
 	"encoding/json"
 
@@ -13,7 +13,7 @@ import (
 func create(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		entity := new(model.GFamily)
+		entity := new(model.GFamilyMembers)
 		err := json.Unmarshal(c.Body(), &entity)
 		if err != nil {
 			sender.Fail(err.Error())

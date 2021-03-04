@@ -2,9 +2,6 @@ package model
 
 import (
 	"babygrow/DB/pgsql"
-	mediaModel "babygrow/service/media/model"
-	familyMemberModel "babygrow/service/member/familyMember/model"
-
 	"babygrow/util"
 	"babygrow/util/database"
 	"errors"
@@ -17,27 +14,36 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
-type GFamily struct {
+type GFamilyMembers struct {
 	database.BaseColumns
-	Name string `json:"name" db:"name"`
-	// 存储头像
-	Medias []*mediaModel.Media `json:"medias"`
-	// 家族相册
-	Album []*mediaModel.Media `json:"album"`
-
-	// 家庭标签，直接存字符串  逗号隔开
-	Label string `json:"label" db:"label"`
-
+	// 会员id
+	MemberId string `json:"memberId" db:"member_id"`
+	// 家园id
+	FamilyId string `json:"familyId" db:"family_id"`
+	// 创建者，默认家园的创建者才能拉成员，
 	Creator string `json:"creator" db:"creator"`
+	// 能否拉人
+	CanInvite bool `json:"canInvite" db:"can_invite"`
+	// 能否删除人
+	CanRemove bool `json:"canRemove" db:"can_remove"`
+	// 能否对家园信息进行编辑
+	CanEdit bool `json:"canEdit" db:"can_edit"`
+	// 在家园的昵称
+	Nickname string `json:"nickname" db:"nickname"`
+	// 在家庭中的角色
+	RoleName string `json:"roleName" db:"role_name"`
 }
 
-func (self *GFamily) Insert() (string, error) {
+func (self *GFamilyMembers) Insert() (string, error) {
 	var err error
 
-	if strings.TrimSpace(self.Creator) == "" {
+	if strings.TrimSpace(self.MemberId) == "" {
 		return "", fmt.Errorf("操作错误")
 	}
-	if strings.TrimSpace(self.Name) == "" {
+	if strings.TrimSpace(self.FamilyId) == "" {
+		return "", fmt.Errorf("操作错误")
+	}
+	if strings.TrimSpace(self.Creator) == "" {
 		return "", fmt.Errorf("操作错误")
 	}
 
@@ -73,10 +79,10 @@ type GetQuery struct {
 }
 
 type GetModel struct {
-	GFamily
+	GFamilyMembers
 }
 
-func (self *GFamily) GetByID(query *GetQuery) (*GetModel, error) {
+func (self *GFamilyMembers) GetByID(query *GetQuery) (*GetModel, error) {
 	db := pgsql.Open()
 	stmt, err := db.PrepareNamed(getByIdSql())
 	if err != nil {
@@ -99,22 +105,20 @@ type Query struct {
 }
 
 type ListModel struct {
-	familyMemberModel.GFamilyMembers
-	FamilyName    string `json:"familyName" db:"family_name"`
-	FamilyCreator string `json:"familyCreator" db:"family_creator"`
+	GFamilyMembers
 }
 
-func (self *GFamily) List(query *Query) ([]*ListModel, int64, error) {
+func (self *GFamilyMembers) List(query *Query) ([]*ListModel, int64, error) {
 	if query == nil {
 		query = new(Query)
 	}
 	db := pgsql.Open()
-	_, fullSql := listSql(query)
+	whereSql, fullSql := listSql(query)
 	// 以上部分为查询条件，接下来是分页和排序
-	// count, err := self.GetCount(db, query, whereSql)
-	// if err != nil {
-	// 	return nil, 0, err
-	// }
+	count, err := self.GetCount(db, query, whereSql)
+	if err != nil {
+		return nil, 0, err
+	}
 	stmt, err := db.PrepareNamed(fullSql)
 	if err != nil {
 		return nil, 0, err
@@ -137,11 +141,11 @@ func (self *GFamily) List(query *Query) ([]*ListModel, int64, error) {
 		users = append(users, user)
 	}
 
-	return users, 0, nil
+	return users, count, nil
 
 }
 
-func (self *GFamily) GetCount(db *sqlx.DB, query *Query, whereSql ...string) (int64, error) {
+func (self *GFamilyMembers) GetCount(db *sqlx.DB, query *Query, whereSql ...string) (int64, error) {
 	if query == nil {
 		query = new(Query)
 	}
@@ -166,7 +170,7 @@ type UpdateByIDQuery struct {
 
 // 更新,根据用户id和数据id进行更新
 // 部分字段不允许更新，userID, id
-func (self *GFamily) Update(query *UpdateByIDQuery) error {
+func (self *GFamilyMembers) Update(query *UpdateByIDQuery) error {
 	if query == nil {
 		return errors.New("无更新条件")
 	}
@@ -193,7 +197,7 @@ type DeleteQuery struct {
 }
 
 // 删除，批量删除
-func (self *GFamily) Delete(query *DeleteQuery) error {
+func (self *GFamilyMembers) Delete(query *DeleteQuery) error {
 	if query == nil {
 		return errors.New("无操作条件")
 	}
@@ -221,7 +225,7 @@ type DisabledQuery struct {
 }
 
 // 启用禁用店铺
-func (self *GFamily) ToggleDisabled(query *DisabledQuery) error {
+func (self *GFamilyMembers) ToggleDisabled(query *DisabledQuery) error {
 	if query == nil {
 		return errors.New("无操作条件")
 	}

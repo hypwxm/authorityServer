@@ -202,3 +202,35 @@ func TestGMemberBabyRelationInit(t *testing.T) {
 		log.Fatalln(err)
 	}
 }
+
+func TestGMemberFamilyInit(t *testing.T) {
+	if config.Env != "development" {
+		log.Fatalln("环境错误")
+	}
+	db := pgsql.Open()
+
+	sql, err := ioutil.ReadFile("sqls/g_member_family.sql")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	_, err = db.Exec(string(sql))
+	if err != nil {
+		log.Fatalln(err)
+	}
+}
+
+func TestGMemberFamilyMemberInit(t *testing.T) {
+	if config.Env != "development" {
+		log.Fatalln("环境错误")
+	}
+	db := pgsql.Open()
+
+	sql, err := ioutil.ReadFile("sqls/g_member_family_member.sql")
+	if err != nil {
+		log.Fatalln(err)
+	}
+	_, err = db.Exec(string(sql))
+	if err != nil {
+		log.Fatalln(err)
+	}
+}
