@@ -24,9 +24,17 @@ func insertSql() string {
 
 func listSql(query *Query) (whereSql string, fullSql string) {
 	var selectSql = fmt.Sprintf(`SELECT 
-				%[2]s.*,
+				COALESCE(%[2]s.member_id, '') as member_id ,
+				COALESCE(%[2]s.creator, '') as creator,
+				COALESCE(%[2]s.can_invite, false) as can_invite,
+				COALESCE(%[2]s.can_remove, false) as can_remove,
+				COALESCE(%[2]s.can_edit, false) as can_edit,
+				COALESCE(%[2]s.nickname, '') as nickname,
+				COALESCE(%[2]s.role_name, '') as role_name,
+				COALESCE(%[1]s.createtime, 0) as createtime,
 				COALESCE(%[1]s.name, '') as family_name,
-				COALESCE(%[1]s.creator, '') as family_creator
+				COALESCE(%[1]s.creator, '') as family_creator,
+				COALESCE(%[1]s.id, '') as id
 				FROM %[1]s left join %[2]s on %[1]s.id=%[2]s.family_id WHERE 1=1 `, table_name, "g_member_family_member")
 	whereSql = pgsql.BaseWhere(query.BaseQuery, table_name)
 	if strings.TrimSpace(query.Keywords) != "" {
