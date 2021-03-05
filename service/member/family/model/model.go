@@ -4,6 +4,8 @@ import (
 	"babygrow/DB/pgsql"
 	mediaModel "babygrow/service/media/model"
 	familyMemberModel "babygrow/service/member/familyMember/model"
+	familyMemberService "babygrow/service/member/familyMember/service"
+	"context"
 
 	"babygrow/util"
 	"babygrow/util/database"
@@ -28,10 +30,13 @@ type GFamily struct {
 	// 家庭标签，直接存字符串  逗号隔开
 	Label string `json:"label" db:"label"`
 
+	// 一个简单的描述
+	Intro string `json:"intro" db:"intro"`
+
 	Creator string `json:"creator" db:"creator"`
 }
 
-func (self *GFamily) Insert() (string, error) {
+func (self *GFamily) Insert(ctx context.Context) (string, error) {
 	var err error
 
 	if strings.TrimSpace(self.Creator) == "" {
@@ -46,6 +51,7 @@ func (self *GFamily) Insert() (string, error) {
 	if err != nil {
 		return "", err
 	}
+	ctxWV := context.WithValue(ctx, "tx", tx)
 	defer tx.Rollback()
 	// 插入判断用户登录账号是否已经存在
 	stmt, err := tx.PrepareNamed(insertSql())
@@ -60,6 +66,19 @@ func (self *GFamily) Insert() (string, error) {
 		return "", err
 	}
 
+	// 创建家园要先把创建者加入到家园中
+	_, err = familyMemberService.Create(&familyMemberModel.GFamilyMembers{
+		MemberId:  self.Creator,
+		FamilyId:  lastId,
+		Creator:   self.Creator,
+		CanInvite: true,
+		CanRemove: true,
+		CanEdit:   true,
+		RoleType:  1,
+	})
+	if err != nil {
+		return "", err
+	}
 	err = tx.Commit()
 	if err != nil {
 		return "", err
@@ -102,6 +121,8 @@ type ListModel struct {
 	familyMemberModel.GFamilyMembers
 	FamilyName    string `json:"familyName" db:"family_name"`
 	FamilyCreator string `json:"familyCreator" db:"family_creator"`
+	FamilyLabel   string `json:"familyLabel" db:"family_label"`
+	FamilyIntro   string `json:"familyIntro" db:"family_intro"`
 }
 
 func (self *GFamily) List(query *Query) ([]*ListModel, int64, error) {

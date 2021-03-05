@@ -18,7 +18,7 @@ func GetSqlFile() ([]byte, error) {
 }
 
 func insertSql() string {
-	return fmt.Sprintf("insert into %s (createtime, isdelete, disabled, id, creator, member_id, family_id, can_invite, can_remove, can_edit, nickname, role_name) select :createtime, :isdelete, :disabled, :id, :creator, :member_id, :family_id, :can_invite, :can_remove, :can_edit, :nickname, :role_name returning id", table_name)
+	return fmt.Sprintf("insert into %s (createtime, isdelete, disabled, id, creator, member_id, family_id, can_invite, can_remove, can_edit, nickname, role_name, role_type) select :createtime, :isdelete, :disabled, :id, :creator, :member_id, :family_id, :can_invite, :can_remove, :can_edit, :nickname, :role_name, :role_type returning id", table_name)
 
 }
 

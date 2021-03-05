@@ -8,6 +8,7 @@ CREATE TABLE if not exists g_member_family (
     disabled boolean default false,
     creator varchar(128) not null check (creator <> ''),
     name varchar(50) not null default '',
-    label varchar(500) not null default ''
+    label varchar(500) not null default '',
+    intro varchar(500) not null default ''
 );
 Create Index g_member_family_createtime_index On g_member_family (createtime);

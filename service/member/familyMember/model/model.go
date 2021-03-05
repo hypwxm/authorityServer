@@ -32,6 +32,8 @@ type GFamilyMembers struct {
 	Nickname string `json:"nickname" db:"nickname"`
 	// 在家庭中的角色
 	RoleName string `json:"roleName" db:"role_name"`
+	// 角色类型，  1: 管理员（默认创建者为管理员）,2: 普通成员
+	RoleType int `json:"roleType" db:"role_type"`
 }
 
 func (self *GFamilyMembers) Insert() (string, error) {
