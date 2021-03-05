@@ -25,5 +25,5 @@ func Get(query *model.GetQuery) (*model.GetModel, error) {
 }
 
 func ToggleDisabled(query *model.DisabledQuery) error {
-	return new(model.GFamily).ToggleDisabled(query)
+	return new(model.GFamilyMembers).ToggleDisabled(query)
 }
