@@ -5,6 +5,7 @@ import (
 	mediaModel "babygrow/service/media/model"
 	familyMemberModel "babygrow/service/member/familyMember/model"
 	familyMemberService "babygrow/service/member/familyMember/service"
+	"context"
 
 	"babygrow/util"
 	"babygrow/util/database"
@@ -35,7 +36,7 @@ type GFamily struct {
 	Creator string `json:"creator" db:"creator"`
 }
 
-func (self *GFamily) Insert() (string, error) {
+func (self *GFamily) Insert(ctx context.Context) (string, error) {
 	var err error
 
 	if strings.TrimSpace(self.Creator) == "" {
@@ -64,8 +65,10 @@ func (self *GFamily) Insert() (string, error) {
 		return "", err
 	}
 
+	ctxTx := context.WithValue(ctx, "tx", tx)
+
 	// 创建家园要先把创建者加入到家园中
-	_, err = familyMemberService.Create(&familyMemberModel.GFamilyMembers{
+	_, err = familyMemberService.Create(ctxTx, &familyMemberModel.GFamilyMembers{
 		MemberId:  self.Creator,
 		FamilyId:  lastId,
 		Creator:   self.Creator,

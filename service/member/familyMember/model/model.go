@@ -4,6 +4,7 @@ import (
 	"babygrow/DB/pgsql"
 	"babygrow/util"
 	"babygrow/util/database"
+	"context"
 	"errors"
 	"fmt"
 	"log"
@@ -36,7 +37,7 @@ type GFamilyMembers struct {
 	RoleType int `json:"roleType" db:"role_type"`
 }
 
-func (self *GFamilyMembers) Insert() (string, error) {
+func (self *GFamilyMembers) Insert(ctx context.Context) (string, error) {
 	var err error
 
 	if strings.TrimSpace(self.MemberId) == "" {
@@ -49,11 +50,17 @@ func (self *GFamilyMembers) Insert() (string, error) {
 		return "", fmt.Errorf("操作错误")
 	}
 
-	db := pgsql.Open()
-	tx, err := db.Beginx()
-	if err != nil {
-		return "", err
+	if tx, ok := ctx.Value("tx").(*sqlx.Tx); ok {
+
+	} else {
+
+		db := pgsql.Open()
+		tx, err := db.Beginx()
+		if err != nil {
+			return "", err
+		}
 	}
+
 	defer tx.Rollback()
 	// 插入判断用户登录账号是否已经存在
 	stmt, err := tx.PrepareNamed(insertSql())

@@ -2,10 +2,11 @@ package service
 
 import (
 	"babygrow/service/member/familyMember/model"
+	"context"
 )
 
-func Create(entity *model.GFamilyMembers) (string, error) {
-	return entity.Insert()
+func Create(ctx context.Context, entity *model.GFamilyMembers) (string, error) {
+	return entity.Insert(ctx)
 }
 
 func Modify(updateQuery *model.UpdateByIDQuery) error {
