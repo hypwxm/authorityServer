@@ -5,6 +5,10 @@ import (
 	mediaModel "babygrow/service/media/model"
 	familyMemberModel "babygrow/service/member/familyMember/model"
 	familyMemberService "babygrow/service/member/familyMember/service"
+
+	memberModel "babygrow/service/member/user/model"
+	memberService "babygrow/service/member/user/service"
+
 	"context"
 
 	"babygrow/util"
@@ -67,7 +71,7 @@ func (self *GFamily) Insert(ctx context.Context) (string, error) {
 
 	ctxTx := context.WithValue(ctx, "tx", tx)
 
-	// 创建家园要先把创建者加入到家园中
+	// 创建家园要先把创建者加入到家园中，角色为超管
 	_, err = familyMemberService.Create(ctxTx, &familyMemberModel.GFamilyMembers{
 		MemberId:  self.Creator,
 		FamilyId:  lastId,
@@ -94,8 +98,14 @@ type GetQuery struct {
 
 type GetModel struct {
 	GFamily
+	CreatorInfo memberModel.GetByIdModel `json:"creatorInfo"`
 }
 
+/**
+ * 根据家园id获取家园信息
+ *
+ * 家园的创建者信息
+ */
 func (self *GFamily) GetByID(query *GetQuery) (*GetModel, error) {
 	db := pgsql.Open()
 	stmt, err := db.PrepareNamed(getByIdSql())
@@ -107,6 +117,14 @@ func (self *GFamily) GetByID(query *GetQuery) (*GetModel, error) {
 	if err != nil {
 		return nil, err
 	}
+	// 获取创建者
+	creatorInfo, err := memberService.GetUserById(context.Background(), &memberModel.GetQuery{
+		ID: entity.Creator,
+	})
+	if err != nil {
+		return nil, err
+	}
+	entity.CreatorInfo = *creatorInfo
 	return entity, nil
 }
 
@@ -120,10 +138,12 @@ type Query struct {
 
 type ListModel struct {
 	familyMemberModel.GFamilyMembers
-	FamilyName    string `json:"familyName" db:"family_name"`
-	FamilyCreator string `json:"familyCreator" db:"family_creator"`
-	FamilyLabel   string `json:"familyLabel" db:"family_label"`
-	FamilyIntro   string `json:"familyIntro" db:"family_intro"`
+	FamilyName        string `json:"familyName" db:"family_name"`
+	FamilyCreator     string `json:"familyCreator" db:"family_creator"`
+	FamilyCreatorName string `json:"familyCreatorName" db:"family_creator_name"`
+	FamilyLabel       string `json:"familyLabel" db:"family_label"`
+	FamilyIntro       string `json:"familyIntro" db:"family_intro"`
+	FamilyCreatetime  int    `json:"familyCreatetime" db:"family_createtime"`
 }
 
 func (self *GFamily) List(query *Query) ([]*ListModel, int64, error) {

@@ -13,6 +13,7 @@ CREATE TABLE if not exists g_member_family_member (
     can_remove boolean default false,
     can_edit boolean default false,
     nickname varchar(50) not null default '',
-    role_name varchar(50) not null default ''
+    role_name varchar(50) not null default '',
+    role_type smallint not null default 2
 );
 Create Index g_member_family_member_createtime_index On g_member_family_member (createtime);

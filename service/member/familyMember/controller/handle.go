@@ -5,6 +5,7 @@ import (
 	"babygrow/service/member/familyMember/model"
 	"babygrow/service/member/familyMember/service"
 	"babygrow/util/response"
+	"context"
 	"encoding/json"
 
 	"github.com/hypwxm/rider"
@@ -20,7 +21,7 @@ func create(c rider.Context) {
 			return
 		}
 		entity.Creator = c.GetLocals(config.MemberTokenKey).(string)
-		id, err := service.Create(entity)
+		id, err := service.Create(context.Background(), entity)
 		if err != nil {
 			sender.Fail(err.Error())
 			return

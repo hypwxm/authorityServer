@@ -33,6 +33,9 @@ func listSql(query *Query) (whereSql string, fullSql string) {
 	if query.Creator != "" {
 		whereSql = whereSql + fmt.Sprintf(" and %[1]s.creator=:creator ", table_name)
 	}
+	if query.FamilyId != "" {
+		whereSql = whereSql + fmt.Sprintf(" and %[1]s.family_id=:family_id ", table_name)
+	}
 
 	if query.OrderBy == "" {
 		// query.OrderBy = "sort asc"

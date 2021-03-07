@@ -5,6 +5,7 @@ import (
 	mediaModel "babygrow/service/media/model"
 	mediaService "babygrow/service/media/service"
 	"babygrow/util/database"
+	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -75,16 +76,26 @@ func (gm *GMember) Insert() (string, error) {
 	return gm.ID, nil
 }
 
+type GetByIdModel struct {
+	Nickname string `json:"nickname" db:"nickname"`
+	RealName string `json:"realName" db:"realname"`
+
+	Avatar  string `json:"avatar" db:"avatar"`
+	Phone   string `json:"phone" db:"phone"`
+	Account string `json:"account" db:"account"`
+}
+
 type GetQuery struct {
 	ID string `db:"id"`
 }
 
-func (self *GMember) GetByID(db *sqlx.DB, query *GetQuery) (*GMember, error) {
-	stmt, err := db.PrepareNamed("select * from g_member where id=:id")
+func (self *GMember) GetByID(ctx context.Context, query *GetQuery) (*GetByIdModel, error) {
+	db := pgsql.Open()
+	stmt, err := db.PrepareNamed("select nickname, realname, phone, account from g_member where id=:id and isdelete=false")
 	if err != nil {
 		return nil, err
 	}
-	var user = new(GMember)
+	var user = new(GetByIdModel)
 	err = stmt.Get(user, query)
 	if err != nil {
 		return nil, err

@@ -49,19 +49,18 @@ func (self *GFamilyMembers) Insert(ctx context.Context) (string, error) {
 	if strings.TrimSpace(self.Creator) == "" {
 		return "", fmt.Errorf("操作错误")
 	}
-
-	if tx, ok := ctx.Value("tx").(*sqlx.Tx); ok {
-
-	} else {
-
+	tx, ok := ctx.Value("tx").(*sqlx.Tx)
+	if !ok {
 		db := pgsql.Open()
-		tx, err := db.Beginx()
+		tx, err = db.Beginx()
 		if err != nil {
 			return "", err
 		}
 	}
 
-	defer tx.Rollback()
+	if !ok {
+		defer tx.Rollback()
+	}
 	// 插入判断用户登录账号是否已经存在
 	stmt, err := tx.PrepareNamed(insertSql())
 	if err != nil {
@@ -75,9 +74,11 @@ func (self *GFamilyMembers) Insert(ctx context.Context) (string, error) {
 		return "", err
 	}
 
-	err = tx.Commit()
-	if err != nil {
-		return "", err
+	if !ok {
+		err = tx.Commit()
+		if err != nil {
+			return "", err
+		}
 	}
 
 	return self.ID, nil
@@ -107,8 +108,8 @@ func (self *GFamilyMembers) GetByID(query *GetQuery) (*GetModel, error) {
 
 type Query struct {
 	pgsql.BaseQuery
-	UserId string `db:"user_id"`
-
+	UserId   string `db:"user_id"`
+	FamilyId string `db:"family_id"`
 	Creator  string `db:"creator"`
 	Keywords string `db:"keywords"`
 }
@@ -120,6 +121,9 @@ type ListModel struct {
 func (self *GFamilyMembers) List(query *Query) ([]*ListModel, int64, error) {
 	if query == nil {
 		query = new(Query)
+	}
+	if query.UserId != "" && query.FamilyId == "" {
+		return nil, 0, fmt.Errorf("参数错误")
 	}
 	db := pgsql.Open()
 	whereSql, fullSql := listSql(query)
