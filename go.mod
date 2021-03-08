@@ -5,6 +5,7 @@ go 1.15
 require (
 	github.com/aliyun/alibaba-cloud-sdk-go v1.60.285
 	github.com/aliyun/aliyun-oss-go-sdk v2.1.6+incompatible
+	github.com/asaskevich/EventBus v0.0.0-20200907212545-49d423059eef // indirect
 	github.com/go-delve/delve v1.6.0 // indirect
 	github.com/hypwxm/rider v1.2.5
 	github.com/jmoiron/sqlx v1.2.0

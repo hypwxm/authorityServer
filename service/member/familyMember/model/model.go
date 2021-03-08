@@ -2,6 +2,7 @@ package model
 
 import (
 	"babygrow/DB/pgsql"
+	"babygrow/event"
 	"babygrow/util"
 	"babygrow/util/database"
 	"context"
@@ -33,7 +34,7 @@ type GFamilyMembers struct {
 	Nickname string `json:"nickname" db:"nickname"`
 	// 在家庭中的角色
 	RoleName string `json:"roleName" db:"role_name"`
-	// 角色类型，  1: 管理员（默认创建者为管理员）,2: 普通成员
+	// 角色类型，  1: 群主、管理员（默认创建者为管理员）,2: 管理员，由群主分配，3：成员
 	RoleType int `json:"roleType" db:"role_type"`
 }
 
@@ -210,7 +211,7 @@ type DeleteQuery struct {
 }
 
 // 删除，批量删除
-func (self *GFamilyMembers) Delete(query *DeleteQuery) error {
+func (self *GFamilyMembers) Delete(ctx context.Context, query *DeleteQuery) error {
 	if query == nil {
 		return errors.New("无操作条件")
 	}
@@ -224,6 +225,34 @@ func (self *GFamilyMembers) Delete(query *DeleteQuery) error {
 	}
 
 	db := pgsql.Open()
+
+	// 查询要删除的这些人的是不是家园的管理员，管理员要退出家园得先解散家园或者家园中只有自己一个人了
+	var familyMembersInfo = make([]*GFamilyMembers, 0)
+	err := db.Select(familyMembersInfo, fmt.Sprintf("select * from %s where id=any(:ids)", table_name), query)
+	if err != nil {
+		return err
+	}
+
+	for _, v := range familyMembersInfo {
+		if v.RoleType == 1 {
+			// 如果要移除的人中有群主（虽然可以赋予其他人踢人的权利，但是不能删群主）
+			// 查询一下该家园中还有没有其他人
+			var count int
+			err = db.Select(&count, fmt.Sprintf("select count(*) from %s where family_id=%s", table_name, v.FamilyId))
+			if err != nil {
+				return err
+			}
+			// 如果群中除了群主外还有其他成员，这种情况下，群主还不能被移除
+			if count > 1 {
+				return fmt.Errorf("无法移除创建者")
+			}
+			// 只剩群主一个人了，群主要离开群了，（把群也删了）
+			// 发布一个删除家园的事件
+			var ch = make(chan int, 1)
+			event.Ebus.Publish("memberSv:familyDelete", []string{v.FamilyId}, ch)
+		}
+	}
+
 	stmt, err := db.PrepareNamed(delSql())
 	if err != nil {
 		return err

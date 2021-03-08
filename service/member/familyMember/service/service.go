@@ -17,8 +17,8 @@ func List(query *model.Query) ([]*model.ListModel, int64, error) {
 	return new(model.GFamilyMembers).List(query)
 }
 
-func Del(query *model.DeleteQuery) error {
-	return new(model.GFamilyMembers).Delete(query)
+func Del(ctx context.Context, query *model.DeleteQuery) error {
+	return new(model.GFamilyMembers).Delete(ctx, query)
 }
 
 func Get(query *model.GetQuery) (*model.GetModel, error) {

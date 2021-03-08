@@ -79,7 +79,7 @@ func del(c rider.Context) {
 			sender.Fail(err.Error())
 			return
 		}
-		err = service.Del(query)
+		err = service.Del(context.Background(), query)
 		if err != nil {
 			sender.Fail(err.Error())
 			return

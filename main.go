@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 	"time"
 
+	_ "babygrow/event"
+
 	"github.com/hypwxm/rider"
 	"github.com/hypwxm/rider/modules"
 )
