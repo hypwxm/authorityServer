@@ -1,7 +1,6 @@
 package service
 
 import (
-	"babygrow/event"
 	"babygrow/service/member/family/model"
 	"context"
 )
@@ -18,7 +17,7 @@ func List(query *model.Query) ([]*model.ListModel, int64, error) {
 	return new(model.GFamily).List(query)
 }
 
-func Del(query *model.DeleteQuery, ch chan int) error {
+func Del(query *model.DeleteQuery) error {
 	return new(model.GFamily).Delete(query)
 }
 
@@ -30,6 +29,6 @@ func ToggleDisabled(query *model.DisabledQuery) error {
 	return new(model.GFamily).ToggleDisabled(query)
 }
 
-func init() {
-	event.Ebus.Subscribe("memberSv:familyDelete", Del)
+func Invite(query *model.InviteQuery) error {
+	return new(model.GFamily).SendInviteMessage(query)
 }

@@ -278,3 +278,44 @@ func (self *GFamily) ToggleDisabled(query *DisabledQuery) error {
 	_, err = stmt.Exec(query)
 	return err
 }
+
+type InviteQuery struct {
+	FamilyId      string `json:"familyId" db:"family_id"`
+	MemberId      string `json:"memberId" db:"member_id"`
+	MemberAccount string `json:"memberAccount" db:"member_account"`
+	Invitor       string `json:"invitor"`
+}
+
+// 发起邀请
+// 邀请需要发送邀请信息
+// 用户收到信息，同意后才会进入家园
+// 注：消息系统还没开发，所以先直接邀请成功
+func (self *GFamily) SendInviteMessage(query *InviteQuery) error {
+	if query == nil {
+		return errors.New("无操作条件")
+	}
+	if strings.TrimSpace(query.FamilyId) == "" {
+		return errors.New("操作条件错误")
+	}
+	if strings.TrimSpace(query.MemberId) == "" {
+		return errors.New("操作条件错误")
+	}
+	if strings.TrimSpace(query.MemberAccount) == "" {
+		return errors.New("操作条件错误")
+	}
+	if strings.TrimSpace(query.Invitor) == "" {
+		return errors.New("操作条件错误")
+	}
+
+	// TODO 需要发送邀请信息，用户同意后才进入家园
+	// 简单点先直接将成员拉近家园
+	_, err := familyMemberService.Create(context.Background(), &familyMemberModel.GFamilyMembers{
+		MemberId: query.MemberId,
+		FamilyId: query.FamilyId,
+		Creator:  query.Invitor,
+	})
+	if err != nil {
+		return err
+	}
+	return nil
+}

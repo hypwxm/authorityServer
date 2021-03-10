@@ -2,7 +2,6 @@ package model
 
 import (
 	"babygrow/DB/pgsql"
-	"babygrow/event"
 	"babygrow/util"
 	"babygrow/util/database"
 	"context"
@@ -228,8 +227,9 @@ func (self *GFamilyMembers) Delete(ctx context.Context, query *DeleteQuery) erro
 
 	// 查询要删除的这些人的是不是家园的管理员，管理员要退出家园得先解散家园或者家园中只有自己一个人了
 	var familyMembersInfo = make([]*GFamilyMembers, 0)
-	err := db.Select(familyMembersInfo, fmt.Sprintf("select * from %s where id=any(:ids)", table_name), query)
+	err := db.Select(&familyMembersInfo, fmt.Sprintf("select * from %s where id=any($1) and isdelete=false", table_name), query.IDs)
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 
@@ -238,18 +238,15 @@ func (self *GFamilyMembers) Delete(ctx context.Context, query *DeleteQuery) erro
 			// 如果要移除的人中有群主（虽然可以赋予其他人踢人的权利，但是不能删群主）
 			// 查询一下该家园中还有没有其他人
 			var count int
-			err = db.Select(&count, fmt.Sprintf("select count(*) from %s where family_id=%s", table_name, v.FamilyId))
+			err = db.Get(&count, fmt.Sprintf("select count(*) from %s where family_id=$1 and isdelete=false", table_name), v.FamilyId)
 			if err != nil {
+				log.Println(err)
 				return err
 			}
 			// 如果群中除了群主外还有其他成员，这种情况下，群主还不能被移除
 			if count > 1 {
 				return fmt.Errorf("无法移除创建者")
 			}
-			// 只剩群主一个人了，群主要离开群了，（把群也删了）
-			// 发布一个删除家园的事件
-			var ch = make(chan int, 1)
-			event.Ebus.Publish("memberSv:familyDelete", []string{v.FamilyId}, ch)
 		}
 	}
 
