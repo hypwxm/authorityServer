@@ -2,16 +2,17 @@ package database
 
 import (
 	"babygrow/util"
-	"database/sql"
+
+	"gorm.io/gorm"
 )
 
 type BaseColumns struct {
-	ID         string        `json:"id" db:"id"`
-	Createtime int64         `json:"createtime" db:"createtime"`
-	Updatetime sql.NullInt64 `json:"-" db:"updatetime"`
-	Deletetime sql.NullInt64 `json:"-" db:"deletetime"`
-	Isdelete   bool          `json:"isdelete" db:"isdelete"`
-	Disabled   bool          `json:"disabled" db:"disabled"`
+	ID         string         `json:"id" db:"id" gorm:"column:id;primaryKey;size:128"`
+	Createtime int64          `json:"createtime" db:"createtime" gorm:"autoUpdateTime:milli;column:createtime"`
+	Updatetime int64          `json:"up" db:"updatetime" gorm:"autoUpdateTime:milli;column:updatetime"`
+	Deletetime gorm.DeletedAt `json:"-" db:"deletetime" gorm:"column:deletetime;index"`
+	Isdelete   bool           `json:"isdelete" db:"isdelete" gorm:"column:isdelete"`
+	Disabled   bool           `json:"disabled" db:"disabled" gorm:"column:disabled"`
 }
 
 func (s *BaseColumns) Init() {

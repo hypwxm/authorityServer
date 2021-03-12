@@ -1,9 +1,8 @@
 package model
 
 import (
-	"babygrow/DB/pgsql"
+	"babygrow/DB/appGorm"
 	"babygrow/config"
-	"io/ioutil"
 	"testing"
 )
 
@@ -11,13 +10,26 @@ func TestModels(t *testing.T) {
 	if config.Env != "development" {
 		t.Fatal("环境错误")
 	}
-	db := pgsql.Open()
-	b, err := ioutil.ReadFile("scheme.sql")
-	if err != nil {
-		t.Fatal(err)
-	}
-	_, err = db.Exec(string(b))
-	if err != nil {
-		t.Fatal(err)
-	}
+	db := appGorm.Open()
+	db.AutoMigrate(&GMessage{})
+}
+
+func TestDB(t *testing.T) {
+	db := appGorm.Open()
+	db.Create(&GMessage{})
+}
+
+func TestFind(t *testing.T) {
+	db := appGorm.Open()
+	m := new(GMessage)
+	db.Find(m)
+	t.Fatalf("%+v", m)
+}
+
+func TestDel(t *testing.T) {
+	db := appGorm.Open()
+	m := new(GMessage)
+	db.First(m)
+	db.Debug().Delete(m)
+	t.Fatalf("%+v", m)
 }
