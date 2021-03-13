@@ -36,6 +36,8 @@ func MemberAuth() rider.HandlerFunc {
 				return
 			}
 			c.SetLocals(config.MemberTokenKey, userStr)
+			c.SetLocals(config.MemberLoginUserName, c.Jwt().Get(config.MemberLoginUserName).(string))
+
 			c.SetLocals("userID", userStr)
 			c.Next()
 

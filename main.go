@@ -9,6 +9,7 @@ import (
 	"time"
 
 	_ "babygrow/event"
+	_ "babygrow/service/message/model"
 
 	"github.com/hypwxm/rider"
 	"github.com/hypwxm/rider/modules"

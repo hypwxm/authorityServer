@@ -129,3 +129,27 @@ func toggleDisabled(c rider.Context) {
 	})()
 	c.SendJson(200, sender)
 }
+
+// 家庭邀请专用
+func getInfoForFamilyInvite(c rider.Context) {
+	sender := response.NewSender()
+	(func() {
+		query := new(model.GMember)
+		err := json.Unmarshal(c.Body(), &query)
+		if err != nil {
+			sender.Fail(err.Error())
+			return
+		}
+		user, err := service.GetUser(query)
+		if err != nil {
+			sender.Fail(err.Error())
+			return
+		}
+		var m = make(map[string]interface{})
+		m["avatar"] = user.Avatar
+		m["id"] = user.ID
+		m["account"] = user.Account
+		sender.Success(m)
+	})()
+	c.SendJson(200, sender)
+}

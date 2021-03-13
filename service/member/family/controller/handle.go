@@ -136,6 +136,8 @@ func invite(c rider.Context) {
 			sender.Fail(err.Error())
 			return
 		}
+		query.Invitor = c.GetLocals(config.MemberTokenKey).(string)
+		query.InvitorName = c.GetLocals(config.MemberLoginUserName).(string)
 		err = service.Invite(query)
 		if err != nil {
 			sender.Fail(err.Error())

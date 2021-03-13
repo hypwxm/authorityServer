@@ -2,13 +2,14 @@ package model
 
 import (
 	"babygrow/DB/pgsql"
+	"babygrow/event"
 	mediaModel "babygrow/service/media/model"
 	familyMemberModel "babygrow/service/member/familyMember/model"
 	familyMemberService "babygrow/service/member/familyMember/service"
 
 	memberModel "babygrow/service/member/user/model"
 	memberService "babygrow/service/member/user/service"
-
+	messageModel "babygrow/service/message/model"
 	"context"
 
 	"babygrow/util"
@@ -39,6 +40,8 @@ type GFamily struct {
 
 	Creator string `json:"creator" db:"creator"`
 }
+
+const BusinessName = "g_family"
 
 func (self *GFamily) Insert(ctx context.Context) (string, error) {
 	var err error
@@ -284,6 +287,7 @@ type InviteQuery struct {
 	MemberId      string `json:"memberId" db:"member_id"`
 	MemberAccount string `json:"memberAccount" db:"member_account"`
 	Invitor       string `json:"invitor"`
+	InvitorName   string
 }
 
 // 发起邀请
@@ -317,5 +321,18 @@ func (self *GFamily) SendInviteMessage(query *InviteQuery) error {
 	if err != nil {
 		return err
 	}
+
+	event.Ebus.Publish("serve:message", &messageModel.GMessage{
+		BusinessId:   query.FamilyId,
+		BusinessName: BusinessName,
+		SenderId:     query.Invitor,
+		SenderName:   query.InvitorName,
+		Title:        "家园邀请信息",
+		Content:      "邀请信息",
+		Sendtime:     util.GetCurrentMS(),
+		ReceiverId:   query.MemberId,
+		ReceiverName: "",
+	})
+
 	return nil
 }

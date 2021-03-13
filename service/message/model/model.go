@@ -4,6 +4,7 @@ import (
 	"babygrow/DB/appGorm"
 	"babygrow/util/database"
 	"context"
+	"log"
 )
 
 const BusinessName = "g_message"
@@ -18,7 +19,7 @@ type GMessage struct {
 	Content string `json:"content" db:"content" gorm:"column:content"`
 
 	// 消息发送时间，消息不一定是实时发送
-	Sendtime int `json:"sendtime" db:"sendtime" gorm:"column:sendtime"`
+	Sendtime int64 `json:"sendtime" db:"sendtime" gorm:"column:sendtime"`
 	// 是否已读
 	IsRead bool `json:"isRead" db:"is_read" gorm:"column:is_read"`
 	// 阅读时间
@@ -35,11 +36,20 @@ type GMessage struct {
 	ReceiverName string `json:"receiverName" db:"receiver_name" gorm:"column:receiver_name;size:200"`
 }
 
+func (s *GMessage) GetID() string {
+	return s.ID
+}
+
 func (s *GMessage) Insert(ctx context.Context) (string, error) {
+	return insert(ctx, s)
+}
+
+func insert(ctx context.Context, entity *GMessage) (string, error) {
 	db := appGorm.Open()
-	if err := db.Create(s).Error; err != nil {
+	if err := db.Model(&GMessage{}).Create(entity).Error; err != nil {
+		log.Println(err)
 		return "", err
 	} else {
-		return s.ID, nil
+		return entity.GetID(), nil
 	}
 }

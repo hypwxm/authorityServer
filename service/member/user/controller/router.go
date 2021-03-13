@@ -17,5 +17,8 @@ func Router() *rider.Router {
 	route.POST("/modifyNickname", modifyNickname)
 	route.POST("/modifyAvatar", modifyAvatar)
 
+	// 获取某个用户信息（家庭邀请用）
+	route.POST("/getInfoForFamilyInvite", getInfoForFamilyInvite)
+
 	return route
 }

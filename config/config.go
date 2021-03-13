@@ -37,3 +37,4 @@ const AppServerTokenKey = "G_SERVER_USER"
 const MemberTokenKey = "G_MEMBER"
 
 const AppLoginUserName = "WB_SERVER_USER_NAME"
+const MemberLoginUserName = "G_MEMBER_USER_NAME"

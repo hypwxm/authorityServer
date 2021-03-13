@@ -10,7 +10,8 @@ type BaseColumns struct {
 	ID         string         `json:"id" db:"id" gorm:"column:id;primaryKey;size:128"`
 	Createtime int64          `json:"createtime" db:"createtime" gorm:"autoUpdateTime:milli;column:createtime"`
 	Updatetime int64          `json:"up" db:"updatetime" gorm:"autoUpdateTime:milli;column:updatetime"`
-	Deletetime gorm.DeletedAt `json:"-" db:"deletetime" gorm:"column:deletetime;index"`
+	Deletetime int64          `json:"-" db:"deletetime" gorm:"column:deletetime;index"`
+	DeletetAt  gorm.DeletedAt `json:"-" db:"delete_at" gorm:"column:delete_at;index"`
 	Isdelete   bool           `json:"isdelete" db:"isdelete" gorm:"column:isdelete"`
 	Disabled   bool           `json:"disabled" db:"disabled" gorm:"column:disabled"`
 }
