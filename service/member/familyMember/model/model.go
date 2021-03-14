@@ -1,6 +1,7 @@
 package model
 
 import (
+	"babygrow/DB/appGorm"
 	"babygrow/DB/pgsql"
 	"babygrow/util"
 	"babygrow/util/database"
@@ -11,30 +12,29 @@ import (
 	"strings"
 
 	"github.com/lib/pq"
-
-	"github.com/jmoiron/sqlx"
+	"gorm.io/gorm"
 )
 
 type GFamilyMembers struct {
 	database.BaseColumns
 	// 会员id
-	MemberId string `json:"memberId" db:"member_id"`
+	MemberId string `json:"memberId" db:"member_id" gorm:"column:member_id;type:varchar(128);check:member_id<>'';not null;uniqueIndex:index_family_member"`
 	// 家园id
-	FamilyId string `json:"familyId" db:"family_id"`
+	FamilyId string `json:"familyId" db:"family_id" gorm:"column:family_id;type:varchar(128);check:family_id<>'';not null;uniqueIndex:index_family_member"`
 	// 创建者，默认家园的创建者才能拉成员，
-	Creator string `json:"creator" db:"creator"`
+	Creator string `json:"creator" db:"creator" gorm:"column:creator;type:varchar(128);check:creator<>'';not null"`
 	// 能否拉人
-	CanInvite bool `json:"canInvite" db:"can_invite"`
+	CanInvite bool `json:"canInvite" db:"can_invite" gorm:"column:can_invite;type:bool;default false;not null"`
 	// 能否删除人
-	CanRemove bool `json:"canRemove" db:"can_remove"`
+	CanRemove bool `json:"canRemove" db:"can_remove" gorm:"column:can_remove;type:bool;default false;not null"`
 	// 能否对家园信息进行编辑
-	CanEdit bool `json:"canEdit" db:"can_edit"`
+	CanEdit bool `json:"canEdit" db:"can_edit" gorm:"column:can_edit;type:bool;default:false;not null"`
 	// 在家园的昵称
-	Nickname string `json:"nickname" db:"nickname"`
+	Nickname string `json:"nickname" db:"nickname" gorm:"column:nickname;type:varchar(20);default '';not null;"`
 	// 在家庭中的角色
-	RoleName string `json:"roleName" db:"role_name"`
+	RoleName string `json:"roleName" db:"role_name" gorm:"column:role_name;type:varchar(50);default '';not null"`
 	// 角色类型，  1: 群主、管理员（默认创建者为管理员）,2: 管理员，由群主分配，3：成员
-	RoleType int `json:"roleType" db:"role_type"`
+	RoleType int `json:"roleType" db:"role_type" gorm:"column:role_type;default 3;not null"`
 }
 
 func (self *GFamilyMembers) Insert(ctx context.Context) (string, error) {
@@ -49,11 +49,11 @@ func (self *GFamilyMembers) Insert(ctx context.Context) (string, error) {
 	if strings.TrimSpace(self.Creator) == "" {
 		return "", fmt.Errorf("操作错误")
 	}
-	tx, ok := ctx.Value("tx").(*sqlx.Tx)
+	tx, ok := ctx.Value("tx").(*gorm.DB)
 	if !ok {
-		db := pgsql.Open()
-		tx, err = db.Beginx()
-		if err != nil {
+		db := appGorm.Open()
+		tx = db.Begin()
+		if err := tx.Error; err != nil {
 			return "", err
 		}
 	}
@@ -61,21 +61,14 @@ func (self *GFamilyMembers) Insert(ctx context.Context) (string, error) {
 	if !ok {
 		defer tx.Rollback()
 	}
-	// 插入判断用户登录账号是否已经存在
-	stmt, err := tx.PrepareNamed(insertSql())
-	if err != nil {
-		return "", err
-	}
-	log.Println(stmt.QueryString)
-	var lastId string
-	self.BaseColumns.Init()
-	err = stmt.Get(&lastId, self)
+
+	err = tx.Create(self).Error
 	if err != nil {
 		return "", err
 	}
 
 	if !ok {
-		err = tx.Commit()
+		err = tx.Commit().Error
 		if err != nil {
 			return "", err
 		}
@@ -107,7 +100,7 @@ func (self *GFamilyMembers) GetByID(query *GetQuery) (*GetModel, error) {
 }
 
 type Query struct {
-	pgsql.BaseQuery
+	appGorm.BaseQuery
 	UserId   string `db:"user_id"`
 	FamilyId string `db:"family_id"`
 	Creator  string `db:"creator"`
@@ -125,52 +118,24 @@ func (self *GFamilyMembers) List(query *Query) ([]*ListModel, int64, error) {
 	if query.UserId != "" && query.FamilyId == "" {
 		return nil, 0, fmt.Errorf("参数错误")
 	}
-	db := pgsql.Open()
-	whereSql, fullSql := listSql(query)
-	// 以上部分为查询条件，接下来是分页和排序
-	count, err := self.GetCount(db, query, whereSql)
+	db := appGorm.Open()
+	// SELECT
+	// g_member_family_member.*
+	// FROM g_member_family_member WHERE 1=1  and g_member_family_member.isdelete='false'
+	// and g_member_family_member.family_id=$1  order by g_member_family_member.createtime desc
+	var count int64
+	db = db.Model(&GFamilyMembers{}).Scopes(appGorm.BaseWhere(query.BaseQuery)).Where("family_id=?", query.FamilyId)
+	err := db.Count(&count).Error
 	if err != nil {
 		return nil, 0, err
 	}
-	stmt, err := db.PrepareNamed(fullSql)
-	if err != nil {
-		return nil, 0, err
-	}
-	log.Println(stmt.QueryString)
-
-	rows, err := stmt.Queryx(query)
-	if err != nil {
-		return nil, 0, err
-	}
-	defer rows.Close()
-
 	var users = make([]*ListModel, 0)
-	for rows.Next() {
-		var user = new(ListModel)
-		err = rows.StructScan(&user)
-		if err != nil {
-			return nil, 0, err
-		}
-		users = append(users, user)
+	err = db.Scopes(appGorm.Paginate(query.BaseQuery)).Find(&users).Error
+	if err != nil {
+		return nil, 0, err
 	}
-
 	return users, count, nil
 
-}
-
-func (self *GFamilyMembers) GetCount(db *sqlx.DB, query *Query, whereSql ...string) (int64, error) {
-	if query == nil {
-		query = new(Query)
-	}
-	sqlStr := countSql(whereSql...)
-	stmt, err := db.PrepareNamed(sqlStr)
-	if err != nil {
-		return 0, err
-	}
-	var count int64
-	err = stmt.Get(&count, query)
-	log.Println(stmt.QueryString, query)
-	return count, err
 }
 
 type UpdateByIDQuery struct {

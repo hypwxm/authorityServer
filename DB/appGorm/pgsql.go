@@ -20,9 +20,9 @@ func Open() *gorm.DB {
 		newLogger := logger.New(
 			log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer
 			logger.Config{
-				SlowThreshold: time.Second,   // 慢 SQL 阈值
-				LogLevel:      logger.Silent, // Log level
-				Colorful:      false,         // 禁用彩色打印
+				SlowThreshold: time.Second, // 慢 SQL 阈值
+				LogLevel:      logger.Info, // Log level
+				Colorful:      true,        // 禁用彩色打印
 			},
 		)
 
@@ -34,12 +34,18 @@ func Open() *gorm.DB {
 
 		// psql_db, err = sql.Open("postgres", "port=5432 user=postgresql password=123456 dbname=brush sslmode=disable")
 		if err != nil {
-
+			psql_db = nil
 			return nil
 		}
-		// psql_db.SetMaxIdleConns(200)
-		// psql_db.SetMaxOpenConns(50)
-		// logger.Logger.Info("pgsql数据库连接成功")
+		db, err := psql_db.DB()
+		if err != nil {
+			psql_db = nil
+			return nil
+		}
+		// SetMaxIdleConns 用于设置连接池中空闲连接的最大数量。
+		db.SetMaxIdleConns(10)
+		// SetMaxOpenConns 设置打开数据库连接的最大数量。
+		db.SetMaxOpenConns(100)
 		return psql_db
 	}
 	return psql_db

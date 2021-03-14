@@ -1,4 +1,4 @@
-package database
+package appGorm
 
 import (
 	"babygrow/util"

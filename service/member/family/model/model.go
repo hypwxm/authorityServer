@@ -1,6 +1,7 @@
 package model
 
 import (
+	"babygrow/DB/appGorm"
 	"babygrow/DB/pgsql"
 	"babygrow/event"
 	mediaModel "babygrow/service/media/model"
@@ -26,19 +27,19 @@ import (
 
 type GFamily struct {
 	database.BaseColumns
-	Name string `json:"name" db:"name"`
+	Name string `json:"name" db:"name" gorm:"column:name;type:varchar(20);not null"`
 	// 存储头像
-	Medias []*mediaModel.Media `json:"medias"`
+	Medias []*mediaModel.Media `json:"medias" gorm:"-"`
 	// 家族相册
-	Album []*mediaModel.Media `json:"album"`
+	Album []*mediaModel.Media `json:"album" gorm:"-"`
 
 	// 家庭标签，直接存字符串  逗号隔开
-	Label string `json:"label" db:"label"`
+	Label string `json:"label" db:"label" gorm:"column:label;type:varchar(250);not null;default '';"`
 
 	// 一个简单的描述
-	Intro string `json:"intro" db:"intro"`
+	Intro string `json:"intro" db:"intro" gorm:"column:intro;type:text;not null;default ''"`
 
-	Creator string `json:"creator" db:"creator"`
+	Creator string `json:"creator" db:"creator" gorm:"column:creator;type:varchar(128);not null;check:creator<>'';index"`
 }
 
 const BusinessName = "g_family"
@@ -53,21 +54,13 @@ func (self *GFamily) Insert(ctx context.Context) (string, error) {
 		return "", fmt.Errorf("操作错误")
 	}
 
-	db := pgsql.Open()
-	tx, err := db.Beginx()
-	if err != nil {
+	db := appGorm.Open()
+	tx := db.Begin()
+	if err := tx.Error; err != nil {
 		return "", err
 	}
 	defer tx.Rollback()
-	// 插入判断用户登录账号是否已经存在
-	stmt, err := tx.PrepareNamed(insertSql())
-	if err != nil {
-		return "", err
-	}
-	log.Println(stmt.QueryString)
-	var lastId string
-	self.BaseColumns.Init()
-	err = stmt.Get(&lastId, self)
+	err = tx.Create(self).Error
 	if err != nil {
 		return "", err
 	}
@@ -77,7 +70,7 @@ func (self *GFamily) Insert(ctx context.Context) (string, error) {
 	// 创建家园要先把创建者加入到家园中，角色为超管
 	_, err = familyMemberService.Create(ctxTx, &familyMemberModel.GFamilyMembers{
 		MemberId:  self.Creator,
-		FamilyId:  lastId,
+		FamilyId:  self.ID,
 		Creator:   self.Creator,
 		CanInvite: true,
 		CanRemove: true,
@@ -87,7 +80,7 @@ func (self *GFamily) Insert(ctx context.Context) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	err = tx.Commit()
+	err = tx.Commit().Error
 	if err != nil {
 		return "", err
 	}
