@@ -1,25 +1,18 @@
 package service
 
 import (
-	"babygrow/service/admin/org/model"
+	"babygrow/service/message/model"
+	"context"
 )
 
-func Create(entity *model.GOrg) (string, error) {
-	return entity.Insert()
-}
-
-func Modify(updateQuery *model.UpdateByIDQuery) error {
-	return new(model.GOrg).Update(updateQuery)
+func Create(entity *model.GMessage) (string, error) {
+	return entity.Insert(context.Background())
 }
 
 func List(query *model.Query) ([]*model.ListModel, int64, error) {
-	return new(model.GOrg).List(query)
+	return model.List(query)
 }
 
-func Del(query *model.DeleteQuery) error {
-	return new(model.GOrg).Delete(query)
-}
-
-func Get(query *model.GetQuery) (*model.GetModel, error) {
-	return new(model.GOrg).GetByID(query)
+func UnreadCount(query *model.UnreadCountQuery) (int64, error) {
+	return model.GetUnreadCount(query)
 }

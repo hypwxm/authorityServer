@@ -5,6 +5,10 @@ import (
 	"babygrow/DB/pgsql"
 	"babygrow/util"
 	"babygrow/util/database"
+
+	memberModel "babygrow/service/member/user/model"
+	memberService "babygrow/service/member/user/service"
+
 	"context"
 	"errors"
 	"fmt"
@@ -109,6 +113,9 @@ type Query struct {
 
 type ListModel struct {
 	GFamilyMembers
+	MemberAccount  string `json:"memberAccount" gorm:"-"`
+	MemberAvatar   string `json:"memberAvatar" gorm:"-"`
+	MemberNickname string `json:"memberNickname" gorm:"-"`
 }
 
 func (self *GFamilyMembers) List(query *Query) ([]*ListModel, int64, error) {
@@ -129,12 +136,36 @@ func (self *GFamilyMembers) List(query *Query) ([]*ListModel, int64, error) {
 	if err != nil {
 		return nil, 0, err
 	}
-	var users = make([]*ListModel, 0)
-	err = db.Scopes(appGorm.Paginate(query.BaseQuery)).Find(&users).Error
+	var list = make([]*ListModel, 0)
+	err = db.Scopes(appGorm.Paginate(query.BaseQuery)).Find(&list).Error
 	if err != nil {
 		return nil, 0, err
 	}
-	return users, count, nil
+
+	ids := make([]string, len(list))
+	for _, v := range list {
+		ids = append(ids, v.MemberId)
+	}
+	// 获取成员的基本信息
+	users, _, err := memberService.List(&memberModel.Query{
+		BaseQuery: pgsql.BaseQuery{
+			IDs: ids,
+		},
+	})
+	if err != nil {
+		return nil, 0, err
+	}
+	for _, v := range list {
+		for _, vm := range users {
+			if vm.ID == v.MemberId {
+				v.MemberAccount = vm.Account
+				v.MemberAvatar = vm.Avatar
+				v.MemberNickname = vm.Nickname
+				break
+			}
+		}
+	}
+	return list, count, nil
 
 }
 

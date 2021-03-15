@@ -8,6 +8,7 @@ import (
 	dailyComment "babygrow/service/member/dailyComment/controller"
 	family "babygrow/service/member/family/controller"
 	familyMember "babygrow/service/member/familyMember/controller"
+	message "babygrow/service/message/controller"
 
 	controller3 "babygrow/service/member/mybabies/controller"
 	"babygrow/service/member/user/controller"
@@ -30,6 +31,7 @@ func MemberRouter() *rider.Router {
 	route.Kid("/babyGrowComment", middleware.MemberAuth(), dailyComment.Router())
 	route.Kid("/family", middleware.MemberAuth(), family.Router())
 	route.Kid("/familyMember", middleware.MemberAuth(), familyMember.Router())
+	route.Kid("/message", middleware.MemberAuth(), message.Router())
 
 	return route
 }
