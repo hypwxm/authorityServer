@@ -1,7 +1,6 @@
 package model
 
 import (
-	"babygrow/DB/pgsql"
 	"fmt"
 	"io/ioutil"
 	"strings"
@@ -20,38 +19,6 @@ func GetSqlFile() ([]byte, error) {
 func insertSql() string {
 	return fmt.Sprintf("insert into %s (createtime, isdelete, disabled, id, name, creator, label, intro) select :createtime, :isdelete, :disabled, :id, :name, :creator, :label, :intro returning id", table_name)
 
-}
-
-func listSql(query *Query) (whereSql string, fullSql string) {
-	var selectSql = fmt.Sprintf(`SELECT 
-				COALESCE(%[2]s.member_id, '') as member_id ,
-				COALESCE(%[2]s.creator, '') as creator,
-				COALESCE(%[2]s.can_invite, false) as can_invite,
-				COALESCE(%[2]s.can_remove, false) as can_remove,
-				COALESCE(%[2]s.can_edit, false) as can_edit,
-				COALESCE(%[2]s.nickname, '') as nickname,
-				COALESCE(%[2]s.role_name, '') as role_name,
-				COALESCE(%[2]s.role_type, 0) as role_type,
-				COALESCE(%[1]s.createtime, 0) as createtime,
-				%[1]s.name as family_name,
-				%[1]s.creator as family_creator,
-				%[3]s.nickname as family_creator_name,
-				%[1]s.label as family_label,
-				%[1]s.intro as family_intro,
-				%[1]s.createtime as family_createtime,
-				%[1]s.id as id
-				FROM %[1]s left join %[2]s on %[1]s.id=%[2]s.family_id left join %[3]s on %[1]s.creator=%[3]s.id WHERE 1=1 `, table_name, "g_member_family_member", "g_member")
-	whereSql = pgsql.BaseWhere(query.BaseQuery, table_name)
-	if strings.TrimSpace(query.Keywords) != "" {
-		// whereSql = whereSql + fmt.Sprintf(" and (%[1]s.title like '%%%[2]s%%' or %[1]s.intro like '%%%[2]s%%' or %[1]s.content like '%%%[2]s%%')", table_name, query.Keywords)
-	}
-	whereSql = whereSql + fmt.Sprintf(" and (%[1]s.creator=:user_id or %[2]s.member_id=:user_id)", table_name, "g_member_family_member")
-
-	if query.OrderBy == "" {
-		// query.OrderBy = "sort asc"
-	}
-	optionSql := pgsql.BaseOption(query.BaseQuery, table_name)
-	return whereSql, selectSql + whereSql + optionSql
 }
 
 func countSql(whereSql ...string) string {

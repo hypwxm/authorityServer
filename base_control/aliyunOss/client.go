@@ -9,8 +9,8 @@ import (
 )
 
 var OssConfigDev = map[string]string{
-	"host":     "https://babygrow-test.oss-cn-hangzhou.aliyuncs.com",
-	"bucket":   "babygrow-test",
+	"host":     "https://babygrowning-test.oss-cn-hangzhou.aliyuncs.com",
+	"bucket":   "babygrowning-test",
 	"endpoint": "oss-cn-hangzhou.aliyuncs.com",
 }
 

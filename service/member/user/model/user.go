@@ -176,7 +176,9 @@ func (self *GMember) List(query *Query) ([]*GMember, int64, error) {
 		for _, vm := range medias {
 			if v.ID == vm.BusinessId {
 				// v.Media = append(v.Media, vm)
+				// log.Println("====", vm)
 				v.Avatar = vm.Url
+				break
 			}
 		}
 	}

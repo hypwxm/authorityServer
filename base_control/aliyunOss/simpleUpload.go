@@ -30,5 +30,5 @@ func UploadFileStream(fd io.Reader, filename string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(OssConfig["host"], filename), nil
+	return OssConfig["host"] + "/" + filepath.Join(filename), nil
 }

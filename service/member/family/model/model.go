@@ -4,9 +4,11 @@ import (
 	"babygrow/DB/appGorm"
 	"babygrow/DB/pgsql"
 	"babygrow/event"
-	mediaModel "babygrow/service/media/model"
 	familyMemberModel "babygrow/service/member/familyMember/model"
 	familyMemberService "babygrow/service/member/familyMember/service"
+
+	mediaModel "babygrow/service/media/model"
+	mediaService "babygrow/service/media/service"
 
 	memberModel "babygrow/service/member/user/model"
 	memberService "babygrow/service/member/user/service"
@@ -85,6 +87,13 @@ func (self *GFamily) Insert(ctx context.Context) (string, error) {
 		return "", err
 	}
 
+	// 插入封面图
+	medias := mediaService.InitMedias(self.Medias, BusinessName, self.ID, self.Creator)
+	err = mediaService.MultiCreate(medias)
+	if err != nil {
+		return "", err
+	}
+
 	return self.ID, nil
 }
 
@@ -125,7 +134,7 @@ func (self *GFamily) GetByID(query *GetQuery) (*GetModel, error) {
 }
 
 type Query struct {
-	pgsql.BaseQuery
+	appGorm.BaseQuery
 	UserId string `db:"user_id"`
 
 	Creator  string `db:"creator"`
@@ -134,49 +143,61 @@ type Query struct {
 
 type ListModel struct {
 	familyMemberModel.GFamilyMembers
-	FamilyName        string `json:"familyName" db:"family_name"`
-	FamilyCreator     string `json:"familyCreator" db:"family_creator"`
-	FamilyCreatorName string `json:"familyCreatorName" db:"family_creator_name"`
-	FamilyLabel       string `json:"familyLabel" db:"family_label"`
-	FamilyIntro       string `json:"familyIntro" db:"family_intro"`
-	FamilyCreatetime  int    `json:"familyCreatetime" db:"family_createtime"`
+	FamilyName        string              `json:"familyName" db:"family_name"`
+	FamilyCreator     string              `json:"familyCreator" db:"family_creator"`
+	FamilyCreatorName string              `json:"familyCreatorName" db:"family_creator_name"`
+	FamilyLabel       string              `json:"familyLabel" db:"family_label"`
+	FamilyIntro       string              `json:"familyIntro" db:"family_intro"`
+	FamilyCreatetime  int                 `json:"familyCreatetime" db:"family_createtime"`
+	Medias            []*mediaModel.Media `json:"medias" gorm:"-"`
 }
 
 func (self *GFamily) List(query *Query) ([]*ListModel, int64, error) {
 	if query == nil {
 		query = new(Query)
 	}
-	db := pgsql.Open()
-	_, fullSql := listSql(query)
-	// 以上部分为查询条件，接下来是分页和排序
-	// count, err := self.GetCount(db, query, whereSql)
-	// if err != nil {
-	// 	return nil, 0, err
-	// }
-	stmt, err := db.PrepareNamed(fullSql)
+	db := appGorm.Open()
+	tx := db.Table("g_member_family").Select(`
+				COALESCE(g_member_family_member.member_id, '') as member_id ,
+				COALESCE(g_member_family_member.creator, '') as creator,
+				COALESCE(g_member_family_member.can_invite, false) as can_invite,
+				COALESCE(g_member_family_member.can_remove, false) as can_remove,
+				COALESCE(g_member_family_member.can_edit, false) as can_edit,
+				COALESCE(g_member_family_member.nickname, '') as nickname,
+				COALESCE(g_member_family_member.role_name, '') as role_name,
+				COALESCE(g_member_family_member.role_type, 0) as role_type,
+				COALESCE(g_member_family_member.createtime, 0) as createtime,
+				g_member_family.name as family_name,
+				g_member_family.creator as family_creator,
+				g_member_family_member.nickname as family_creator_name,
+				g_member_family.label as family_label,
+				g_member_family.intro as family_intro,
+				g_member_family.createtime as family_createtime,
+				g_member_family.id as id
+	`).Joins("left join g_member_family_member on g_member_family.id=g_member_family_member.family_id").Joins("left join g_member on g_member_family.creator=g_member.id ")
+	tx.Scopes(appGorm.BaseWhere(query.BaseQuery))
+	tx.Where("(g_member_family.creator=? or g_member_family_member.member_id=?)", query.UserId, query.UserId)
+	var count int64
+	err := tx.Count(&count).Error
 	if err != nil {
 		return nil, 0, err
 	}
-	log.Println(stmt.QueryString)
-
-	rows, err := stmt.Queryx(query)
+	var list = make([]*ListModel, 0)
+	err = tx.Scopes(appGorm.Paginate(query.BaseQuery)).Find(&list).Error
 	if err != nil {
 		return nil, 0, err
 	}
-	defer rows.Close()
 
-	var users = make([]*ListModel, 0)
-	for rows.Next() {
-		var user = new(ListModel)
-		err = rows.StructScan(&user)
-		if err != nil {
-			return nil, 0, err
-		}
-		users = append(users, user)
+	// 获取家园封面
+	var ids = make([]string, len(list))
+	for _, v := range list {
+		ids = append(ids, v.ID)
 	}
-
-	return users, 0, nil
-
+	err = mediaService.ListWithMedia(ids, BusinessName, list, "Medias")
+	if err != nil {
+		return nil, 0, err
+	}
+	return list, count, nil
 }
 
 func (self *GFamily) GetCount(db *sqlx.DB, query *Query, whereSql ...string) (int64, error) {
