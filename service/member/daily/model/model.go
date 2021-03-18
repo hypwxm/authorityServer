@@ -234,11 +234,6 @@ func (self *GDaily) Delete(query *DeleteQuery) error {
 		}
 	}
 
-	db := pgsql.Open()
-	stmt, err := db.PrepareNamed(delSql())
-	if err != nil {
-		return err
-	}
-	_, err = stmt.Exec(query)
-	return err
+	db := appGorm.Open()
+	return db.Model(&GDaily{}).Where("id=any(?)", query.IDs).Delete().Error
 }
