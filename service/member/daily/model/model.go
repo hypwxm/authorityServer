@@ -196,8 +196,6 @@ type UpdateByIDQuery struct {
 	Mood        string  `json:"mood" db:"mood"`
 	Health      string  `json:"health" db:"health"`
 	Temperature float64 `json:"temperature" db:"temperature"`
-
-	Updatetime int64 `db:"updatetime"`
 }
 
 // 更新,根据用户id和数据id进行更新
@@ -210,14 +208,8 @@ func (self *GDaily) Update(query *UpdateByIDQuery) error {
 		return errors.New("更新条件错误")
 	}
 
-	db := pgsql.Open()
-	stmt, err := db.PrepareNamed(updateSql())
-	if err != nil {
-		return err
-	}
-	log.Println(stmt.QueryString)
-	query.Updatetime = util.GetCurrentMS()
-	_, err = stmt.Exec(query)
+	db := appGorm.Open()
+	err := db.Model(&GDaily{}).Select("date,weight,height,diary,weather,mood,health,temperature").Update(query).Error
 	if err != nil {
 		return err
 	}
