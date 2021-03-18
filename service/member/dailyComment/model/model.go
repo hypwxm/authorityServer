@@ -164,8 +164,6 @@ type UpdateByIDQuery struct {
 	Content string `json:"diary" db:"diary"`
 
 	Medias []*mediaModel.Media `json:"medias"`
-
-	Updatetime int64 `db:"updatetime"`
 }
 
 // 更新,根据用户id和数据id进行更新
@@ -179,7 +177,7 @@ func (self *GDailyComment) Update(query *UpdateByIDQuery) error {
 	}
 
 	db := appGorm.Open()
-	err := db.Model(&GDailyComment{}).Updates(query).Error
+	err := db.Model(&GDailyComment{}).Select("content").Updates(query).Error
 	if err != nil {
 		return err
 	}

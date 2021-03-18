@@ -2,7 +2,6 @@ package model
 
 import (
 	"babygrow/DB/appGorm"
-	"babygrow/DB/pgsql"
 	"babygrow/event"
 	familyMemberModel "babygrow/service/member/familyMember/model"
 	familyMemberService "babygrow/service/member/familyMember/service"
@@ -19,12 +18,9 @@ import (
 	"babygrow/util/database"
 	"errors"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/lib/pq"
-
-	"github.com/jmoiron/sqlx"
 )
 
 type GFamily struct {
@@ -112,13 +108,9 @@ type GetModel struct {
  * 家园的创建者信息
  */
 func (self *GFamily) GetByID(query *GetQuery) (*GetModel, error) {
-	db := pgsql.Open()
-	stmt, err := db.PrepareNamed(getByIdSql())
-	if err != nil {
-		return nil, err
-	}
+	db := appGorm.Open()
 	var entity = new(GetModel)
-	err = stmt.Get(entity, query)
+	err := db.Where("id=?", query.ID).Find(&entity).Error
 	if err != nil {
 		return nil, err
 	}
@@ -200,21 +192,6 @@ func (self *GFamily) List(query *Query) ([]*ListModel, int64, error) {
 	return list, count, nil
 }
 
-func (self *GFamily) GetCount(db *sqlx.DB, query *Query, whereSql ...string) (int64, error) {
-	if query == nil {
-		query = new(Query)
-	}
-	sqlStr := countSql(whereSql...)
-	stmt, err := db.PrepareNamed(sqlStr)
-	if err != nil {
-		return 0, err
-	}
-	var count int64
-	err = stmt.Get(&count, query)
-	log.Println(stmt.QueryString, query)
-	return count, err
-}
-
 type UpdateByIDQuery struct {
 	ID string `db:"id"`
 	// 姓名
@@ -233,14 +210,8 @@ func (self *GFamily) Update(query *UpdateByIDQuery) error {
 		return errors.New("更新条件错误")
 	}
 
-	db := pgsql.Open()
-	stmt, err := db.PrepareNamed(updateSql())
-	if err != nil {
-		return err
-	}
-	log.Println(stmt.QueryString)
-	query.Updatetime = util.GetCurrentMS()
-	_, err = stmt.Exec(query)
+	db := appGorm.Open()
+	err := db.Model(&GFamily{}).Select("name").Updates(query).Error
 	if err != nil {
 		return err
 	}
@@ -264,14 +235,8 @@ func (self *GFamily) Delete(query *DeleteQuery) error {
 			return errors.New("操作条件错误")
 		}
 	}
-
-	db := pgsql.Open()
-	stmt, err := db.PrepareNamed(delSql())
-	if err != nil {
-		return err
-	}
-	_, err = stmt.Exec(query)
-	return err
+	db := appGorm.Open()
+	return db.Where("id=any(?)", query.IDs).Delete(GFamily{}).Error
 }
 
 type DisabledQuery struct {
@@ -287,13 +252,8 @@ func (self *GFamily) ToggleDisabled(query *DisabledQuery) error {
 	if strings.TrimSpace(query.ID) == "" {
 		return errors.New("操作条件错误")
 	}
-	db := pgsql.Open()
-	stmt, err := db.PrepareNamed(toggleSql())
-	if err != nil {
-		return err
-	}
-	_, err = stmt.Exec(query)
-	return err
+	db := appGorm.Open()
+	return db.Model(&GFamily{}).Where("id=?", query.ID).Update("disabled=?", query.Disabled).Error
 }
 
 type InviteQuery struct {
