@@ -12,7 +12,7 @@ import (
 	"github.com/lib/pq"
 )
 
-const BusinessName = "g_member_baby_grow"
+const BusinessName = "g_member_baby_grow_comment"
 
 type GDailyComment struct {
 	appGorm.BaseColumns
@@ -164,6 +164,7 @@ type UpdateByIDQuery struct {
 	Content string `json:"diary" db:"diary"`
 
 	Medias []*mediaModel.Media `json:"medias"`
+	UserId string              `json:"userId"`
 }
 
 // 更新,根据用户id和数据id进行更新
@@ -181,7 +182,17 @@ func (self *GDailyComment) Update(query *UpdateByIDQuery) error {
 	if err != nil {
 		return err
 	}
-	return nil
+
+	// 删除下旧的图片
+	err = mediaService.Del(&mediaModel.DeleteQuery{
+		Businesses:  []string{BusinessName},
+		BusinessIds: []string{query.ID},
+	})
+	if err != nil {
+		return err
+	}
+	medias := mediaService.InitMedias(self.Medias, BusinessName, query.ID, query.UserId)
+	return mediaService.MultiCreate(medias)
 }
 
 type DeleteQuery struct {
