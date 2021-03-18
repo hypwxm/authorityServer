@@ -1,7 +1,6 @@
 package model
 
 import (
-	"babygrow/DB/pgsql"
 	"fmt"
 	"io/ioutil"
 	"strings"
@@ -20,43 +19,6 @@ func GetSqlFile() ([]byte, error) {
 func insertSql() string {
 	return fmt.Sprintf("insert into %s (createtime, isdelete, disabled, id, content, user_id, baby_id, diary_id, comment_id) select :createtime, :isdelete, :disabled, :id, :content, :user_id, :baby_id, :diary_id, :comment_id returning id", table_name)
 
-}
-
-func listSql(query *Query) (whereSql string, fullSql string) {
-	var selectSql = fmt.Sprintf(`SELECT 
-				%[1]s.*,
-				COALESCE(%[2]s.role_name, '') as user_role_name,
-				COALESCE(%[3]s.realname, '') as user_realname,
-				COALESCE(%[3]s.account, '') as user_account,
-				COALESCE(%[3]s.phone, '') as user_phone,
-				COALESCE(%[3]s.nickname, '') as user_nickname
-				FROM %[1]s left join %[2]s on %[2]s.baby_id=%[1]s.baby_id and %[2]s.user_id=%[1]s.user_id left join %[3]s on %[1]s.user_id=%[3]s.id WHERE 1=1 `, table_name, "g_member_baby_relation", "g_member")
-	whereSql = pgsql.BaseWhere(query.BaseQuery, table_name)
-	if strings.TrimSpace(query.Keywords) != "" {
-		// whereSql = whereSql + fmt.Sprintf(" and (%[1]s.title like '%%%[2]s%%' or %[1]s.intro like '%%%[2]s%%' or %[1]s.content like '%%%[2]s%%')", table_name, query.Keywords)
-	}
-
-	if query.UserId != "" {
-		whereSql = whereSql + fmt.Sprintf(" and %[1]s.user_id=:user_id ", table_name)
-	}
-	if query.DiaryId != "" {
-		whereSql = whereSql + fmt.Sprintf(" and %[1]s.diary_id=:diary_id ", table_name)
-	}
-	if len(query.DiaryIds) > 0 {
-		whereSql = whereSql + fmt.Sprintf(" and %[1]s.diary_id=any(:diary_ids) ", table_name)
-	}
-
-	if query.BabyId != "" {
-		whereSql = whereSql + fmt.Sprintf(" and %[1]s.baby_id=:baby_id ", table_name)
-	}
-
-	// if query.OrderBy == "" {
-	// 	query.OrderBy = "sort asc"
-	// } else {
-	// 	query.OrderBy = "createtime desc"
-	// }
-	optionSql := pgsql.BaseOption(query.BaseQuery, table_name)
-	return whereSql, selectSql + whereSql + optionSql
 }
 
 func countSql(whereSql ...string) string {

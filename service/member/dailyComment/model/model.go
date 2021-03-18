@@ -1,38 +1,32 @@
 package model
 
 import (
-	"babygrow/DB/pgsql"
+	"babygrow/DB/appGorm"
 	mediaModel "babygrow/service/media/model"
 	mediaService "babygrow/service/media/service"
 
-	"babygrow/util"
-	"babygrow/util/database"
-
 	"errors"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/lib/pq"
-
-	"github.com/jmoiron/sqlx"
 )
 
 const BusinessName = "g_member_baby_grow"
 
 type GDailyComment struct {
-	database.BaseColumns
+	appGorm.BaseColumns
 
-	Content string `json:"content" db:"content"`
+	Content string `json:"content" db:"content" gorm:"column:content;type:text;default '';not null"`
 
-	UserId    string `json:"userId" db:"user_id"`
-	BabyId    string `json:"babyId" db:"baby_id"`
-	DiaryId   string `json:"diaryId" db:"diary_id"`
-	CommentId string `json:"commentId" db:"comment_id"`
+	UserId    string `json:"userId" db:"user_id" gorm:"column:user_id;type:varchar(128);not null;check(user_id <> '')"`
+	BabyId    string `json:"babyId" db:"baby_id" gorm:"column:baby_id;type:varchar(128);not null;check(baby_id <> '')"`
+	DiaryId   string `json:"diaryId" db:"diary_id" gorm:"column:diary_id;type:varchar(128);not null;check(diary_id <> '')"`
+	CommentId string `json:"commentId" db:"comment_id" gorm:"column:comment_id;type:varchar(128);not null;default ''"`
 
-	Sort int `json:"sort" db:"sort"`
+	Sort int `json:"sort" db:"sort" gorm:"column:sort;not null;default ''"`
 
-	Medias []*mediaModel.Media `json:"medias"`
+	Medias []*mediaModel.Media `json:"medias" gorm:"-"`
 }
 
 func (self *GDailyComment) Insert() (string, error) {
@@ -48,32 +42,25 @@ func (self *GDailyComment) Insert() (string, error) {
 		return "", fmt.Errorf("操作错误")
 	}
 
-	db := pgsql.Open()
-	tx, err := db.Beginx()
-	if err != nil {
+	db := appGorm.Open()
+	tx := db.Begin()
+	if err := tx.Error; err != nil {
 		return "", err
 	}
 	defer tx.Rollback()
 	// 插入判断用户登录账号是否已经存在
-	stmt, err := tx.PrepareNamed(insertSql())
-	if err != nil {
-		return "", err
-	}
-	log.Println(stmt.QueryString)
-	var lastId string
-	self.BaseColumns.Init()
-	err = stmt.Get(&lastId, self)
+	err = tx.Create(&self).Error
 	if err != nil {
 		return "", err
 	}
 
-	medias := mediaService.InitMedias(self.Medias, BusinessName, lastId, self.UserId)
+	medias := mediaService.InitMedias(self.Medias, BusinessName, self.ID, self.UserId)
 	err = mediaService.MultiCreate(medias)
 	if err != nil {
 		return "", err
 	}
 
-	err = tx.Commit()
+	err = tx.Commit().Error
 	if err != nil {
 		return "", err
 	}
@@ -90,13 +77,9 @@ type GetModel struct {
 }
 
 func (self *GDailyComment) GetByID(query *GetQuery) (*GetModel, error) {
-	db := pgsql.Open()
-	stmt, err := db.PrepareNamed(getByIdSql())
-	if err != nil {
-		return nil, err
-	}
+	db := appGorm.Open()
 	var entity = new(GetModel)
-	err = stmt.Get(entity, query)
+	err := db.Where("id=?", query.ID).Find(&entity).Error
 	if err != nil {
 		return nil, err
 	}
@@ -104,7 +87,7 @@ func (self *GDailyComment) GetByID(query *GetQuery) (*GetModel, error) {
 }
 
 type Query struct {
-	pgsql.BaseQuery
+	appGorm.BaseQuery
 	Keywords string         `db:"keywords"`
 	Status   int            `db:"status"`
 	UserId   string         `db:"user_id"`
@@ -127,37 +110,46 @@ func (self *GDailyComment) List(query *Query) ([]*ListModel, int64, error) {
 		query = new(Query)
 	}
 
-	db := pgsql.Open()
-	whereSql, fullSql := listSql(query)
-	// 以上部分为查询条件，接下来是分页和排序
-	count, err := self.GetCount(db, query, whereSql)
+	db := appGorm.Open()
+	tx := db.Select(`SELECT 
+	g_member_baby_grow_comment.*,
+	COALESCE(g_member_baby_relation.role_name, '') as user_role_name,
+	COALESCE(g_member.realname, '') as user_realname,
+	COALESCE(g_member.account, '') as user_account,
+	COALESCE(g_member.phone, '') as user_phone,
+	COALESCE(g_member.nickname, '') as user_nickname`)
+	tx.Joins("left join g_member_baby_relation on g_member_baby_relation.baby_id=g_member_baby_grow_comment.baby_id and g_member_baby_relation.user_id=g_member_baby_grow_comment.user_id")
+	tx.Joins("left join g_member on g_member_baby_grow_comment.user_id=g_member.id")
+	if query.UserId != "" {
+		tx.Where("g_member_baby_grow_comment.user_id=?", query.UserId)
+	}
+	if query.DiaryId != "" {
+		tx.Where("g_member_baby_grow_comment.diary_id=?", query.DiaryId)
+	}
+	if len(query.DiaryIds) > 0 {
+		tx.Where("g_member_baby_grow_comment.diary_id=any(?)", query.DiaryIds)
+	}
+	if query.BabyId != "" {
+		tx.Where("g_member_baby_grow_comment.baby_id=?", query.BabyId)
+	}
+	tx.Scopes(appGorm.BaseWhere(query.BaseQuery))
+	var count int64
+	err := tx.Count(&count).Error
 	if err != nil {
 		return nil, 0, err
 	}
-	stmt, err := db.PrepareNamed(fullSql)
-	if err != nil {
-		return nil, 0, err
-	}
-	log.Printf("%s, %+v", stmt.QueryString, *query)
-
-	rows, err := stmt.Queryx(query)
-	if err != nil {
-		return nil, 0, err
-	}
-	defer rows.Close()
 
 	var list = make([]*ListModel, 0)
+	err = tx.Scopes(appGorm.Paginate(query.BaseQuery)).Find(&list).Error
+	if err != nil {
+		return nil, 0, err
+	}
+
 	var ids []string = make([]string, 0)
 	var userIds []string = make([]string, 0)
-	for rows.Next() {
-		var item = new(ListModel)
-		err = rows.StructScan(&item)
-		if err != nil {
-			return nil, 0, err
-		}
-		ids = append(ids, item.ID)
-		userIds = append(userIds, item.UserId)
-		list = append(list, item)
+	for _, v := range list {
+		ids = append(ids, v.ID)
+		userIds = append(userIds, v.UserId)
 	}
 
 	// 查找对应的媒体信息
@@ -165,21 +157,6 @@ func (self *GDailyComment) List(query *Query) ([]*ListModel, int64, error) {
 
 	return list, count, nil
 
-}
-
-func (self *GDailyComment) GetCount(db *sqlx.DB, query *Query, whereSql ...string) (int64, error) {
-	if query == nil {
-		query = new(Query)
-	}
-	sqlStr := countSql(whereSql...)
-	stmt, err := db.PrepareNamed(sqlStr)
-	if err != nil {
-		return 0, err
-	}
-	var count int64
-	err = stmt.Get(&count, query)
-	log.Println(stmt.QueryString, query)
-	return count, err
 }
 
 type UpdateByIDQuery struct {
@@ -201,14 +178,8 @@ func (self *GDailyComment) Update(query *UpdateByIDQuery) error {
 		return errors.New("更新条件错误")
 	}
 
-	db := pgsql.Open()
-	stmt, err := db.PrepareNamed(updateSql())
-	if err != nil {
-		return err
-	}
-	log.Println(stmt.QueryString)
-	query.Updatetime = util.GetCurrentMS()
-	_, err = stmt.Exec(query)
+	db := appGorm.Open()
+	err := db.Model(&GDailyComment{}).Updates(query).Error
 	if err != nil {
 		return err
 	}
@@ -234,11 +205,6 @@ func (self *GDailyComment) Delete(query *DeleteQuery) error {
 		}
 	}
 
-	db := pgsql.Open()
-	stmt, err := db.PrepareNamed(delSql())
-	if err != nil {
-		return err
-	}
-	_, err = stmt.Exec(query)
-	return err
+	db := appGorm.Open()
+	return db.Where("id=any(?)", query.IDs).Delete(GDailyComment{}).Error
 }
