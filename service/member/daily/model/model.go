@@ -1,23 +1,17 @@
 package model
 
 import (
-	"babygrow/DB/pgsql"
+	"babygrow/DB/appGorm"
 	mediaModel "babygrow/service/media/model"
 	mediaService "babygrow/service/media/service"
 	dailyCommentModel "babygrow/service/member/dailyComment/model"
 	dailyCommentService "babygrow/service/member/dailyComment/service"
 
-	"babygrow/util"
-	"babygrow/util/database"
-
 	"errors"
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/lib/pq"
-
-	"github.com/jmoiron/sqlx"
 )
 
 const BusinessName = "g_member_baby_grow"
@@ -60,7 +54,7 @@ func (self *GDaily) Insert() (string, error) {
 
 	db := appGorm.Open()
 	tx := db.Begin()
-	if err == tx.Error; err != nil {
+	if err = tx.Error; err != nil {
 		return "", err
 	}
 	defer tx.Rollback()
@@ -75,7 +69,7 @@ func (self *GDaily) Insert() (string, error) {
 		return "", err
 	}
 
-	err = tx.Commit()
+	err = tx.Commit().Error
 	if err != nil {
 		return "", err
 	}
@@ -102,7 +96,7 @@ func (self *GDaily) GetByID(query *GetQuery) (*GetModel, error) {
 }
 
 type Query struct {
-	pgsql.BaseQuery
+	appGorm.BaseQuery
 	Keywords string `db:"keywords"`
 	Status   int    `db:"status"`
 	UserId   string `db:"user_id"`
@@ -149,7 +143,7 @@ func (self *GDaily) List(query *Query) ([]*ListModel, int64, error) {
 		return nil, 0, err
 	}
 	var list = make([]*ListModel, 0)
-	err = tx.Scopes(appGorm.Pagination()).Find(&list).Error
+	err = tx.Scopes(appGorm.Paginate(query.BaseQuery)).Find(&list).Error
 	if err != nil {
 		return nil, 0, err
 	}
@@ -209,7 +203,7 @@ func (self *GDaily) Update(query *UpdateByIDQuery) error {
 	}
 
 	db := appGorm.Open()
-	err := db.Model(&GDaily{}).Select("date,weight,height,diary,weather,mood,health,temperature").Update(query).Error
+	err := db.Table("g_member_baby_grow").Select("date", "weight", "height", "diary", "weather", "mood", "health", "temperature").Updates(query).Error
 	if err != nil {
 		return err
 	}
@@ -235,5 +229,5 @@ func (self *GDaily) Delete(query *DeleteQuery) error {
 	}
 
 	db := appGorm.Open()
-	return db.Model(&GDaily{}).Where("id=any(?)", query.IDs).Delete().Error
+	return db.Where("id=any(?)", query.IDs).Delete(GDaily{}).Error
 }
