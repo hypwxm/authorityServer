@@ -23,29 +23,29 @@ import (
 const BusinessName = "g_member_baby_grow"
 
 type GDaily struct {
-	database.BaseColumns
+	appGorm.BaseColumns
 
 	// 今日份体重
-	Weight float64 `json:"weight" db:"weight"`
+	Weight float64 `json:"weight" db:"weight" gorm:"column:weight;not null;default 0"`
 	// 今日份身高
-	Height float64 `json:"height" db:"height"`
+	Height float64 `json:"height" db:"height" gorm:"column:height;not null;default 0"`
 
 	// 今日份记录
-	Diary string `json:"diary" db:"diary"`
+	Diary string `json:"diary" db:"diary" gorm:"column:diary;type:text;not null;default ''"`
 
-	UserId string `json:"userId" db:"user_id"`
-	BabyId string `json:"babyId" db:"baby_id"`
+	UserId string `json:"userId" db:"user_id" gorm:"column:user_id;type:varchar(128);not null;check(user_id <> '')"`
+	BabyId string `json:"babyId" db:"baby_id" gorm:"column:baby_id;type:varchar(128);not null;check(baby_id <> '')"`
 
-	Weather     string  `json:"weather" db:"weather"`
-	Mood        string  `json:"mood" db:"mood"`
-	Health      string  `json:"health" db:"health"`
-	Temperature float64 `json:"temperature" db:"temperature"`
+	Weather     string  `json:"weather" db:"weather" gorm:"column:weather;type:varchar(50);not null;default ''"`
+	Mood        string  `json:"mood" db:"mood" gorm:"column:mood;type:varchar(40);not null;default ''"`
+	Health      string  `json:"health" db:"health" gorm:"column:mood;type:varchar(40);not null;default ''"`
+	Temperature float64 `json:"temperature" db:"temperature" gorm:"column:temperature;not null;default 0"`
 
-	Date string `json:"date" db:"date"`
+	Date string `json:"date" db:"date" gorm:"column:date;type:varchar(40);not null;default ''"`
 
-	Sort int `json:"sort" db:"sort"`
+	Sort int `json:"sort" db:"sort" gorm:"column:sort;not null;default 0"`
 
-	Medias []*mediaModel.Media `json:"medias"`
+	Medias []*mediaModel.Media `json:"medias" gorm:"-"`
 }
 
 func (self *GDaily) Insert() (string, error) {
@@ -58,26 +58,18 @@ func (self *GDaily) Insert() (string, error) {
 		return "", errors.New(fmt.Sprintf("操作错误"))
 	}
 
-	db := pgsql.Open()
-	tx, err := db.Beginx()
-	if err != nil {
+	db := appGorm.Open()
+	tx := db.Begin()
+	if err == tx.Error; err != nil {
 		return "", err
 	}
 	defer tx.Rollback()
-	// 插入判断用户登录账号是否已经存在
-	stmt, err := tx.PrepareNamed(insertSql())
-	if err != nil {
-		return "", err
-	}
-	log.Println(stmt.QueryString)
-	var lastId string
-	self.BaseColumns.Init()
-	err = stmt.Get(&lastId, self)
+	err = tx.Create(&self).Error
 	if err != nil {
 		return "", err
 	}
 
-	medias := mediaService.InitMedias(self.Medias, BusinessName, lastId, self.UserId)
+	medias := mediaService.InitMedias(self.Medias, BusinessName, self.ID, self.UserId)
 	err = mediaService.MultiCreate(medias)
 	if err != nil {
 		return "", err
