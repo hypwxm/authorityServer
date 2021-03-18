@@ -38,19 +38,11 @@ func (self *GMenu) Insert() (string, error) {
 		return "", fmt.Errorf("操作错误")
 	}
 
-	db := pgsql.Open()
-	stmt, err := db.PrepareNamed(insertSql())
+	db := appGorm.Open()
+	err = db.Create(&self).Error
 	if err != nil {
 		return "", err
 	}
-	log.Println(stmt.QueryString)
-	var lastId string
-	self.BaseColumns.Init()
-	err = stmt.Get(&lastId, self)
-	if err != nil {
-		return "", err
-	}
-
 	return self.ID, nil
 }
 
@@ -63,13 +55,9 @@ type GetModel struct {
 }
 
 func (self *GMenu) GetByID(query *GetQuery) (*GetModel, error) {
-	db := pgsql.Open()
-	stmt, err := db.PrepareNamed(getByIdSql())
-	if err != nil {
-		return nil, err
-	}
+	db := appGorm.Open()
 	var entity = new(GetModel)
-	err = stmt.Get(entity, query)
+	err := db.Model(&GMenu{}).Where("id=?", query.ID).Find(&entity).Error
 	if err != nil {
 		return nil, err
 	}
