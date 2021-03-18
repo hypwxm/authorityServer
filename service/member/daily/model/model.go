@@ -92,13 +92,9 @@ type GetModel struct {
 }
 
 func (self *GDaily) GetByID(query *GetQuery) (*GetModel, error) {
-	db := pgsql.Open()
-	stmt, err := db.PrepareNamed(getByIdSql())
-	if err != nil {
-		return nil, err
-	}
+	db := appGorm.Open()
 	var entity = new(GetModel)
-	err = stmt.Get(entity, query)
+	err := db.Model(&GDaily{}).Where("id=?", query.ID).Find(&entity).Error
 	if err != nil {
 		return nil, err
 	}
@@ -130,37 +126,38 @@ func (self *GDaily) List(query *Query) ([]*ListModel, int64, error) {
 	if query.UserId == "" {
 		return nil, 0, fmt.Errorf("参数错误")
 	}
-	db := pgsql.Open()
-	whereSql, fullSql := listSql(query)
-	// 以上部分为查询条件，接下来是分页和排序
-	count, err := self.GetCount(db, query, whereSql)
+	db := appGorm.Open()
+	tx := db.Select(`
+				SELECT 
+				g_member_baby_grow.*,
+				COALESCE(g_member_baby_relation.role_name, '') as user_role_name,
+				COALESCE(g_member.realname, '') as user_realname,
+				COALESCE(g_member.account, '') as user_account,
+				COALESCE(g_member.phone, '') as user_phone,
+				COALESCE(g_member.nickname, '') as user_nickname
+				`)
+	tx.Joins("left join g_member_baby_relation on g_member_baby_relation.baby_id=g_member_baby_grow.baby_id and g_member_baby_relation.user_id=g_member_baby_grow.user_id")
+	tx.Joins("left join g_member on g_member_baby_grow.user_id=g_member.id")
+	tx.Where("g_member_baby_grow.user_id=?", query.UserId)
+	if query.BabyId != "" {
+		tx.Where("g_member_baby_grow.baby_id=?", query.BabyId)
+	}
+	tx.Scopes(appGorm.BaseWhere(query.BaseQuery))
+	var count int64
+	err := tx.Count(&count).Error
 	if err != nil {
 		return nil, 0, err
 	}
-	stmt, err := db.PrepareNamed(fullSql)
-	if err != nil {
-		return nil, 0, err
-	}
-	log.Printf("%s, %+v", stmt.QueryString, *query)
-
-	rows, err := stmt.Queryx(query)
-	if err != nil {
-		return nil, 0, err
-	}
-	defer rows.Close()
-
 	var list = make([]*ListModel, 0)
+	err = tx.Scopes(appGorm.Pagination()).Find(&list).Error
+	if err != nil {
+		return nil, 0, err
+	}
 	var ids []string = make([]string, 0)
 	var userIds []string = make([]string, 0)
-	for rows.Next() {
-		var item = new(ListModel)
-		err = rows.StructScan(&item)
-		if err != nil {
-			return nil, 0, err
-		}
-		ids = append(ids, item.ID)
-		userIds = append(userIds, item.UserId)
-		list = append(list, item)
+	for _, v := range list {
+		ids = append(ids, v.ID)
+		userIds = append(userIds, v.UserId)
 	}
 
 	// 查找对应的媒体信息
@@ -183,21 +180,6 @@ func (self *GDaily) List(query *Query) ([]*ListModel, int64, error) {
 
 	return list, count, nil
 
-}
-
-func (self *GDaily) GetCount(db *sqlx.DB, query *Query, whereSql ...string) (int64, error) {
-	if query == nil {
-		query = new(Query)
-	}
-	sqlStr := countSql(whereSql...)
-	stmt, err := db.PrepareNamed(sqlStr)
-	if err != nil {
-		return 0, err
-	}
-	var count int64
-	err = stmt.Get(&count, query)
-	log.Println(stmt.QueryString, query)
-	return count, err
 }
 
 type UpdateByIDQuery struct {
