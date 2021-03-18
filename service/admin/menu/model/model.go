@@ -1,10 +1,10 @@
 package model
 
 import (
+	"babygrow/DB/appGorm"
 	"babygrow/DB/pgsql"
 
 	"babygrow/util"
-	"babygrow/util/database"
 
 	"errors"
 	"fmt"
