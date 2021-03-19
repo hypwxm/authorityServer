@@ -184,7 +184,9 @@ func (self *GFamilyMembers) Update(query *UpdateByIDQuery) error {
 	}
 
 	db := appGorm.Open()
-	return db.Table("g_member_family_member").Updates(query).Error
+	return db.Model(&GFamilyMembers{}).Where("id=?", query.ID).Updates(map[string]interface{}{
+		"nickname": query.Nickname,
+	}).Error
 }
 
 type DeleteQuery struct {
