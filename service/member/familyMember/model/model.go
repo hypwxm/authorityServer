@@ -3,8 +3,6 @@ package model
 import (
 	"babygrow/DB/appGorm"
 	"babygrow/DB/pgsql"
-	"babygrow/util"
-	"babygrow/util/database"
 
 	memberModel "babygrow/service/member/user/model"
 	memberService "babygrow/service/member/user/service"
@@ -20,7 +18,7 @@ import (
 )
 
 type GFamilyMembers struct {
-	database.BaseColumns
+	appGorm.BaseColumns
 	// 会员id
 	MemberId string `json:"memberId" db:"member_id" gorm:"column:member_id;type:varchar(128);check:member_id<>'';not null;uniqueIndex:index_family_member"`
 	// 家园id
@@ -172,9 +170,7 @@ func (self *GFamilyMembers) List(query *Query) ([]*ListModel, int64, error) {
 type UpdateByIDQuery struct {
 	ID string `db:"id"`
 	// 姓名
-	Name string `json:"name" db:"name"`
-
-	Updatetime int64 `db:"updatetime"`
+	Nickname string `json:"nickname"`
 }
 
 // 更新,根据用户id和数据id进行更新
@@ -187,18 +183,8 @@ func (self *GFamilyMembers) Update(query *UpdateByIDQuery) error {
 		return errors.New("更新条件错误")
 	}
 
-	db := pgsql.Open()
-	stmt, err := db.PrepareNamed(updateSql())
-	if err != nil {
-		return err
-	}
-	log.Println(stmt.QueryString)
-	query.Updatetime = util.GetCurrentMS()
-	_, err = stmt.Exec(query)
-	if err != nil {
-		return err
-	}
-	return nil
+	db := appGorm.Open()
+	return db.Table("g_member_family_member").Updates(query).Error
 }
 
 type DeleteQuery struct {

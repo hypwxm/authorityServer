@@ -8,11 +8,11 @@ import (
 
 type BaseColumns struct {
 	ID         string         `json:"id" db:"id" gorm:"column:id;primaryKey;size:128"`
-	Createtime int64          `json:"createtime" db:"createtime" gorm:"autoUpdateTime:milli;column:createtime;not null"`
+	Createtime int64          `json:"createtime" db:"createtime" gorm:"autoCreateTime:milli;column:createtime;not null"`
 	Updatetime int64          `json:"updatetime" db:"updatetime" gorm:"autoUpdateTime:milli;column:updatetime;not null"`
-	Deletetime int64          `json:"-" db:"deletetime" gorm:"column:deletetime;index;not null"`
+	Deletetime int64          `json:"-" db:"deletetime" gorm:"-"`
 	DeletetAt  gorm.DeletedAt `json:"-" db:"delete_at" gorm:"column:delete_at;index;"`
-	Isdelete   bool           `json:"isdelete" db:"isdelete" gorm:"column:isdelete;default false;not null"`
+	Isdelete   bool           `json:"isdelete" db:"isdelete" gorm:"-"`
 	Disabled   bool           `json:"disabled" db:"disabled" gorm:"column:disabled;default false;not null"`
 }
 

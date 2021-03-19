@@ -196,8 +196,6 @@ type UpdateByIDQuery struct {
 	ID string `db:"id"`
 	// 姓名
 	Name string `json:"name" db:"name"`
-
-	Updatetime int64 `db:"updatetime"`
 }
 
 // 更新,根据用户id和数据id进行更新
@@ -211,7 +209,7 @@ func (self *GFamily) Update(query *UpdateByIDQuery) error {
 	}
 
 	db := appGorm.Open()
-	err := db.Model(&GFamily{}).Select("name").Updates(query).Error
+	err := db.Table("g_member_family").Select("name").Updates(query).Error
 	if err != nil {
 		return err
 	}

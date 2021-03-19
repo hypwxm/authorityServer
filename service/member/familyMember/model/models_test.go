@@ -16,3 +16,12 @@ func TestModels(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestUpdate(t *testing.T) {
+	e := new(GFamilyMembers)
+	e.Update(&UpdateByIDQuery{
+		ID:       "1",
+		Nickname: "Asdasd",
+	})
+	t.Fatal("sa")
+}
