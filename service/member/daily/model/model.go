@@ -203,7 +203,16 @@ func (self *GDaily) Update(query *UpdateByIDQuery) error {
 	}
 
 	db := appGorm.Open()
-	err := db.Table("g_member_baby_grow").Select("date", "weight", "height", "diary", "weather", "mood", "health", "temperature").Updates(query).Error
+	err := db.Model(&GDaily{}).Select("date", "weight", "height", "diary", "weather", "mood", "health", "temperature").Where("id=?", query.ID).Updates(map[string]interface{}{
+		"date":        query.Date,
+		"weight":      query.Weight,
+		"height":      query.Height,
+		"diary":       query.Diary,
+		"weather":     query.Weather,
+		"mood":        query.Mood,
+		"health":      query.Health,
+		"temperature": query.Temperature,
+	}).Error
 	if err != nil {
 		return err
 	}
