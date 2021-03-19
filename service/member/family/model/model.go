@@ -209,7 +209,9 @@ func (self *GFamily) Update(query *UpdateByIDQuery) error {
 	}
 
 	db := appGorm.Open()
-	err := db.Table("g_member_family").Select("name").Updates(query).Error
+	err := db.Model(&GFamily{}).Where("id=?", query.ID).Updates(map[string]interface{}{
+		"name": query.Name,
+	}).Error
 	if err != nil {
 		return err
 	}
