@@ -247,7 +247,6 @@ type DisabledQuery struct {
 	ID       string `db:"id"`
 }
 
-// 启用禁用店铺
 func (self *GFamilyMembers) ToggleDisabled(query *DisabledQuery) error {
 	if query == nil {
 		return errors.New("无操作条件")
@@ -262,4 +261,10 @@ func (self *GFamilyMembers) ToggleDisabled(query *DisabledQuery) error {
 	}
 	_, err = stmt.Exec(query)
 	return err
+}
+
+// 退出家园
+func BowOut() error {
+	db := appGorm.Open()
+	return db.Where("member_id=? and family_id=?").Delete(GFamilyMembers{}).Error
 }
