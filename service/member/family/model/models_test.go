@@ -14,6 +14,7 @@ func TestModels(t *testing.T) {
 		t.Fatal("环境错误")
 	}
 	db := appGorm.Open()
+	db.Migrator().DropTable(&GFamily{})
 	db.AutoMigrate(&GFamily{})
 }
 

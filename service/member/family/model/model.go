@@ -5,6 +5,7 @@ import (
 	"babygrow/event"
 	familyMemberModel "babygrow/service/member/familyMember/model"
 	familyMemberService "babygrow/service/member/familyMember/service"
+	"log"
 
 	mediaModel "babygrow/service/media/model"
 	mediaService "babygrow/service/media/service"
@@ -15,7 +16,6 @@ import (
 	"context"
 
 	"babygrow/util"
-	"babygrow/util/database"
 	"errors"
 	"fmt"
 	"strings"
@@ -24,7 +24,7 @@ import (
 )
 
 type GFamily struct {
-	database.BaseColumns
+	appGorm.BaseColumns
 	Name string `json:"name" db:"name" gorm:"column:name;type:varchar(20);not null"`
 	// 存储头像
 	Medias []*mediaModel.Media `json:"medias" gorm:"-"`
@@ -99,7 +99,7 @@ type GetQuery struct {
 
 type GetModel struct {
 	GFamily
-	CreatorInfo memberModel.GetByIdModel `json:"creatorInfo"`
+	CreatorInfo memberModel.GetByIdModel `json:"creatorInfo" gorm:"-"`
 }
 
 /**
@@ -122,6 +122,12 @@ func (self *GFamily) GetByID(query *GetQuery) (*GetModel, error) {
 		return nil, err
 	}
 	entity.CreatorInfo = *creatorInfo
+
+	// 查询媒体信息
+	err = mediaService.ListWithMedia([]string{query.ID}, BusinessName, []*GFamily{&entity.GFamily}, "Medias")
+	if err != nil {
+		log.Println(err)
+	}
 	return entity, nil
 }
 
