@@ -121,8 +121,7 @@ func (self *GDaily) List(query *Query) ([]*ListModel, int64, error) {
 		return nil, 0, fmt.Errorf("参数错误")
 	}
 	db := appGorm.Open()
-	tx := db.Select(`
-				SELECT 
+	tx := db.Model(&GDaily{}).Select(`
 				g_member_baby_grow.*,
 				COALESCE(g_member_baby_relation.role_name, '') as user_role_name,
 				COALESCE(g_member.realname, '') as user_realname,

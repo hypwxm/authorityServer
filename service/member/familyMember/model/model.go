@@ -129,13 +129,16 @@ func (self *GFamilyMembers) List(query *Query) ([]*ListModel, int64, error) {
 	// FROM g_member_family_member WHERE 1=1  and g_member_family_member.isdelete='false'
 	// and g_member_family_member.family_id=$1  order by g_member_family_member.createtime desc
 	var count int64
-	db = db.Model(&GFamilyMembers{}).Scopes(appGorm.BaseWhere(query.BaseQuery)).Where("family_id=?", query.FamilyId)
-	err := db.Count(&count).Error
+	tx := db.Model(&GFamilyMembers{}).Scopes(appGorm.BaseWhere(query.BaseQuery)).Where("family_id=?", query.FamilyId)
+	if query.UserId != "" {
+		tx.Where("member_id=?", query.UserId)
+	}
+	err := tx.Count(&count).Error
 	if err != nil {
 		return nil, 0, err
 	}
 	var list = make([]*ListModel, 0)
-	err = db.Scopes(appGorm.Paginate(query.BaseQuery)).Find(&list).Error
+	err = tx.Scopes(appGorm.Paginate(query.BaseQuery)).Find(&list).Error
 	if err != nil {
 		return nil, 0, err
 	}

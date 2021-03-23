@@ -59,7 +59,7 @@ func list(c rider.Context) {
 			sender.Fail(err.Error())
 			return
 		}
-		query.UserId = c.GetLocals(config.MemberTokenKey).(string)
+		// query.UserId = c.GetLocals(config.MemberTokenKey).(string)
 		list, total, err := service.List(query)
 		if err != nil {
 			sender.Fail(err.Error())

@@ -98,11 +98,11 @@ type Query struct {
 
 type ListModel struct {
 	GDailyComment
-	RoleName string `json:"userRoleName" db:"user_role_name"`
-	Account  string `json:"userAccount" db:"user_account"`
-	RealName string `json:"userRealName" db:"user_realname"`
-	Nickname string `json:"userNickname" db:"user_nickname"`
-	Phone    string `json:"userPhone" db:"user_phone"`
+	RoleName string `json:"userRoleName" db:"user_role_name" gorm:"column:user_role_name"`
+	Account  string `json:"userAccount" db:"user_account" gorm:"column:user_account"`
+	RealName string `json:"userRealName" db:"user_realname" gorm:"column:user_realname"`
+	Nickname string `json:"userNickname" db:"user_nickname" gorm:"column:user_nickname"`
+	Phone    string `json:"userPhone" db:"user_phone" gorm:"column:user_phone"`
 }
 
 func (self *GDailyComment) List(query *Query) ([]*ListModel, int64, error) {
@@ -111,7 +111,7 @@ func (self *GDailyComment) List(query *Query) ([]*ListModel, int64, error) {
 	}
 
 	db := appGorm.Open()
-	tx := db.Select(`SELECT 
+	tx := db.Model(&GDailyComment{}).Select(`
 	g_member_baby_grow_comment.*,
 	COALESCE(g_member_baby_relation.role_name, '') as user_role_name,
 	COALESCE(g_member.realname, '') as user_realname,
