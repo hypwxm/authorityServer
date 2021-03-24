@@ -29,5 +29,8 @@ func ToggleDisabled(query *model.DisabledQuery) error {
 }
 
 func GetBabyRelations(query *model.MbQuery) ([]*model.MbListModel, error) {
+	if query.BabyId == "" {
+		return nil, nil
+	}
 	return new(model.GMemberBabyRelation).List(query)
 }

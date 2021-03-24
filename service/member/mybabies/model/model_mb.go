@@ -63,7 +63,7 @@ type MbQuery struct {
 
 type MbListModel struct {
 	GMemberBabyRelation
-	Member *memberModel.GMember
+	Member *memberModel.GMember `json:"member"`
 }
 
 func (self *GMemberBabyRelation) List(query *MbQuery) ([]*MbListModel, error) {
