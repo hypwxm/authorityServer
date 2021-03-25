@@ -2,6 +2,8 @@ package service
 
 import (
 	"babygrow/service/member/mybabies/model"
+	userModel "babygrow/service/member/user/model"
+	"log"
 )
 
 func Create(entity *model.GMyBabies) (string, error) {
@@ -33,4 +35,17 @@ func GetBabyRelations(query *model.MbQuery) ([]*model.MbListModel, error) {
 		return nil, nil
 	}
 	return new(model.GMemberBabyRelation).List(query)
+}
+
+// 前段传过来的是账号，所以这里需要用账号去查询用户id
+func CreateBabyRelations(query *model.GMemberBabyRelation) (string, error) {
+	// 用账号名去查询用户信息，拿到用户id
+	user, err := new(userModel.GMember).Get(&userModel.GMember{Account: query.Account})
+	if err != nil {
+		return "", err
+	}
+	query.UserId = user.ID
+
+	log.Printf("%+v", query)
+	return query.Insert(nil)
 }

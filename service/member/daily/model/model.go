@@ -131,7 +131,7 @@ func (self *GDaily) List(query *Query) ([]*ListModel, int64, error) {
 				`)
 	tx.Joins("left join g_member_baby_relation on g_member_baby_relation.baby_id=g_member_baby_grow.baby_id and g_member_baby_relation.user_id=g_member_baby_grow.user_id")
 	tx.Joins("left join g_member on g_member_baby_grow.user_id=g_member.id")
-	tx.Where("g_member_baby_grow.user_id=?", query.UserId)
+	// tx.Where("g_member_baby_grow.user_id=?", query.UserId)
 	if query.BabyId != "" {
 		tx.Where("g_member_baby_grow.baby_id=?", query.BabyId)
 	}

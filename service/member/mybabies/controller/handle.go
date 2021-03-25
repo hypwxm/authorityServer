@@ -135,13 +135,33 @@ func relations(c rider.Context) {
 			sender.Fail(err.Error())
 			return
 		}
-		query.UserId = c.GetLocals(config.MemberTokenKey).(string)
+		// query.UserId = c.GetLocals(config.MemberTokenKey).(string)
 		list, err := service.GetBabyRelations(query)
 		if err != nil {
 			sender.Fail(err.Error())
 			return
 		}
 		sender.Success(list)
+	})()
+	c.SendJson(200, sender)
+}
+
+func createRelations(c rider.Context) {
+	sender := response.NewSender()
+	(func() {
+		query := new(model.GMemberBabyRelation)
+		err := json.Unmarshal(c.Body(), &query)
+		if err != nil {
+			sender.Fail(err.Error())
+			return
+		}
+		// query.UserId = c.GetLocals(config.MemberTokenKey).(string)
+		_, err = service.CreateBabyRelations(query)
+		if err != nil {
+			sender.Fail(err.Error())
+			return
+		}
+		sender.Success("")
 	})()
 	c.SendJson(200, sender)
 }

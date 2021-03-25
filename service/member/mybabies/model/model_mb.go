@@ -2,11 +2,11 @@
 package model
 
 import (
+	"babygrow/DB/appGorm"
 	"babygrow/DB/pgsql"
 	memberModel "babygrow/service/member/user/model"
 	memberService "babygrow/service/member/user/service"
 
-	"babygrow/util/database"
 	"errors"
 	"fmt"
 	"log"
@@ -18,10 +18,12 @@ import (
 
 // 用户和宝宝的关系
 type GMemberBabyRelation struct {
-	database.BaseColumns
-	RoleName string `json:"roleName" db:"role_name"`
-	BabyId   string `json:"babyId" db:"baby_id"`
-	UserId   string `json:"userId" db:"user_id"`
+	appGorm.BaseColumns
+	RoleName string `json:"roleName" db:"role_name" gorm:"column:role_name;type:varchar(10);not null;check(role_name <> '')"`
+	BabyId   string `json:"babyId" db:"baby_id" gorm:"column:baby_id;type:varchar(128);not null;check(baby_id <> '');uniqueIndex:user_baby_id"`
+	UserId   string `json:"userId" db:"user_id" gorm:"column:user_id;type:varchar(128);not null;check(user_id <> '');uniqueIndex:user_baby_id"`
+
+	Account string `json:"account" db:"-"`
 }
 
 func (self *GMemberBabyRelation) Insert(tx *sqlx.Tx) (string, error) {
@@ -37,6 +39,16 @@ func (self *GMemberBabyRelation) Insert(tx *sqlx.Tx) (string, error) {
 		return "", fmt.Errorf("操作错误")
 	}
 
+	localTx := false
+	if tx == nil {
+		localTx = true
+		db := pgsql.Open()
+		tx, err = db.Beginx()
+		if err != nil {
+			return "", err
+		}
+	}
+
 	// 插入判断用户登录账号是否已经存在
 	stmt, err := tx.PrepareNamed(mbInsertSql())
 	if err != nil {
@@ -49,12 +61,18 @@ func (self *GMemberBabyRelation) Insert(tx *sqlx.Tx) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	if localTx {
+		err = tx.Commit()
+		if err != nil {
+			return "", err
+		}
+	}
 
 	return self.ID, nil
 }
 
 type MbQuery struct {
-	pgsql.BaseQuery
+	appGorm.BaseQuery
 
 	UserId   string `db:"user_id"`
 	BabyId   string `db:"baby_id"`
@@ -70,32 +88,25 @@ func (self *GMemberBabyRelation) List(query *MbQuery) ([]*MbListModel, error) {
 	if query == nil {
 		query = new(MbQuery)
 	}
-	db := pgsql.Open()
-	fullSql := mbListSql(query)
-	stmt, err := db.PrepareNamed(fullSql)
-	if err != nil {
-		return nil, err
+	db := appGorm.Open()
+	tx := db.Table("g_member_baby_relation").Select(`*`)
+	tx.Scopes(appGorm.BaseWhere(query.BaseQuery))
+	if query.UserId != "" {
+		tx.Where("user_id=?", query.UserId)
 	}
-	log.Println(stmt.QueryString)
 
-	rows, err := stmt.Queryx(query)
-	if err != nil {
-		return nil, err
+	if query.BabyId != "" {
+		tx.Where("baby_id=?", query.BabyId)
 	}
-	defer rows.Close()
-
 	var list = make([]*MbListModel, 0)
-	var ids = make([]string, 0)
-	for rows.Next() {
-		var item = new(MbListModel)
-		err = rows.StructScan(&item)
-		if err != nil {
-			return nil, err
-		}
-		list = append(list, item)
-		ids = append(ids, item.UserId)
+	err := tx.Scopes(appGorm.Paginate(query.BaseQuery)).Find(&list).Error
+	if err != nil {
+		return nil, err
 	}
-
+	var ids = make([]string, len(list))
+	for _, v := range list {
+		ids = append(ids, v.UserId)
+	}
 	members, _, err := memberService.List(&memberModel.Query{
 		BaseQuery: pgsql.BaseQuery{
 			IDs: ids,
@@ -114,7 +125,6 @@ func (self *GMemberBabyRelation) List(query *MbQuery) ([]*MbListModel, error) {
 		}
 	}
 	return list, nil
-
 }
 
 type MBDeleteQuery struct {

@@ -101,26 +101,3 @@ func toggleSql() string {
 func mbdelSql() string {
 	return fmt.Sprintf("update %s set isdelete=true where id=any(:ids)", table_name_mb)
 }
-
-func mbListSql(query *MbQuery) (whereSql string) {
-	var selectSql = fmt.Sprintf(`SELECT 
-				%[1]s.*
-				FROM %[1]s WHERE 1=1 `, table_name_mb)
-	whereSql = pgsql.BaseWhere(query.BaseQuery, table_name_mb)
-	if strings.TrimSpace(query.Keywords) != "" {
-		// whereSql = whereSql + fmt.Sprintf(" and (%[1]s.title like '%%%[2]s%%' or %[1]s.intro like '%%%[2]s%%' or %[1]s.content like '%%%[2]s%%')", table_name, query.Keywords)
-	}
-	if query.UserId != "" {
-		whereSql = whereSql + fmt.Sprintf(" and %[1]s.user_id=:user_id ", table_name_mb)
-	}
-
-	if query.BabyId != "" {
-		whereSql = whereSql + fmt.Sprintf(" and %[1]s.baby_id=:baby_id ", table_name_mb)
-	}
-
-	if query.OrderBy == "" {
-		// query.OrderBy = "sort asc"
-	}
-	optionSql := pgsql.BaseOption(query.BaseQuery, table_name_mb)
-	return selectSql + whereSql + optionSql
-}
