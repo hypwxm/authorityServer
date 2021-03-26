@@ -3,6 +3,7 @@ package model
 import (
 	"babygrow/DB/appGorm"
 	"babygrow/config"
+	"context"
 	"testing"
 )
 
@@ -22,6 +23,14 @@ func TestUpdate(t *testing.T) {
 	e.Update(&UpdateByIDQuery{
 		ID:       "1",
 		Nickname: "Asdasd",
+	})
+	t.Fatal("sa")
+}
+
+func TestDel(t *testing.T) {
+	e := new(GFamilyMembers)
+	e.Delete(context.Background(), &DeleteQuery{
+		IDs: []string{"1"},
 	})
 	t.Fatal("sa")
 }
