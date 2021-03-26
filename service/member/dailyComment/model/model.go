@@ -24,7 +24,7 @@ type GDailyComment struct {
 	DiaryId   string `json:"diaryId" db:"diary_id" gorm:"column:diary_id;type:varchar(128);not null;check(diary_id <> '')"`
 	CommentId string `json:"commentId" db:"comment_id" gorm:"column:comment_id;type:varchar(128);not null;default ''"`
 
-	Sort int `json:"sort" db:"sort" gorm:"column:sort;not null;default ''"`
+	Sort int `json:"sort" db:"sort" gorm:"column:sort;not null;default 0"`
 
 	Medias []*mediaModel.Media `json:"medias" gorm:"-"`
 }

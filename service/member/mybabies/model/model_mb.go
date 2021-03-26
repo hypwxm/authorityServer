@@ -145,11 +145,7 @@ func (self *GMemberBabyRelation) Delete(query *DeleteQuery) error {
 		}
 	}
 
-	db := pgsql.Open()
-	stmt, err := db.PrepareNamed(mbdelSql())
-	if err != nil {
-		return err
-	}
-	_, err = stmt.Exec(query)
-	return err
+	db := appGorm.Open()
+	return db.Where("id=any(?)", query.IDs).Delete(GMemberBabyRelation{}).Error
+
 }

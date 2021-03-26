@@ -210,11 +210,12 @@ func (self *GFamilyMembers) Delete(ctx context.Context, query *DeleteQuery) erro
 		}
 	}
 
-	db := pgsql.Open()
+	db := appGorm.Open()
 
 	// 查询要删除的这些人的是不是家园的管理员，管理员要退出家园得先解散家园或者家园中只有自己一个人了
 	var familyMembersInfo = make([]*GFamilyMembers, 0)
-	err := db.Select(&familyMembersInfo, fmt.Sprintf("select * from %s where id=any($1) and isdelete=false", table_name), query.IDs)
+	err := db.Model(&GFamilyMembers{}).Select("*").Where("id=any(?)", query.IDs).Find(&familyMembersInfo).Error
+
 	if err != nil {
 		log.Println(err)
 		return err
@@ -224,8 +225,8 @@ func (self *GFamilyMembers) Delete(ctx context.Context, query *DeleteQuery) erro
 		if v.RoleType == 1 {
 			// 如果要移除的人中有群主（虽然可以赋予其他人踢人的权利，但是不能删群主）
 			// 查询一下该家园中还有没有其他人
-			var count int
-			err = db.Get(&count, fmt.Sprintf("select count(*) from %s where family_id=$1 and isdelete=false", table_name), v.FamilyId)
+			var count int64
+			err = db.Model(&GFamilyMembers{}).Select("count(*)").Where("family_id=?", v.FamilyId).Count(&count).Error
 			if err != nil {
 				log.Println(err)
 				return err
@@ -237,12 +238,7 @@ func (self *GFamilyMembers) Delete(ctx context.Context, query *DeleteQuery) erro
 		}
 	}
 
-	stmt, err := db.PrepareNamed(delSql())
-	if err != nil {
-		return err
-	}
-	_, err = stmt.Exec(query)
-	return err
+	return db.Where("id=any(?)", query.IDs).Delete(GFamilyMembers{}).Error
 }
 
 type DisabledQuery struct {
