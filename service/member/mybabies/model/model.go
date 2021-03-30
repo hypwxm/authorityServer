@@ -154,6 +154,7 @@ func (self *GMyBabies) List(query *Query) ([]*ListModel, int64, error) {
 				g_member_baby.ambition
 	`)
 	tx.Joins("left join g_member_baby_relation on g_member_baby.id=g_member_baby_relation.baby_id")
+	tx.Where("g_member_baby_relation.delete_at is null")
 	if query.UserId != "" {
 		tx.Where("g_member_baby_relation.user_id=?", query.UserId)
 	}

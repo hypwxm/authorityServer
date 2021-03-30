@@ -119,7 +119,7 @@ func (self *GMemberBabyRelation) List(query *MbQuery) ([]*MbListModel, error) {
 }
 
 type MBDeleteQuery struct {
-	IDs pq.StringArray `db:"ids"`
+	IDs pq.StringArray `json:"ids" db:"ids"`
 }
 
 // 删除，批量删除
@@ -135,8 +135,6 @@ func (self *GMemberBabyRelation) Delete(query *MBDeleteQuery) error {
 			return errors.New("操作条件错误")
 		}
 	}
-
 	db := appGorm.Open()
-	return db.Where("id=any(?)", query.IDs).Delete(GMemberBabyRelation{}).Error
-
+	return db.Where("id=any(?)", query.IDs).Delete(&GMemberBabyRelation{}).Unscoped().Error
 }

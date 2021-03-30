@@ -15,7 +15,7 @@ func Router() *rider.Router {
 
 	route.POST("/relations", relations)
 	route.POST("/createRelations", createRelations)
-	route.POST("/deleteRelations", deleteRelations)
+	route.POST("/delRelations", deleteRelations)
 
 	return route
 }
