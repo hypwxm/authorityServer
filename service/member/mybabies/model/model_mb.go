@@ -9,11 +9,10 @@ import (
 
 	"errors"
 	"fmt"
-	"log"
 	"strings"
 
-	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
+	"gorm.io/gorm"
 )
 
 // 用户和宝宝的关系
@@ -23,10 +22,10 @@ type GMemberBabyRelation struct {
 	BabyId   string `json:"babyId" db:"baby_id" gorm:"column:baby_id;type:varchar(128);not null;check(baby_id <> '');uniqueIndex:user_baby_id"`
 	UserId   string `json:"userId" db:"user_id" gorm:"column:user_id;type:varchar(128);not null;check(user_id <> '');uniqueIndex:user_baby_id"`
 
-	Account string `json:"account" db:"-"`
+	Account string `json:"account" db:"-" gorm:"-"`
 }
 
-func (self *GMemberBabyRelation) Insert(tx *sqlx.Tx) (string, error) {
+func (self *GMemberBabyRelation) Insert(tx *gorm.DB) (string, error) {
 	var err error
 
 	if strings.TrimSpace(self.RoleName) == "" {
@@ -42,27 +41,19 @@ func (self *GMemberBabyRelation) Insert(tx *sqlx.Tx) (string, error) {
 	localTx := false
 	if tx == nil {
 		localTx = true
-		db := pgsql.Open()
-		tx, err = db.Beginx()
-		if err != nil {
+		db := appGorm.Open()
+		tx = db.Begin()
+		if err := tx.Error; err != nil {
 			return "", err
 		}
 	}
 
-	// 插入判断用户登录账号是否已经存在
-	stmt, err := tx.PrepareNamed(mbInsertSql())
-	if err != nil {
-		return "", err
-	}
-	log.Println(stmt.QueryString)
-	var lastId string
-	self.BaseColumns.Init()
-	err = stmt.Get(&lastId, self)
+	err = tx.Model(&GMemberBabyRelation{}).Create(self).Error
 	if err != nil {
 		return "", err
 	}
 	if localTx {
-		err = tx.Commit()
+		err = tx.Commit().Error
 		if err != nil {
 			return "", err
 		}
@@ -81,7 +72,7 @@ type MbQuery struct {
 
 type MbListModel struct {
 	GMemberBabyRelation
-	Member *memberModel.GMember `json:"member"`
+	Member *memberModel.GMember `json:"member" gorm:"-"`
 }
 
 func (self *GMemberBabyRelation) List(query *MbQuery) ([]*MbListModel, error) {

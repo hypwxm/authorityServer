@@ -1,7 +1,6 @@
 package model
 
 import (
-	"babygrow/DB/pgsql"
 	"fmt"
 	"io/ioutil"
 	"strings"
@@ -24,39 +23,6 @@ func insertSql() string {
 
 func mbInsertSql() string {
 	return fmt.Sprintf("insert into %s (createtime, isdelete, disabled, id, role_name, baby_id, user_id) select :createtime, :isdelete, :disabled, :id, :role_name, :baby_id, :user_id returning id", table_name_mb)
-}
-
-func listSql(query *Query) (whereSql string, fullSql string) {
-	var selectSql = fmt.Sprintf(`SELECT 
-				%[2]s.role_name,
-				%[2]s.user_id,
-				%[1]s.id,
-				%[1]s.createtime,
-				%[1]s.updatetime,
-				%[1]s.name, 
-				%[1]s.birthday, 
-				%[1]s.gender, 
-				%[1]s.avatar,
-				%[1]s.id_card, 
-				%[1]s.hobby,
-				%[1]s.good_at,
-				%[1]s.favorite_food, 
-				%[1]s.favorite_color, 
-				%[1]s.ambition
-				FROM %[2]s left join %[1]s on %[2]s.baby_id=%[1]s.id WHERE 1=1 `, table_name, table_name_mb)
-	whereSql = pgsql.BaseWhere(query.BaseQuery, table_name)
-	if strings.TrimSpace(query.Keywords) != "" {
-		// whereSql = whereSql + fmt.Sprintf(" and (%[1]s.title like '%%%[2]s%%' or %[1]s.intro like '%%%[2]s%%' or %[1]s.content like '%%%[2]s%%')", table_name, query.Keywords)
-	}
-	if query.UserId != "" {
-		whereSql = whereSql + fmt.Sprintf(" and %[1]s.user_id=:user_id ", table_name_mb)
-	}
-
-	if query.OrderBy == "" {
-		// query.OrderBy = "sort asc"
-	}
-	optionSql := pgsql.BaseOption(query.BaseQuery, table_name_mb)
-	return whereSql, selectSql + whereSql + optionSql
 }
 
 func countSql(whereSql ...string) string {

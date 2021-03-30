@@ -23,7 +23,7 @@ func Del(query *model.DeleteQuery) error {
 }
 
 func Get(query *model.GetQuery) (*model.GetModel, error) {
-	return new(model.GMyBabies).GetByID(query)
+	return new(model.GMyBabies).Get(query)
 }
 
 func ToggleDisabled(query *model.DisabledQuery) error {
