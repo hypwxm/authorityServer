@@ -123,7 +123,7 @@ type MBDeleteQuery struct {
 }
 
 // 删除，批量删除
-func (self *GMemberBabyRelation) Delete(query *DeleteQuery) error {
+func (self *GMemberBabyRelation) Delete(query *MBDeleteQuery) error {
 	if query == nil {
 		return errors.New("无操作条件")
 	}

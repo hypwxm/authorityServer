@@ -49,3 +49,9 @@ func CreateBabyRelations(query *model.GMemberBabyRelation) (string, error) {
 	log.Printf("%+v", query)
 	return query.Insert(nil)
 }
+
+// 删除关系
+func DelRelations(query *model.MBDeleteQuery) error {
+	// 用账号名去查询用户信息，拿到用户id
+	return new(model.GMemberBabyRelation).Delete(query)
+}

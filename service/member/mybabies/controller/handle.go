@@ -165,3 +165,23 @@ func createRelations(c rider.Context) {
 	})()
 	c.SendJson(200, sender)
 }
+
+func deleteRelations(c rider.Context) {
+	sender := response.NewSender()
+	(func() {
+		query := new(model.MBDeleteQuery)
+		err := json.Unmarshal(c.Body(), &query)
+		if err != nil {
+			sender.Fail(err.Error())
+			return
+		}
+		// query.UserId = c.GetLocals(config.MemberTokenKey).(string)
+		err = service.DelRelations(query)
+		if err != nil {
+			sender.Fail(err.Error())
+			return
+		}
+		sender.Success("")
+	})()
+	c.SendJson(200, sender)
+}
