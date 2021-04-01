@@ -32,7 +32,7 @@ type GDaily struct {
 
 	Weather     string  `json:"weather" db:"weather" gorm:"column:weather;type:varchar(50);not null;default ''"`
 	Mood        string  `json:"mood" db:"mood" gorm:"column:mood;type:varchar(40);not null;default ''"`
-	Health      string  `json:"health" db:"health" gorm:"column:mood;type:varchar(40);not null;default ''"`
+	Health      string  `json:"health" db:"health" gorm:"column:health;type:varchar(40);not null;default ''"`
 	Temperature float64 `json:"temperature" db:"temperature" gorm:"column:temperature;not null;default 0"`
 
 	Date string `json:"date" db:"date" gorm:"column:date;type:varchar(40);not null;default ''"`
