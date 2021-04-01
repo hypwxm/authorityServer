@@ -215,5 +215,5 @@ func (self *GDailyComment) Delete(query *DeleteQuery) error {
 	}
 
 	db := appGorm.Open()
-	return db.Where("id=any(?)", query.IDs).Delete(GDailyComment{}).Error
+	return db.Where("id=any(?)", query.IDs).Delete(&GDailyComment{}).Error
 }
