@@ -3,9 +3,10 @@ package util
 import (
 	"crypto/md5"
 	"encoding/hex"
-	uuid "github.com/satori/go.uuid"
 	"strings"
 	"time"
+
+	uuid "github.com/satori/go.uuid"
 )
 
 func FormatQuota(s string) string {
@@ -35,4 +36,19 @@ func ValidatePwd(pwd string) bool {
 		return false
 	}
 	return true
+}
+
+// 数组去重
+func ArrayStringDuplicateRemoval(l []string) []string {
+	var arr = make([]string, len(l))
+loop:
+	for _, v := range l {
+		for _, had := range arr {
+			if had == v {
+				continue loop
+			}
+		}
+		arr = append(arr, v)
+	}
+	return arr
 }

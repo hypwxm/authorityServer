@@ -6,6 +6,7 @@ import (
 	mediaService "babygrow/service/media/service"
 	dailyCommentModel "babygrow/service/member/dailyComment/model"
 	dailyCommentService "babygrow/service/member/dailyComment/service"
+	"babygrow/util"
 
 	"errors"
 	"fmt"
@@ -155,13 +156,16 @@ func (self *GDaily) List(query *Query) ([]*ListModel, int64, error) {
 		ids = append(ids, v.ID)
 		userIds = append(userIds, v.UserId)
 	}
-
+	userIds = util.ArrayStringDuplicateRemoval(userIds)
 	// 查找对应的媒体信息
-	mediaService.ListWithMedia(ids, BusinessName, list, "")
-	mediaService.ListWithMedia(userIds, "member", list, "MemberMedia")
+	mediaService.ListWithMedia(ids, BusinessName, list, "", "ID")
+	err = mediaService.ListWithMedia(userIds, "member", list, "MemberMedia", "UserId")
+	if err != nil {
+		return nil, 0, err
+	}
 
 	for _, v := range list {
-		if v.MemberMedia != nil && v.MemberMedia[0] != nil {
+		if len(v.MemberMedia) > 0 {
 			v.Avatar = v.MemberMedia[0].Url
 		}
 	}

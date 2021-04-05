@@ -156,11 +156,11 @@ func (self *GDailyComment) List(query *Query) ([]*ListModel, int64, error) {
 	}
 
 	// 查找对应的媒体信息
-	mediaService.ListWithMedia(ids, BusinessName, list, "")
-	mediaService.ListWithMedia(userIds, "member", list, "MemberMedia")
+	mediaService.ListWithMedia(ids, BusinessName, list, "", "ID")
+	mediaService.ListWithMedia(userIds, "member", list, "MemberMedia", "UserId")
 
 	for _, v := range list {
-		if v.MemberMedia != nil && v.MemberMedia[0] != nil {
+		if len(v.MemberMedia) > 0 {
 			v.Avatar = v.MemberMedia[0].Url
 		}
 	}

@@ -31,6 +31,6 @@ func main() {
 
 	// modules.DefaultSecureConfig.XFrameOptions = "ALLOW-FROM http://localhost:9527"
 	app.USE(modules.SecureHeader())
-	app.Graceful(config.Config.ServerPort)
+	app.Listen(config.Config.ServerPort)
 
 }

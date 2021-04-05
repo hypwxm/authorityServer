@@ -124,7 +124,7 @@ func (self *GFamily) GetByID(query *GetQuery) (*GetModel, error) {
 	entity.CreatorInfo = *creatorInfo
 
 	// 查询媒体信息
-	err = mediaService.ListWithMedia([]string{query.ID}, BusinessName, []*GFamily{&entity.GFamily}, "Medias")
+	err = mediaService.ListWithMedia([]string{query.ID}, BusinessName, []*GFamily{&entity.GFamily}, "Medias", "ID")
 	if err != nil {
 		log.Println(err)
 	}
@@ -191,7 +191,7 @@ func (self *GFamily) List(query *Query) ([]*ListModel, int64, error) {
 	for _, v := range list {
 		ids = append(ids, v.ID)
 	}
-	err = mediaService.ListWithMedia(ids, BusinessName, list, "Medias")
+	err = mediaService.ListWithMedia(ids, BusinessName, list, "Medias", "ID")
 	if err != nil {
 		return nil, 0, err
 	}

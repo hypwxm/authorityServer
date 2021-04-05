@@ -142,14 +142,19 @@ func (self *Media) List(query *Query) ([]*Media, int, error) {
 	return list, count, nil
 }
 
-func (self *Media) ListWithMedia(query *Query, olist interface{}, mediaName string) error {
+func (self *Media) ListWithMedia(query *Query, olist interface{}, mediaName string, keyName string) error {
 	log.Printf("%+v=====", query)
 	medias, _, err := self.List(query)
+	log.Printf("%s,%+v=====", query.Businesses[0], medias)
+
 	if err != nil {
 		return err
 	}
 	if mediaName == "" {
 		mediaName = "Medias"
+	}
+	if keyName == "" {
+		keyName = "ID"
 	}
 
 	// log.Println(reflect.ValueOf(olist).Kind())
@@ -179,7 +184,7 @@ func (self *Media) ListWithMedia(query *Query, olist interface{}, mediaName stri
 				// log.Println(m.Interface().([]*Media))
 				if ll, ok := m.Interface().([]*Media); ok {
 					for _, v := range medias {
-						if v.BusinessId == t.FieldByName("ID").String() {
+						if v.BusinessId == t.FieldByName(keyName).String() {
 							ll = append(ll, v)
 							m.Set(reflect.ValueOf(ll))
 						}
