@@ -143,6 +143,7 @@ func (self *Media) List(query *Query) ([]*Media, int, error) {
 }
 
 func (self *Media) ListWithMedia(query *Query, olist interface{}, mediaName string) error {
+	log.Printf("%+v=====", query)
 	medias, _, err := self.List(query)
 	if err != nil {
 		return err

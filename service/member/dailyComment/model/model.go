@@ -103,6 +103,9 @@ type ListModel struct {
 	RealName string `json:"userRealName" db:"user_realname" gorm:"column:user_realname"`
 	Nickname string `json:"userNickname" db:"user_nickname" gorm:"column:user_nickname"`
 	Phone    string `json:"userPhone" db:"user_phone" gorm:"column:user_phone"`
+
+	MemberMedia []*mediaModel.Media `json:"-" gorm:"-"`
+	Avatar      string              `json:"avatar" gorm:"-"`
 }
 
 func (self *GDailyComment) List(query *Query) ([]*ListModel, int64, error) {
@@ -154,6 +157,13 @@ func (self *GDailyComment) List(query *Query) ([]*ListModel, int64, error) {
 
 	// 查找对应的媒体信息
 	mediaService.ListWithMedia(ids, BusinessName, list, "")
+	mediaService.ListWithMedia(userIds, "member", list, "MemberMedia")
+
+	for _, v := range list {
+		if v.MemberMedia != nil && v.MemberMedia[0] != nil {
+			v.Avatar = v.MemberMedia[0].Url
+		}
+	}
 
 	return list, count, nil
 
