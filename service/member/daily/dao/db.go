@@ -5,7 +5,7 @@ import (
 	mediaModel "babygrow/service/media/model"
 )
 
-type GDaily struct {
+type gDaily struct {
 	appGorm.BaseColumns
 
 	// 今日份体重

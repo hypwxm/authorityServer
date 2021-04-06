@@ -14,11 +14,11 @@ import (
 	"strings"
 
 	"github.com/lib/pq"
+	"gorm.io/gorm"
 )
 
-func Insert(entity interfaces.ModelMap) (string, error) {
+func Insert(db *gorm.DB, entity interfaces.ModelMap) (string, error) {
 	var err error
-	db := appGorm.Open()
 	err = db.Create(&entity).Error
 	if err != nil {
 		return "", err
@@ -30,18 +30,14 @@ type GetQuery struct {
 	ID string `db:"id"`
 }
 
-type GetModel struct {
-	GDaily
-}
-
-func (self *GDaily) GetByID(query *GetQuery) (*GetModel, error) {
-	db := appGorm.Open()
-	var entity = new(GetModel)
-	err := db.Model(&GDaily{}).Where("id=?", query.ID).Find(&entity).Error
-	if err != nil {
-		return nil, err
+func Get(db *gorm.DB, query interfaces.ModelMap) (*gDaily, error) {
+	var entity = new(gDaily)
+	tx := db.Model(&gDaily{})
+	if query.GetID() != "" {
+		tx.Where("id=?", query.GetID())
 	}
-	return entity, nil
+	err := tx.Find(&entity).Error
+	return entity, err
 }
 
 type Query struct {
