@@ -1,4 +1,4 @@
-package model
+package dbModel
 
 import (
 	"babygrow/DB/appGorm"

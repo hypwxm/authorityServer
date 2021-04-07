@@ -3,6 +3,7 @@ package model
 import (
 	"babygrow/DB/appGorm"
 	"babygrow/DB/pgsql"
+	"babygrow/util/interfaces"
 	"errors"
 	"fmt"
 	"log"
@@ -192,6 +193,30 @@ func (self *Media) ListWithMedia(query *Query, olist interface{}, mediaName stri
 				}
 			}
 
+		}
+	}
+	return nil
+}
+
+func (self *Media) ListMapWithMedia(query *Query, olist []interfaces.ModelMap, mediaName string, keyName string) error {
+	medias, _, err := self.List(query)
+
+	if err != nil {
+		return err
+	}
+	if mediaName == "" {
+		mediaName = "medias"
+	}
+	if keyName == "" {
+		keyName = "id"
+	}
+
+	for _, v := range olist {
+		v[mediaName] = make([]*Media, len(olist))
+		for _, vm := range medias {
+			if v[keyName] == vm.BusinessId {
+				v[mediaName] = append(v[mediaName].([]*Media), vm)
+			}
 		}
 	}
 	return nil

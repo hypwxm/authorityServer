@@ -1,11 +1,12 @@
-package model
+package dbModel
 
 import (
 	"babygrow/DB/appGorm"
-	mediaModel "babygrow/service/media/model"
 )
 
-type gDaily struct {
+const BusinessName = "g_member_baby_grow"
+
+type GDaily struct {
 	appGorm.BaseColumns
 
 	// 今日份体重
@@ -27,6 +28,4 @@ type gDaily struct {
 	Date string `json:"date" db:"date" gorm:"column:date;type:varchar(40);not null;default ''"`
 
 	Sort int `json:"sort" db:"sort" gorm:"column:sort;not null;default 0"`
-
-	Medias []*mediaModel.Media `json:"medias" gorm:"-"`
 }
