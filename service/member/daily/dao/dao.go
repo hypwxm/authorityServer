@@ -48,7 +48,7 @@ func List(db *gorm.DB, query interfaces.QueryMap) (interfaces.ModelMapSlice, int
 		return nil, 0, err
 	}
 
-	var list = []map[string]interface{}{}
+	var list = make([]map[string]interface{}, 0)
 	err = tx.Scopes(query.Paginate("g_member_baby_grow")).Find(&list).Error
 	nlist := interfaces.NewModelMapSliceFromMapSlice(list)
 	return nlist.ToCamelKey(), count, err
@@ -58,14 +58,14 @@ func List(db *gorm.DB, query interfaces.QueryMap) (interfaces.ModelMapSlice, int
 // 部分字段不允许更新，userID, id
 func Update(db *gorm.DB, query interfaces.QueryMap) error {
 	err := db.Model(&dbModel.GDaily{}).Select("date", "weight", "height", "diary", "weather", "mood", "health", "temperature").Where("id=?", query.GetID()).Updates(map[string]interface{}{
-		"date":        query["date"],
-		"weight":      query["weight"],
-		"height":      query["height"],
-		"diary":       query["diary"],
-		"weather":     query["weather"],
-		"mood":        query["mood"],
-		"health":      query["health"],
-		"temperature": query["temperature"],
+		"date":        query.GetByKeyWithDefault("date", ""),
+		"weight":      query.GetByKeyWithDefault("weight", 0),
+		"height":      query.GetByKeyWithDefault("height", 0),
+		"diary":       query.GetByKey("diary"),
+		"weather":     query.GetByKey("weather"),
+		"mood":        query.GetByKey("mood"),
+		"health":      query.GetByKey("health"),
+		"temperature": query.GetByKeyWithDefault("temperature", 0),
 	}).Error
 	return err
 }

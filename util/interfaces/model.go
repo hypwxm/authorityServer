@@ -41,6 +41,13 @@ func (i ModelMap) GetID() string {
 	return ""
 }
 
+func (i ModelMap) GetByKey(key string) interface{} {
+	if v, ok := i[key]; ok {
+		return v
+	}
+	return ""
+}
+
 func (i ModelMap) ToCamelKey() ModelMap {
 	var m = NewModelMap()
 	for k, v := range i {

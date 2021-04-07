@@ -134,3 +134,17 @@ func (i QueryMap) BaseWhere(tableName ...string) func(db *gorm.DB) *gorm.DB {
 		return db
 	}
 }
+
+func (i QueryMap) GetByKey(key string) interface{} {
+	if v, ok := i[key]; ok {
+		return v
+	}
+	return ""
+}
+
+func (i QueryMap) GetByKeyWithDefault(key string, df interface{}) interface{} {
+	if v, ok := i[key]; ok {
+		return v
+	}
+	return df
+}
