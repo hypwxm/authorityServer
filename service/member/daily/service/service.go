@@ -51,7 +51,7 @@ func Modify(query interfaces.QueryMap) error {
 	return dao.Update(db, query)
 }
 
-func List(query interfaces.QueryMap) ([]interfaces.ModelMap, int64, error) {
+func List(query interfaces.QueryMap) (interfaces.ModelMapSlice, int64, error) {
 	db := appGorm.Open()
 	list, total, err := dao.List(db, query)
 	if err != nil {
@@ -67,16 +67,10 @@ func List(query interfaces.QueryMap) ([]interfaces.ModelMap, int64, error) {
 	userIds = util.ArrayStringDuplicateRemoval(userIds)
 
 	// 查找对应的媒体信息
-	mediaService.ListMapWithMedia(ids, dbModel.BusinessName, list, "", "ID")
-	err = mediaService.ListMapWithMedia(userIds, "member", list, "MemberMedia", "UserId")
+	mediaService.ListMapWithMedia(ids, dbModel.BusinessName, list, "", "id")
+	err = mediaService.ListMapWithMediaFirst(userIds, "member", list, "userId", "avatar")
 	if err != nil {
 		return nil, 0, err
-	}
-
-	for _, v := range list {
-		if len(v.MemberMedia) > 0 {
-			v.Avatar = v.MemberMedia[0].Url
-		}
 	}
 
 	if comments, _, err := dailyCommentService.List(&dailyCommentModel.Query{

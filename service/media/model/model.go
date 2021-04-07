@@ -144,9 +144,7 @@ func (self *Media) List(query *Query) ([]*Media, int, error) {
 }
 
 func (self *Media) ListWithMedia(query *Query, olist interface{}, mediaName string, keyName string) error {
-	log.Printf("%+v=====", query)
 	medias, _, err := self.List(query)
-	log.Printf("%s,%+v=====", query.Businesses[0], medias)
 
 	if err != nil {
 		return err
@@ -198,7 +196,7 @@ func (self *Media) ListWithMedia(query *Query, olist interface{}, mediaName stri
 	return nil
 }
 
-func (self *Media) ListMapWithMedia(query *Query, olist []interfaces.ModelMap, mediaName string, keyName string) error {
+func (self *Media) ListMapWithMedia(query *Query, olist interfaces.ModelMapSlice, mediaName string, keyName string) error {
 	medias, _, err := self.List(query)
 
 	if err != nil {
@@ -212,10 +210,26 @@ func (self *Media) ListMapWithMedia(query *Query, olist []interfaces.ModelMap, m
 	}
 
 	for _, v := range olist {
-		v[mediaName] = make([]*Media, len(olist))
+		v[mediaName] = make([]*Media, 0)
 		for _, vm := range medias {
 			if v[keyName] == vm.BusinessId {
 				v[mediaName] = append(v[mediaName].([]*Media), vm)
+			}
+		}
+	}
+	return nil
+}
+
+func (self *Media) ListMapWithMediaFirst(query *Query, olist interfaces.ModelMapSlice, keyName string, valueKey string) error {
+	medias, _, err := self.List(query)
+	if err != nil {
+		return err
+	}
+	for _, v := range olist {
+		for _, vm := range medias {
+			if v[keyName] == vm.BusinessId {
+				v[valueKey] = vm.Url
+				break
 			}
 		}
 	}

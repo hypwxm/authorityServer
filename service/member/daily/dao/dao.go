@@ -1,7 +1,6 @@
 package dao
 
 import (
-	"babygrow/DB/appGorm"
 	"babygrow/service/member/daily/dbModel"
 	"babygrow/util/interfaces"
 
@@ -23,20 +22,13 @@ func Get(db *gorm.DB, query interfaces.QueryMap) (interfaces.ModelMap, error) {
 		tx.Where("id=?", query.GetID())
 	}
 	err := tx.Find(&entity).Error
-	return entity, err
+	return entity.ToCamelKey(), err
 }
 
-type Query struct {
-	appGorm.BaseQuery
-	Keywords string `db:"keywords"`
-	Status   int    `db:"status"`
-	UserId   string `db:"user_id"`
-	BabyId   string `db:"baby_id"`
-}
-
-func List(db *gorm.DB, query interfaces.QueryMap) ([]interfaces.ModelMap, int64, error) {
+func List(db *gorm.DB, query interfaces.QueryMap) (interfaces.ModelMapSlice, int64, error) {
 	tx := db.Model(&dbModel.GDaily{}).Select(`
 				g_member_baby_grow.*,
+
 				COALESCE(g_member_baby_relation.role_name, '') as user_role_name,
 				COALESCE(g_member.realname, '') as user_realname,
 				COALESCE(g_member.account, '') as user_account,
@@ -55,9 +47,11 @@ func List(db *gorm.DB, query interfaces.QueryMap) ([]interfaces.ModelMap, int64,
 	if err != nil {
 		return nil, 0, err
 	}
-	var list = make([]interfaces.ModelMap, 0)
-	err = tx.Scopes(query.Paginate()).Find(&list).Error
-	return list, count, err
+
+	var list = []map[string]interface{}{}
+	err = tx.Scopes(query.Paginate("g_member_baby_grow")).Find(&list).Error
+	nlist := interfaces.NewModelMapSliceFromMapSlice(list)
+	return nlist.ToCamelKey(), count, err
 }
 
 // 更新,根据用户id和数据id进行更新

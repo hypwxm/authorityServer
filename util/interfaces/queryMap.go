@@ -9,6 +9,10 @@ import (
 
 type QueryMap map[string]interface{}
 
+func NewQueryMap() QueryMap {
+	return make(QueryMap)
+}
+
 func (i QueryMap) GetID() string {
 	if id, ok := i["id"].(string); ok {
 		return id
@@ -78,7 +82,10 @@ func (i QueryMap) GetDisabled() int {
 	return 0
 }
 
-func (i QueryMap) Paginate() func(db *gorm.DB) *gorm.DB {
+func (i QueryMap) Paginate(tableName string) func(db *gorm.DB) *gorm.DB {
+	if tableName != "" {
+		tableName += "."
+	}
 	return func(db *gorm.DB) *gorm.DB {
 		page := i.GetCurrent()
 		if page == 0 {
@@ -96,7 +103,7 @@ func (i QueryMap) Paginate() func(db *gorm.DB) *gorm.DB {
 		if strings.TrimSpace(i.GetOrderBy()) != "" {
 			db.Order(strings.ReplaceAll(i.GetOrderBy(), ";", " "))
 		} else {
-			db.Order("createtime desc")
+			db.Order(fmt.Sprintf("%screatetime desc", tableName))
 		}
 
 		return db

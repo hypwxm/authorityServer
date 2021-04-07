@@ -2,8 +2,8 @@ package controller
 
 import (
 	"babygrow/config"
-	"babygrow/service/member/daily/model"
 	"babygrow/service/member/daily/service"
+	"babygrow/util/interfaces"
 	"babygrow/util/response"
 	"encoding/json"
 
@@ -13,7 +13,7 @@ import (
 func create(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		entity := new(model.GDaily)
+		entity := new(service.CreateModel)
 		err := json.Unmarshal(c.Body(), &entity)
 		if err != nil {
 			sender.Fail(err.Error())
@@ -33,7 +33,7 @@ func create(c rider.Context) {
 func modify(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		entity := new(model.UpdateByIDQuery)
+		entity := interfaces.NewQueryMap()
 		err := json.Unmarshal(c.Body(), &entity)
 		if err != nil {
 			sender.Fail(err.Error())
@@ -52,13 +52,13 @@ func modify(c rider.Context) {
 func list(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		query := new(model.Query)
+		query := interfaces.NewQueryMap()
 		err := json.Unmarshal(c.Body(), &query)
 		if err != nil {
 			sender.Fail(err.Error())
 			return
 		}
-		query.UserId = c.GetLocals(config.MemberTokenKey).(string)
+		query["userId"] = c.GetLocals(config.MemberTokenKey).(string)
 		list, total, err := service.List(query)
 		if err != nil {
 			sender.Fail(err.Error())
@@ -72,7 +72,7 @@ func list(c rider.Context) {
 func del(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		query := new(model.DeleteQuery)
+		query := interfaces.NewQueryMap()
 		err := json.Unmarshal(c.Body(), &query)
 		if err != nil {
 			sender.Fail(err.Error())
@@ -91,7 +91,7 @@ func del(c rider.Context) {
 func get(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		query := new(model.GetQuery)
+		query := interfaces.NewQueryMap()
 		err := json.Unmarshal(c.Body(), &query)
 		if err != nil {
 			sender.Fail(err.Error())
