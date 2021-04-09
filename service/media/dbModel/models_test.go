@@ -1,4 +1,4 @@
-package model
+package dbModel
 
 import (
 	"babygrow/DB/appGorm"
@@ -11,7 +11,7 @@ func TestModels(t *testing.T) {
 		t.Fatal("环境错误")
 	}
 	db := appGorm.Open()
-	db.Migrator().DropTable(&GDaily{})
-	db.AutoMigrate(&GDaily{})
+	db.Migrator().DropTable(&Media{})
+	db.AutoMigrate(&Media{})
 
 }
