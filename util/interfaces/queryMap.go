@@ -7,9 +7,24 @@ import (
 	"gorm.io/gorm"
 )
 
+type QueryInterface interface {
+	GetID() string
+	GetIDs() []string
+	GetCurrent() int
+	GetPageSize() int
+	GetStarttime() int
+	GetEndtime() int
+	GetOrderBy() string
+	GetSortFlag() string
+	GetDisabled() int
+	GetValue(key string) interface{}
+	GetValueWithDefault(key string, df interface{}) interface{}
+	Set(key string, value interface{})
+}
+
 type QueryMap map[string]interface{}
 
-func NewQueryMap() QueryMap {
+func NewQueryMap() QueryInterface {
 	return make(QueryMap)
 }
 
@@ -135,14 +150,18 @@ func (i QueryMap) BaseWhere(tableName ...string) func(db *gorm.DB) *gorm.DB {
 	}
 }
 
-func (i QueryMap) GetByKey(key string) interface{} {
+func (i QueryMap) GetValue(key string) interface{} {
 	if v, ok := i[key]; ok {
 		return v
 	}
 	return ""
 }
 
-func (i QueryMap) GetByKeyWithDefault(key string, df interface{}) interface{} {
+func (i QueryMap) Set(key string, value interface{}) {
+	i[key] = value
+}
+
+func (i QueryMap) GetValueWithDefault(key string, df interface{}) interface{} {
 	if v, ok := i[key]; ok {
 		return v
 	}

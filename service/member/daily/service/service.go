@@ -40,7 +40,7 @@ func Create(entity *CreateModel) (string, error) {
 	return id, nil
 }
 
-func Modify(query interfaces.QueryMap) error {
+func Modify(query interfaces.QueryInterface) error {
 	if query == nil {
 		return errors.New("无更新条件")
 	}
@@ -51,19 +51,15 @@ func Modify(query interfaces.QueryMap) error {
 	return dao.Update(db, query)
 }
 
-func List(query interfaces.QueryMap) (interfaces.ModelMapSlice, int64, error) {
+func List(query interfaces.QueryInterface) (interfaces.ModelMapSlice, int64, error) {
 	db := appGorm.Open()
 	list, total, err := dao.List(db, query)
 	if err != nil {
 		return nil, 0, err
 	}
 	// 获取评价内容
-	var ids []string = make([]string, 0)
-	var userIds []string = make([]string, 0)
-	for _, v := range list {
-		ids = append(ids, v.GetID())
-		userIds = append(userIds, v["userId"].(string))
-	}
+	var ids []string = list.GetValues("id").([]string)
+	var userIds []string = list.GetValues("userId").([]string)
 	userIds = util.ArrayStringDuplicateRemoval(userIds)
 
 	// 查找对应的媒体信息
@@ -90,12 +86,12 @@ func List(query interfaces.QueryMap) (interfaces.ModelMapSlice, int64, error) {
 	return list, total, nil
 }
 
-func Del(query interfaces.QueryMap) error {
+func Del(query interfaces.QueryInterface) error {
 	db := appGorm.Open()
 	return dao.Delete(db, query)
 }
 
-func Get(query interfaces.QueryMap) (interfaces.ModelMap, error) {
+func Get(query interfaces.QueryInterface) (interfaces.ModelInterface, error) {
 	db := appGorm.Open()
 	return dao.Get(db, query)
 }

@@ -210,10 +210,10 @@ func (self *Media) ListMapWithMedia(query *Query, olist interfaces.ModelMapSlice
 	}
 
 	for _, v := range olist {
-		v[mediaName] = make([]*Media, 0)
+		v.Set(mediaName, make([]*Media, 0))
 		for _, vm := range medias {
-			if v[keyName] == vm.BusinessId {
-				v[mediaName] = append(v[mediaName].([]*Media), vm)
+			if v.GetValue(keyName) == vm.BusinessId {
+				v.Set(mediaName, append(v.GetValue(mediaName).([]*Media), vm))
 			}
 		}
 	}
@@ -227,8 +227,8 @@ func (self *Media) ListMapWithMediaFirst(query *Query, olist interfaces.ModelMap
 	}
 	for _, v := range olist {
 		for _, vm := range medias {
-			if v[keyName] == vm.BusinessId {
-				v[valueKey] = vm.Url
+			if v.GetValue(keyName) == vm.BusinessId {
+				v.Set(valueKey, vm.Url)
 				break
 			}
 		}

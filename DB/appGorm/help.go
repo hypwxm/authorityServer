@@ -1,6 +1,7 @@
 package appGorm
 
 import (
+	"babygrow/util/interfaces"
 	"fmt"
 	"strings"
 
@@ -63,6 +64,59 @@ func BaseWhere(query BaseQuery, tableName ...string) func(db *gorm.DB) *gorm.DB 
 		if query.Disabled == 1 {
 			db.Where(fmt.Sprintf("%sdisabled=true", curTable))
 		} else if query.Disabled == 2 {
+			db.Where(fmt.Sprintf("%sdisabled=false", curTable))
+		}
+		return db
+	}
+}
+
+func Paginate2(i interfaces.QueryInterface, tableName string) func(db *gorm.DB) *gorm.DB {
+	if tableName != "" {
+		tableName += "."
+	}
+	return func(db *gorm.DB) *gorm.DB {
+		page := i.GetCurrent()
+		if page == 0 {
+			page = 1
+		}
+
+		pageSize := i.GetPageSize()
+		switch {
+		case pageSize > 100:
+			pageSize = 100
+		}
+
+		offset := (page - 1) * pageSize
+		db.Offset(offset).Limit(pageSize)
+		if strings.TrimSpace(i.GetOrderBy()) != "" {
+			db.Order(strings.ReplaceAll(i.GetOrderBy(), ";", " "))
+		} else {
+			db.Order(fmt.Sprintf("%screatetime desc", tableName))
+		}
+
+		return db
+	}
+}
+
+func BaseWhere2(i interfaces.QueryInterface, tableName string) func(db *gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		var curTable string
+		if tableName != "" {
+			curTable = tableName + "."
+		}
+		if i.GetIDs() != nil {
+			db.Where(fmt.Sprintf("%sid=any(?)", curTable), i.GetIDs())
+		}
+
+		if i.GetStarttime() > 0 {
+			db.Where(fmt.Sprintf("%screatetime>=?", curTable), i.GetStarttime())
+		}
+		if i.GetEndtime() > 0 {
+			db.Where(fmt.Sprintf("%screatetime<=?", curTable), i.GetEndtime())
+		}
+		if i.GetDisabled() == 1 {
+			db.Where(fmt.Sprintf("%sdisabled=true", curTable))
+		} else if i.GetDisabled() == 2 {
 			db.Where(fmt.Sprintf("%sdisabled=false", curTable))
 		}
 		return db
