@@ -1,6 +1,7 @@
 package interfaces
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 
@@ -20,6 +21,8 @@ type QueryInterface interface {
 	GetValue(key string) interface{}
 	GetValueWithDefault(key string, df interface{}) interface{}
 	Set(key string, value interface{})
+
+	FromByte([]byte) error
 }
 
 type QueryMap map[string]interface{}
@@ -33,6 +36,10 @@ func (i QueryMap) GetID() string {
 		return id
 	}
 	return ""
+}
+
+func (i QueryMap) FromByte(b []byte) error {
+	return json.Unmarshal(b, &i)
 }
 
 func (i QueryMap) GetIDs() []string {

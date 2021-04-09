@@ -47,7 +47,7 @@ func BaseWhere(query BaseQuery, tableName ...string) string {
 		whereSql = whereSql + fmt.Sprintf(` and %sdisabled=false`, curTable)
 	}
 
-	whereSql = whereSql + fmt.Sprintf(` and %sisdelete='false'`, curTable)
+	// whereSql = whereSql + fmt.Sprintf(` and %sisdelete='false'`, curTable)
 	return whereSql
 }
 

@@ -1,4 +1,4 @@
-package service
+package service2
 
 import (
 	"babygrow/DB/appGorm"
@@ -99,7 +99,7 @@ func MergeFirstMediaToListItem(query interfaces.QueryInterface, olist interfaces
 	return nil
 }
 
-func InitMedias(list interfaces.ModelMapSlice, businessName string, businessId string, creator string) []*dbModel.Media {
+func InitMedias(list []*dbModel.Media, businessName string, businessId string, creator string) []*dbModel.Media {
 	if len(list) == 0 {
 		return nil
 	}
@@ -109,12 +109,11 @@ func InitMedias(list interfaces.ModelMapSlice, businessName string, businessId s
 			continue
 		}
 		// 有一种情况是这个媒体是之前的信息，就不进行重新保存了
-		if !(v.GetValue("business") != "" && v.GetValue("businessId") != "" && v.GetValue("userID") != "" && v.GetID() != "") {
-			m := new(dbModel.Media)
-			m.Business = businessName
-			m.BusinessId = businessId
-			m.UserID = creator
-			medias = append(medias, m)
+		if !(v.Business != "" && v.BusinessId != "" && v.UserID != "" && v.ID != "") {
+			v.Business = businessName
+			v.BusinessId = businessId
+			v.UserID = creator
+			medias = append(medias, v)
 		}
 	}
 	return medias

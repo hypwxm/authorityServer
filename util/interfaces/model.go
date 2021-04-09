@@ -110,3 +110,11 @@ func (is ModelMapSlice) GetValues(key string) interface{} {
 	}
 	return list
 }
+
+func (is ModelMapSlice) GetStringValues(key string) []string {
+	var list = make([]string, len(is))
+	for _, v := range is {
+		list = append(list, v[key].(string))
+	}
+	return list
+}

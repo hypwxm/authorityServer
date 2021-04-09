@@ -2,8 +2,9 @@ package service
 
 import (
 	"babygrow/DB/appGorm"
-	mediaModel "babygrow/service/media/model"
-	mediaService "babygrow/service/media/service"
+	mediaDBModel "babygrow/service/media/dbModel"
+	mediaService "babygrow/service/media/service2"
+
 	"babygrow/service/member/daily/dao"
 	"babygrow/service/member/daily/dbModel"
 	dailyCommentModel "babygrow/service/member/dailyComment/model"
@@ -14,11 +15,13 @@ import (
 	"fmt"
 	"log"
 	"strings"
+
+	"github.com/lib/pq"
 )
 
 type CreateModel struct {
 	dbModel.GDaily
-	Medias []*mediaModel.Media `json:"medias" gorm:"-"`
+	Medias []*mediaDBModel.Media `json:"medias" gorm:"-"`
 }
 
 func Create(entity *CreateModel) (string, error) {
@@ -58,13 +61,19 @@ func List(query interfaces.QueryInterface) (interfaces.ModelMapSlice, int64, err
 		return nil, 0, err
 	}
 	// 获取评价内容
-	var ids []string = list.GetValues("id").([]string)
-	var userIds []string = list.GetValues("userId").([]string)
+	var ids pq.StringArray = list.GetStringValues("id")
+	var userIds pq.StringArray = list.GetStringValues("userId")
 	userIds = util.ArrayStringDuplicateRemoval(userIds)
 
 	// 查找对应的媒体信息
-	mediaService.ListMapWithMedia(ids, dbModel.BusinessName, list, "", "id")
-	err = mediaService.ListMapWithMediaFirst(userIds, "member", list, "userId", "avatar")
+	mediaService.MergeMediaToListItem(interfaces.QueryMap{
+		"businessIds": ids,
+		"businesses":  pq.StringArray{dbModel.BusinessName},
+	}, list, "", "id")
+	err = mediaService.MergeFirstMediaToListItem(interfaces.QueryMap{
+		"businessIds": userIds,
+		"businesses":  pq.StringArray{"member"},
+	}, list, "userId", "avatar")
 	if err != nil {
 		return nil, 0, err
 	}

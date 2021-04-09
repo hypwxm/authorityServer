@@ -52,8 +52,8 @@ func modify(c rider.Context) {
 func list(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		query := interfaces.NewQueryMap()
-		err := json.Unmarshal(c.Body(), &query)
+		var query = interfaces.NewQueryMap()
+		err := query.FromByte(c.Body())
 		if err != nil {
 			sender.Fail(err.Error())
 			return
