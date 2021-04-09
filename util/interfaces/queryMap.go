@@ -28,34 +28,34 @@ func (i QueryMap) GetIDs() []string {
 }
 
 func (i QueryMap) GetCurrent() int {
-	if current, ok := i["current"].(int); ok {
-		return current
+	if current, ok := i["current"].(float64); ok {
+		return int(current)
 	}
 	return 0
 }
 
 func (i QueryMap) GetPageSize() int {
-	if pageSize, ok := i["pageSize"].(int); ok {
-		return pageSize
+	if pageSize, ok := i["pageSize"].(float64); ok {
+		return int(pageSize)
 	}
 	return 10
 }
 
 func (i QueryMap) GetOffset() int {
-	if offset, ok := i["offset"].(int); ok {
-		return offset
+	if offset, ok := i["offset"].(float64); ok {
+		return int(offset)
 	}
 	return 0
 }
 func (i QueryMap) GetStarttime() int {
-	if startTime, ok := i["startTime"].(int); ok {
-		return startTime
+	if startTime, ok := i["startTime"].(float64); ok {
+		return int(startTime)
 	}
 	return 0
 }
 func (i QueryMap) GetEndtime() int {
-	if endtime, ok := i["endtime"].(int); ok {
-		return endtime
+	if endtime, ok := i["endtime"].(float64); ok {
+		return int(endtime)
 	}
 	return 0
 }
@@ -76,8 +76,8 @@ func (i QueryMap) GetSortFlag() string {
 
 // 0 ：true & false  1: true   2: false
 func (i QueryMap) GetDisabled() int {
-	if disabled, ok := i["disabled"].(int); ok {
-		return disabled
+	if disabled, ok := i["disabled"].(float64); ok {
+		return int(disabled)
 	}
 	return 0
 }
