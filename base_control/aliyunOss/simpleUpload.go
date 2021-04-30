@@ -3,9 +3,9 @@ package aliyunOss
 import (
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // 上传文件流
@@ -18,17 +18,15 @@ func UploadFileStream(fd io.Reader, filename string) (string, error) {
 		os.Exit(-1)
 	}
 
-	log.Println("filename:", filename)
-
 	// 签名直传。
 	// signedURL, err := bucket.SignURL(filename, oss.HTTPPut, 60)
 	// if err != nil {
 	// 	return "", err
 	// }
-
+	filename = strings.ReplaceAll(filename, "\\", "/")
 	err = bucket.PutObject(filename, fd)
 	if err != nil {
 		return "", err
 	}
-	return OssConfig["host"] + "/" + filepath.Join(filename), nil
+	return strings.ReplaceAll(OssConfig["host"]+"/"+filepath.Join(filename), "\\", "/"), nil
 }
