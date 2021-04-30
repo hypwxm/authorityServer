@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/lib/pq"
 	"gorm.io/gorm"
 )
 
 type QueryInterface interface {
 	GetID() string
-	GetIDs() []string
+	GetIDs() pq.StringArray
 	GetCurrent() int
 	GetPageSize() int
 	GetStarttime() int
@@ -42,9 +43,15 @@ func (i QueryMap) FromByte(b []byte) error {
 	return json.Unmarshal(b, &i)
 }
 
-func (i QueryMap) GetIDs() []string {
-	if ids, ok := i["ids"].([]string); ok {
-		return ids
+func (i QueryMap) GetIDs() pq.StringArray {
+	if ids, ok := i["ids"].([]interface{}); ok {
+		a := make([]string, len(ids))
+		for k, v := range ids {
+			if id, ok := v.(string); ok {
+				a[k] = id
+			}
+		}
+		return a
 	}
 	return nil
 }

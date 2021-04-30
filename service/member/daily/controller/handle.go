@@ -6,6 +6,7 @@ import (
 	"babygrow/util/interfaces"
 	"babygrow/util/response"
 	"encoding/json"
+	"log"
 
 	"github.com/hypwxm/rider"
 )
@@ -73,11 +74,12 @@ func del(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
 		query := interfaces.NewQueryMap()
-		err := json.Unmarshal(c.Body(), &query)
+		err := query.FromByte(c.Body())
 		if err != nil {
 			sender.Fail(err.Error())
 			return
 		}
+		log.Println(query.GetIDs(), len(query.GetIDs()))
 		err = service.Del(query)
 		if err != nil {
 			sender.Fail(err.Error())
