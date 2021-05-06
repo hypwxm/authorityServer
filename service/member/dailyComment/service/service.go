@@ -8,10 +8,6 @@ func Create(entity *model.GDailyComment) (string, error) {
 	return entity.Insert()
 }
 
-func Modify(updateQuery *model.UpdateByIDQuery) error {
-	return new(model.GDailyComment).Update(updateQuery)
-}
-
 func List(query *model.Query) ([]*model.ListModel, int64, error) {
 	return new(model.GDailyComment).List(query)
 }

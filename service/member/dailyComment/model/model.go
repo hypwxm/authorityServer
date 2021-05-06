@@ -2,8 +2,9 @@ package model
 
 import (
 	"babygrow/DB/appGorm"
-	mediaModel "babygrow/service/media/model"
-	mediaService "babygrow/service/media/service"
+	mediaDBModel "babygrow/service/media/dbModel"
+	mediaService "babygrow/service/media/service2"
+	"log"
 
 	"errors"
 	"fmt"
@@ -26,7 +27,7 @@ type GDailyComment struct {
 
 	Sort int `json:"sort" db:"sort" gorm:"column:sort;not null;default 0"`
 
-	Medias []*mediaModel.Media `json:"medias" gorm:"-"`
+	Medias []*mediaDBModel.Media `json:"medias" gorm:"-"`
 }
 
 func (self *GDailyComment) Insert() (string, error) {
@@ -43,13 +44,9 @@ func (self *GDailyComment) Insert() (string, error) {
 	}
 
 	db := appGorm.Open()
-	tx := db.Begin()
-	if err := tx.Error; err != nil {
-		return "", err
-	}
-	defer tx.Rollback()
+
 	// 插入判断用户登录账号是否已经存在
-	err = tx.Create(&self).Error
+	err = db.Create(&self).Error
 	if err != nil {
 		return "", err
 	}
@@ -60,7 +57,6 @@ func (self *GDailyComment) Insert() (string, error) {
 		return "", err
 	}
 
-	err = tx.Commit().Error
 	if err != nil {
 		return "", err
 	}
@@ -104,8 +100,8 @@ type ListModel struct {
 	Nickname string `json:"userNickname" db:"user_nickname" gorm:"column:user_nickname"`
 	Phone    string `json:"userPhone" db:"user_phone" gorm:"column:user_phone"`
 
-	MemberMedia []*mediaModel.Media `json:"-" gorm:"-"`
-	Avatar      string              `json:"avatar" gorm:"-"`
+	MemberMedia []*mediaDBModel.Media `json:"-" gorm:"-"`
+	Avatar      string                `json:"avatar" gorm:"-"`
 }
 
 func (self *GDailyComment) List(query *Query) ([]*ListModel, int64, error) {
@@ -156,9 +152,14 @@ func (self *GDailyComment) List(query *Query) ([]*ListModel, int64, error) {
 	}
 
 	// 查找对应的媒体信息
-	mediaService.ListWithMedia(ids, BusinessName, list, "", "ID")
-	mediaService.ListWithMedia(userIds, "member", list, "MemberMedia", "UserId")
-
+	err = mediaService.ListWithMedia(ids, BusinessName, list, "", "ID")
+	if err != nil {
+		log.Println("error=========", err)
+	}
+	err = mediaService.ListWithMedia(userIds, "member", list, "MemberMedia", "UserId")
+	if err != nil {
+		log.Println("error=========", err)
+	}
 	for _, v := range list {
 		if len(v.MemberMedia) > 0 {
 			v.Avatar = v.MemberMedia[0].Url
@@ -173,38 +174,9 @@ type UpdateByIDQuery struct {
 	ID      string `db:"id"`
 	Content string `json:"diary" db:"diary"`
 
-	Medias []*mediaModel.Media `json:"medias"`
-	UserId string              `json:"userId"`
+	Medias []*mediaDBModel.Media `json:"medias"`
+	UserId string                `json:"userId"`
 }
-
-// 更新,根据用户id和数据id进行更新
-// 部分字段不允许更新，userID, id
-func (self *GDailyComment) Update(query *UpdateByIDQuery) error {
-	if query == nil {
-		return errors.New("无更新条件")
-	}
-	if strings.TrimSpace(query.ID) == "" {
-		return errors.New("更新条件错误")
-	}
-
-	db := appGorm.Open()
-	err := db.Model(&GDailyComment{}).Select("content").Updates(query).Error
-	if err != nil {
-		return err
-	}
-
-	// 删除下旧的图片
-	err = mediaService.Del(&mediaModel.DeleteQuery{
-		Businesses:  []string{BusinessName},
-		BusinessIds: []string{query.ID},
-	})
-	if err != nil {
-		return err
-	}
-	medias := mediaService.InitMedias(self.Medias, BusinessName, query.ID, query.UserId)
-	return mediaService.MultiCreate(medias)
-}
-
 type DeleteQuery struct {
 	IDs pq.StringArray `db:"ids"`
 }
