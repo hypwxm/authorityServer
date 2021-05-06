@@ -38,16 +38,16 @@ func List(db *gorm.DB, query interfaces.QueryInterface) (interfaces.ModelMapSlic
 	tx.Joins("left join g_member_baby_relation on g_member_baby_relation.baby_id=g_member_baby_grow_comment.baby_id and g_member_baby_relation.user_id=g_member_baby_grow_comment.user_id")
 	tx.Joins("left join g_member on g_member_baby_grow_comment.user_id=g_member.id")
 	if query.GetValue("userId") != "" {
-		tx.Where("g_member_baby_grow_comment.user_id=?", query.UserId)
+		tx.Where("g_member_baby_grow_comment.user_id=?", query.GetValue("userId"))
 	}
 	if query.GetValue("diaryId") != "" {
-		tx.Where("g_member_baby_grow_comment.diary_id=?", query.DiaryId)
+		tx.Where("g_member_baby_grow_comment.diary_id=?", query.GetValue("diaryId"))
 	}
 	if len(query.GetValue("diaryIds")) > 0 {
-		tx.Where("g_member_baby_grow_comment.diary_id=any(?)", query.DiaryIds)
+		tx.Where("g_member_baby_grow_comment.diary_id=any(?)", query.GetValue("diaryIds"))
 	}
 	if query.GetValue("babyId") != "" {
-		tx.Where("g_member_baby_grow_comment.baby_id=?", query.BabyId)
+		tx.Where("g_member_baby_grow_comment.baby_id=?", query.GetValue("babyId"))
 	}
 	tx.Scopes(appGorm.BaseWhere2(query, ""))
 	var count int64
