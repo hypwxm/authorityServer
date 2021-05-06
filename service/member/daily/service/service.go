@@ -101,6 +101,39 @@ func Del(query interfaces.QueryInterface) error {
 }
 
 func Get(query interfaces.QueryInterface) (interfaces.ModelInterface, error) {
+	if query.GetID() == "" {
+		return nil, fmt.Errorf("参数错误")
+	}
 	db := appGorm.Open()
-	return dao.Get(db, query)
+	diary, err := dao.Get(db, query)
+	if err != nil {
+		return nil, err
+	}
+
+	// 查找对应的媒体信息
+	mediaService.MergeMediaToItem(interfaces.QueryMap{
+		"businessIds": pq.StringArray{diary.GetID()},
+		"businesses":  pq.StringArray{dbModel.BusinessName},
+	}, diary, "", "id")
+	err = mediaService.MergeFirstMediaToItem(interfaces.QueryMap{
+		"businessIds": diary.GetValue("userId"),
+		"businesses":  pq.StringArray{"member"},
+	}, diary, "userId", "avatar")
+	if err != nil {
+		return nil, err
+	}
+
+	if comments, _, err := dailyCommentService.List(&dailyCommentModel.Query{
+		DiaryIds: pq.StringArray{diary.GetID()},
+	}); err != nil {
+		return nil, err
+	} else {
+		diary.Set("comments", make([]*dailyCommentModel.ListModel, 0))
+		for _, vm := range comments {
+			if diary.GetID() == vm.DiaryId {
+				diary.Set("comments", append(diary.GetValue("comments").([]*dailyCommentModel.ListModel), vm))
+			}
+		}
+	}
+	return diary, nil
 }

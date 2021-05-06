@@ -94,7 +94,7 @@ func get(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
 		query := interfaces.NewQueryMap()
-		err := json.Unmarshal(c.Body(), &query)
+		err := query.FromByte(c.Body())
 		if err != nil {
 			sender.Fail(err.Error())
 			return

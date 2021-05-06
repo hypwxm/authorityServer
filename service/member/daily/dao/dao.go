@@ -18,9 +18,18 @@ func Insert(db *gorm.DB, entity *dbModel.GDaily) (string, error) {
 
 func Get(db *gorm.DB, query interfaces.QueryInterface) (interfaces.ModelInterface, error) {
 	var entity = make(map[string]interface{})
-	tx := db.Model(&dbModel.GDaily{})
+	tx := db.Model(&dbModel.GDaily{}).Select(`
+	g_member_baby_grow.*,
+	COALESCE(g_member_baby_relation.role_name, '') as user_role_name,
+	COALESCE(g_member.realname, '') as user_realname,
+	COALESCE(g_member.account, '') as user_account,
+	COALESCE(g_member.phone, '') as user_phone,
+	COALESCE(g_member.nickname, '') as user_nickname
+	`)
+	tx.Joins("left join g_member_baby_relation on g_member_baby_relation.baby_id=g_member_baby_grow.baby_id and g_member_baby_relation.user_id=g_member_baby_grow.user_id")
+	tx.Joins("left join g_member on g_member_baby_grow.user_id=g_member.id")
 	if query.GetID() != "" {
-		tx.Where("id=?", query.GetID())
+		tx.Where("g_member_baby_grow.id=?", query.GetID())
 	}
 	err := tx.Find(&entity).Error
 	mMap := interfaces.NewModelMapFromMap(entity)

@@ -59,7 +59,7 @@ func Get(query interfaces.QueryInterface) (interfaces.ModelInterface, error) {
 	return dao.Get(db, query)
 }
 
-// 业务查询媒体，把媒体对应的的每一项放到列表对应的每项中
+// 列表：业务查询媒体，把媒体对应的的每一项放到列表对应的每项中
 func MergeMediaToListItem(query interfaces.QueryInterface, olist interfaces.ModelMapSlice, mediaName string, keyName string) error {
 	medias, _, err := List(query)
 	if err != nil {
@@ -82,7 +82,29 @@ func MergeMediaToListItem(query interfaces.QueryInterface, olist interfaces.Mode
 	return nil
 }
 
-// 业务查询媒体，把媒体对应的的第一项的媒体地址放到列表对应的每项中
+// 单个：业务查询媒体，把媒体对应的的每一项放到列表对应的项中
+func MergeMediaToItem(query interfaces.QueryInterface, v interfaces.ModelInterface, mediaName string, keyName string) error {
+	medias, _, err := List(query)
+	if err != nil {
+		return err
+	}
+	if mediaName == "" {
+		mediaName = "medias"
+	}
+	if keyName == "" {
+		keyName = "id"
+	}
+	v.Set(mediaName, make(interfaces.ModelMapSlice, 0))
+	for _, vm := range medias {
+		if v.GetValue(keyName) == vm.GetValue("businessId") {
+			v.Set(mediaName, append(v.GetValue(mediaName).(interfaces.ModelMapSlice), vm))
+		}
+	}
+
+	return nil
+}
+
+// 列表：业务查询媒体，把媒体对应的的第一项的媒体地址放到列表对应的每项中
 func MergeFirstMediaToListItem(query interfaces.QueryInterface, olist interfaces.ModelMapSlice, keyName string, valueKey string) error {
 	medias, _, err := List(query)
 	if err != nil {
@@ -96,6 +118,22 @@ func MergeFirstMediaToListItem(query interfaces.QueryInterface, olist interfaces
 			}
 		}
 	}
+	return nil
+}
+
+// 单个：业务查询媒体，把媒体对应的的第一项的媒体地址放到列表对应的数据
+func MergeFirstMediaToItem(query interfaces.QueryInterface, v interfaces.ModelInterface, keyName string, valueKey string) error {
+	medias, _, err := List(query)
+	if err != nil {
+		return err
+	}
+	for _, vm := range medias {
+		if v.GetValue(keyName) == vm.GetValue("businessId") {
+			v.Set(valueKey, vm.GetValue("url"))
+			break
+		}
+	}
+
 	return nil
 }
 
