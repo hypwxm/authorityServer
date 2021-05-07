@@ -4,7 +4,6 @@ import (
 	"babygrow/DB/appGorm"
 	mediaDBModel "babygrow/service/media/dbModel"
 	mediaService "babygrow/service/media/service2"
-	"log"
 
 	"errors"
 	"fmt"
@@ -151,20 +150,20 @@ func (self *GDailyComment) List(query *Query) ([]*ListModel, int64, error) {
 		userIds = append(userIds, v.UserId)
 	}
 
-	// 查找对应的媒体信息
-	err = mediaService.ListWithMedia(ids, BusinessName, list, "", "ID")
-	if err != nil {
-		log.Println("error=========", err)
-	}
-	err = mediaService.ListWithMedia(userIds, "member", list, "MemberMedia", "UserId")
-	if err != nil {
-		log.Println("error=========", err)
-	}
-	for _, v := range list {
-		if len(v.MemberMedia) > 0 {
-			v.Avatar = v.MemberMedia[0].Url
-		}
-	}
+	// // 查找对应的媒体信息
+	// err = mediaService.ListWithMedia(ids, BusinessName, list, "", "ID")
+	// if err != nil {
+	// 	log.Println("error=========", err)
+	// }
+	// err = mediaService.ListWithMedia(userIds, "member", list, "MemberMedia", "UserId")
+	// if err != nil {
+	// 	log.Println("error=========", err)
+	// }
+	// for _, v := range list {
+	// 	if len(v.MemberMedia) > 0 {
+	// 		v.Avatar = v.MemberMedia[0].Url
+	// 	}
+	// }
 
 	return list, count, nil
 

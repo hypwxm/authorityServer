@@ -37,17 +37,17 @@ func List(db *gorm.DB, query interfaces.QueryInterface) (interfaces.ModelMapSlic
 	COALESCE(g_member.nickname, '') as user_nickname`)
 	tx.Joins("left join g_member_baby_relation on g_member_baby_relation.baby_id=g_member_baby_grow_comment.baby_id and g_member_baby_relation.user_id=g_member_baby_grow_comment.user_id")
 	tx.Joins("left join g_member on g_member_baby_grow_comment.user_id=g_member.id")
-	if query.GetValue("userId") != "" {
-		tx.Where("g_member_baby_grow_comment.user_id=?", query.GetValue("userId"))
+	if query.GetStringValue("userId") != "" {
+		tx.Where("g_member_baby_grow_comment.user_id=?", query.GetStringValue("userId"))
 	}
-	if query.GetValue("diaryId") != "" {
-		tx.Where("g_member_baby_grow_comment.diary_id=?", query.GetValue("diaryId"))
+	if query.GetStringValue("diaryId") != "" {
+		tx.Where("g_member_baby_grow_comment.diary_id=?", query.GetStringValue("diaryId"))
 	}
-	if len(query.GetValue("diaryIds")) > 0 {
-		tx.Where("g_member_baby_grow_comment.diary_id=any(?)", query.GetValue("diaryIds"))
+	if len(query.ToStringArray("diaryIds")) > 0 {
+		tx.Where("g_member_baby_grow_comment.diary_id=any(?)", query.ToStringArray("diaryIds"))
 	}
-	if query.GetValue("babyId") != "" {
-		tx.Where("g_member_baby_grow_comment.baby_id=?", query.GetValue("babyId"))
+	if query.GetStringValue("babyId") != "" {
+		tx.Where("g_member_baby_grow_comment.baby_id=?", query.GetStringValue("babyId"))
 	}
 	tx.Scopes(appGorm.BaseWhere2(query, ""))
 	var count int64
@@ -57,7 +57,7 @@ func List(db *gorm.DB, query interfaces.QueryInterface) (interfaces.ModelMapSlic
 	}
 
 	var list = make([]map[string]interface{}, 0)
-	err = tx.Scopes(appGorm.Paginate2(query, "g_member_baby_grow")).Find(&list).Error
+	err = tx.Scopes(appGorm.Paginate2(query, "g_member_baby_grow_comment")).Find(&list).Error
 	nlist := interfaces.NewModelMapSliceFromMapSlice(list)
 	return nlist.ToCamelKey(), count, err
 }
@@ -65,15 +65,8 @@ func List(db *gorm.DB, query interfaces.QueryInterface) (interfaces.ModelMapSlic
 // 更新,根据用户id和数据id进行更新
 // 部分字段不允许更新，userID, id
 func Update(db *gorm.DB, query interfaces.QueryInterface) error {
-	err := db.Model(&dbModel.GDaily{}).Select("date", "weight", "height", "diary", "weather", "mood", "health", "temperature").Where("id=?", query.GetID()).Updates(map[string]interface{}{
-		"date":        query.GetValueWithDefault("date", ""),
-		"weight":      query.GetValueWithDefault("weight", 0),
-		"height":      query.GetValueWithDefault("height", 0),
-		"diary":       query.GetValue("diary"),
-		"weather":     query.GetValue("weather"),
-		"mood":        query.GetValue("mood"),
-		"health":      query.GetValue("health"),
-		"temperature": query.GetValueWithDefault("temperature", 0),
+	err := db.Model(&dbModel.GDailyComment{}).Select("content").Where("id=?", query.GetID()).Updates(map[string]interface{}{
+		"content": query.GetValueWithDefault("content", ""),
 	}).Error
 	return err
 }
@@ -88,5 +81,5 @@ func Delete(db *gorm.DB, query interfaces.QueryInterface) error {
 			return errors.New("操作条件错误")
 		}
 	}
-	return db.Where("id=any(?)", query.GetIDs()).Delete(&dbModel.GDaily{}).Error
+	return db.Where("id=any(?)", query.GetIDs()).Delete(&dbModel.GDailyComment{}).Error
 }

@@ -2,10 +2,11 @@ package controller
 
 import (
 	"babygrow/config"
-	"babygrow/service/member/dailyComment/model"
-	"babygrow/service/member/dailyComment/service"
+	service "babygrow/service/member/dailyComment/service2"
+	"babygrow/util/interfaces"
 	"babygrow/util/response"
 	"encoding/json"
+	"log"
 
 	"github.com/hypwxm/rider"
 )
@@ -13,7 +14,7 @@ import (
 func create(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		entity := new(model.GDailyComment)
+		entity := new(service.CreateModel)
 		err := json.Unmarshal(c.Body(), &entity)
 		if err != nil {
 			sender.Fail(err.Error())
@@ -33,7 +34,7 @@ func create(c rider.Context) {
 func modify(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		entity := new(model.UpdateByIDQuery)
+		entity := interfaces.NewQueryMap()
 		err := json.Unmarshal(c.Body(), &entity)
 		if err != nil {
 			sender.Fail(err.Error())
@@ -52,13 +53,13 @@ func modify(c rider.Context) {
 func list(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		query := new(model.Query)
-		err := json.Unmarshal(c.Body(), &query)
+		var query = interfaces.NewQueryMap()
+		err := query.FromByte(c.Body())
 		if err != nil {
 			sender.Fail(err.Error())
 			return
 		}
-		query.UserId = c.GetLocals(config.MemberTokenKey).(string)
+		query.Set("userId", c.GetLocals(config.MemberTokenKey).(string))
 		list, total, err := service.List(query)
 		if err != nil {
 			sender.Fail(err.Error())
@@ -72,12 +73,13 @@ func list(c rider.Context) {
 func del(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		query := new(model.DeleteQuery)
-		err := json.Unmarshal(c.Body(), &query)
+		query := interfaces.NewQueryMap()
+		err := query.FromByte(c.Body())
 		if err != nil {
 			sender.Fail(err.Error())
 			return
 		}
+		log.Println(query.GetIDs(), len(query.GetIDs()))
 		err = service.Del(query)
 		if err != nil {
 			sender.Fail(err.Error())
@@ -91,8 +93,8 @@ func del(c rider.Context) {
 func get(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		query := new(model.GetQuery)
-		err := json.Unmarshal(c.Body(), &query)
+		query := interfaces.NewQueryMap()
+		err := query.FromByte(c.Body())
 		if err != nil {
 			sender.Fail(err.Error())
 			return

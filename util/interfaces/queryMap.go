@@ -22,7 +22,8 @@ type QueryInterface interface {
 	GetValue(key string) interface{}
 	GetValueWithDefault(key string, df interface{}) interface{}
 	Set(key string, value interface{})
-
+	GetStringValue(key string) string
+	ToStringArray(key string) pq.StringArray
 	FromByte([]byte) error
 }
 
@@ -45,6 +46,20 @@ func (i QueryMap) FromByte(b []byte) error {
 
 func (i QueryMap) GetIDs() pq.StringArray {
 	if ids, ok := i["ids"].([]interface{}); ok {
+		a := make([]string, len(ids))
+		for k, v := range ids {
+			if id, ok := v.(string); ok {
+				a[k] = id
+			}
+		}
+		return a
+	}
+	return nil
+}
+
+// 把interface的数组转成pq.stringArray，供sql用
+func (i QueryMap) ToStringArray(key string) pq.StringArray {
+	if ids, ok := i[key].([]interface{}); ok {
 		a := make([]string, len(ids))
 		for k, v := range ids {
 			if id, ok := v.(string); ok {
@@ -167,6 +182,13 @@ func (i QueryMap) BaseWhere(tableName ...string) func(db *gorm.DB) *gorm.DB {
 func (i QueryMap) GetValue(key string) interface{} {
 	if v, ok := i[key]; ok {
 		return v
+	}
+	return ""
+}
+
+func (i QueryMap) GetStringValue(key string) string {
+	if s, ok := i.GetValue(key).(string); ok {
+		return s
 	}
 	return ""
 }
