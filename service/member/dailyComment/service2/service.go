@@ -68,10 +68,13 @@ func List(query interfaces.QueryInterface) (interfaces.ModelMapSlice, int64, err
 	userIds = util.ArrayStringDuplicateRemoval(userIds)
 
 	// 查找对应的媒体信息
-	mediaService.MergeMediaToListItem(interfaces.QueryMap{
+	err = mediaService.MergeMediaToListItem(interfaces.QueryMap{
 		"businessIds": ids,
 		"businesses":  pq.StringArray{dbModel.BusinessName},
-	}, list, "", "id")
+	}, list, "medias", "id")
+	if err != nil {
+		return nil, 0, err
+	}
 	err = mediaService.MergeFirstMediaToListItem(interfaces.QueryMap{
 		"businessIds": userIds,
 		"businesses":  pq.StringArray{"member"},

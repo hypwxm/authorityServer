@@ -7,8 +7,7 @@ import (
 
 	"babygrow/service/member/daily/dao"
 	"babygrow/service/member/daily/dbModel"
-	dailyCommentModel "babygrow/service/member/dailyComment/model"
-	dailyCommentService "babygrow/service/member/dailyComment/service"
+	dailyCommentService "babygrow/service/member/dailyComment/service2"
 	"babygrow/util"
 	"babygrow/util/interfaces"
 	"errors"
@@ -78,16 +77,16 @@ func List(query interfaces.QueryInterface) (interfaces.ModelMapSlice, int64, err
 		return nil, 0, err
 	}
 
-	if comments, _, err := dailyCommentService.List(&dailyCommentModel.Query{
-		DiaryIds: ids,
-	}); err != nil {
+	commentQuery := interfaces.NewQueryMap()
+	commentQuery.Set("diaryIds", ids)
+	if comments, _, err := dailyCommentService.List(commentQuery); err != nil {
 		return nil, 0, err
 	} else {
 		for _, v := range list {
-			v["comments"] = make([]*dailyCommentModel.ListModel, 0)
+			v["comments"] = make([]*interfaces.ModelMap, 0)
 			for _, vm := range comments {
-				if v.GetID() == vm.DiaryId {
-					v["comments"] = append(v["comments"].([]*dailyCommentModel.ListModel), vm)
+				if v.GetID() == vm.GetStringValue("diaryId") {
+					v["comments"] = append(v["comments"].(interfaces.ModelMapSlice), vm)
 				}
 			}
 		}
@@ -123,15 +122,15 @@ func Get(query interfaces.QueryInterface) (interfaces.ModelInterface, error) {
 		return nil, err
 	}
 
-	if comments, _, err := dailyCommentService.List(&dailyCommentModel.Query{
-		DiaryIds: pq.StringArray{diary.GetID()},
-	}); err != nil {
+	commentQuery := interfaces.NewQueryMap()
+	commentQuery.Set("diaryIds", pq.StringArray{diary.GetID()})
+	if comments, _, err := dailyCommentService.List(commentQuery); err != nil {
 		return nil, err
 	} else {
-		diary.Set("comments", make([]*dailyCommentModel.ListModel, 0))
+		diary.Set("comments", make(interfaces.ModelMapSlice, 0))
 		for _, vm := range comments {
-			if diary.GetID() == vm.DiaryId {
-				diary.Set("comments", append(diary.GetValue("comments").([]*dailyCommentModel.ListModel), vm))
+			if diary.GetID() == vm.GetStringValue("diaryId") {
+				diary.Set("comments", append(diary.GetValue("comments").(interfaces.ModelMapSlice), vm))
 			}
 		}
 	}

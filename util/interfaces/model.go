@@ -9,6 +9,7 @@ type ModelInterface interface {
 	GetID() string
 	GetValue(key string) interface{}
 	Set(key string, value interface{})
+	GetStringValue(key string) string
 	GetValueWithDefault(key string, df interface{}) interface{}
 	// ToCamelKey() ModelInterface
 }
@@ -42,6 +43,13 @@ func (i ModelMap) GetID() string {
 func (i ModelMap) GetValue(key string) interface{} {
 	if v, ok := i[key]; ok {
 		return v
+	}
+	return ""
+}
+
+func (i ModelMap) GetStringValue(key string) string {
+	if s, ok := i.GetValue(key).(string); ok {
+		return s
 	}
 	return ""
 }
