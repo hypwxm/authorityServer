@@ -62,6 +62,24 @@ func List(db *gorm.DB, query interfaces.QueryInterface) (interfaces.ModelMapSlic
 	return nlist.ToCamelKey(), count, err
 }
 
+func Count(db *gorm.DB, query interfaces.QueryInterface) (map[string]int64, error) {
+	tx := db.Model(&dbModel.GDailyComment{})
+	if query.GetStringValue("diaryId") != "" {
+		tx.Where("g_member_baby_grow_comment.diary_id=?", query.GetStringValue("diaryId"))
+	}
+	if len(query.ToStringArray("diaryIds")) > 0 {
+		tx.Where("g_member_baby_grow_comment.diary_id=any(?)", query.ToStringArray("diaryIds"))
+	}
+	if query.GetStringValue("commentId") != "" {
+		tx.Where("g_member_baby_grow_comment.comment_id=?", query.GetStringValue("commentId"))
+	}
+	var count int64
+	err := tx.Count(&count).Error
+	m := make(map[string]int64)
+	m[]
+	return count, err
+}
+
 // 更新,根据用户id和数据id进行更新
 // 部分字段不允许更新，userID, id
 func Update(db *gorm.DB, query interfaces.QueryInterface) error {

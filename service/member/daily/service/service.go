@@ -83,7 +83,7 @@ func List(query interfaces.QueryInterface) (interfaces.ModelMapSlice, int64, err
 		return nil, 0, err
 	} else {
 		for _, v := range list {
-			v["comments"] = make([]*interfaces.ModelMap, 0)
+			v["comments"] = make(interfaces.ModelMapSlice, 0)
 			for _, vm := range comments {
 				if v.GetID() == vm.GetStringValue("diaryId") {
 					v["comments"] = append(v["comments"].(interfaces.ModelMapSlice), vm)
@@ -123,16 +123,11 @@ func Get(query interfaces.QueryInterface) (interfaces.ModelInterface, error) {
 	}
 
 	commentQuery := interfaces.NewQueryMap()
-	commentQuery.Set("diaryIds", pq.StringArray{diary.GetID()})
-	if comments, _, err := dailyCommentService.List(commentQuery); err != nil {
+	commentQuery.Set("diaryId", diary.GetID())
+	count, err := dailyCommentService.Count(commentQuery)
+	if err != nil {
 		return nil, err
-	} else {
-		diary.Set("comments", make(interfaces.ModelMapSlice, 0))
-		for _, vm := range comments {
-			if diary.GetID() == vm.GetStringValue("diaryId") {
-				diary.Set("comments", append(diary.GetValue("comments").(interfaces.ModelMapSlice), vm))
-			}
-		}
 	}
+	diary.Set("comments", count)
 	return diary, nil
 }

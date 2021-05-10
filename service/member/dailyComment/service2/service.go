@@ -86,6 +86,12 @@ func List(query interfaces.QueryInterface) (interfaces.ModelMapSlice, int64, err
 	return list, total, nil
 }
 
+func Count(query interfaces.QueryInterface) (int64, error) {
+	db := appGorm.Open()
+	return dao.Count(db, query)
+
+}
+
 func Del(query interfaces.QueryInterface) error {
 	db := appGorm.Open()
 	return dao.Delete(db, query)
