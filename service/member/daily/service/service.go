@@ -79,16 +79,11 @@ func List(query interfaces.QueryInterface) (interfaces.ModelMapSlice, int64, err
 
 	commentQuery := interfaces.NewQueryMap()
 	commentQuery.Set("diaryIds", ids)
-	if comments, _, err := dailyCommentService.List(commentQuery); err != nil {
+	if comments, err := dailyCommentService.Count(commentQuery); err != nil {
 		return nil, 0, err
 	} else {
 		for _, v := range list {
-			v["comments"] = make(interfaces.ModelMapSlice, 0)
-			for _, vm := range comments {
-				if v.GetID() == vm.GetStringValue("diaryId") {
-					v["comments"] = append(v["comments"].(interfaces.ModelMapSlice), vm)
-				}
-			}
+			v["commentCount"] = comments[v.GetStringValue("diaryId")]
 		}
 	}
 	return list, total, nil

@@ -86,7 +86,8 @@ func List(query interfaces.QueryInterface) (interfaces.ModelMapSlice, int64, err
 	return list, total, nil
 }
 
-func Count(query interfaces.QueryInterface) (int64, error) {
+// 返回 {[dairyId1]: count, [dairyId2]: count}
+func Count(query interfaces.QueryInterface) (map[string]int64, error) {
 	db := appGorm.Open()
 	return dao.Count(db, query)
 

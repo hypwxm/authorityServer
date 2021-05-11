@@ -4,7 +4,6 @@ import (
 	"babygrow/DB/appGorm"
 	"babygrow/service/member/dailyComment/dbModel"
 	"babygrow/util/interfaces"
-	"fmt"
 
 	"errors"
 	"strings"
@@ -63,23 +62,19 @@ func List(db *gorm.DB, query interfaces.QueryInterface) (interfaces.ModelMapSlic
 	return nlist.ToCamelKey(), count, err
 }
 
-func Count(db *gorm.DB, query interfaces.QueryInterface) ([]int64, error) {
+func Count(db *gorm.DB, query interfaces.QueryInterface) (map[string]int64, error) {
 	tx := db.Model(&dbModel.GDailyComment{})
-	m := make([]int64, 0)
-
-	if query.GetStringValue("diaryId") != "" {
-		tx.Where("g_member_baby_grow_comment.diary_id=?", query.GetStringValue("diaryId"))
+	m := make(map[string]int64, 0)
+	if diaryId := query.GetStringValue("diaryId"); diaryId != "" {
+		tx.Select("count(*) as ?", diaryId).Where("g_member_baby_grow_comment.diary_id=?", diaryId)
 	}
 	if dids := query.ToStringArray("diaryIds"); len(dids) > 0 {
-		tx.Where("g_member_baby_grow_comment.diary_id=any(?)", dids)
-		tx.Order(fmt.Sprintf("array_positions(%s::array[],id::text)", dids))
+		for _, v := range dids {
+			tx.Select("(?) as ?", db.Model(&dbModel.GDailyComment{}).Select("count(*)").Where("diary_id=?", v), v)
+		}
 	}
-	if query.GetStringValue("commentId") != "" {
-		tx.Where("g_member_baby_grow_comment.comment_id=?", query.GetStringValue("commentId"))
-	}
-	var count int64
-	err := tx.Count(&count).Error
-	return count, err
+	err := tx.Find(&m).Error
+	return m, err
 }
 
 // 更新,根据用户id和数据id进行更新
