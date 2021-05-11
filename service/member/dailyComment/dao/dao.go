@@ -67,10 +67,13 @@ func Count(db *gorm.DB, query interfaces.QueryInterface) (map[string]int64, erro
 	m := make(map[string]int64, 0)
 	if diaryId := query.GetStringValue("diaryId"); diaryId != "" {
 		tx.Select("count(*) as ?", diaryId).Where("g_member_baby_grow_comment.diary_id=?", diaryId)
-	}
-	if dids := query.ToStringArray("diaryIds"); len(dids) > 0 {
+	} else if dids := query.ToStringArray("diaryIds"); len(dids) > 0 {
 		for _, v := range dids {
 			tx.Select("(?) as ?", db.Model(&dbModel.GDailyComment{}).Select("count(*)").Where("diary_id=?", v), v)
+		}
+	} else if commentIds := query.ToStringArray("commentIds"); len(commentIds) > 0 {
+		for _, v := range commentIds {
+			tx.Select("(?) as ?", db.Raw("select count(*) as ? from g_member_baby_grow_comment where deleted_at is not null start with id = ? connect by prior t.id = t.comment_id", v, v), v)
 		}
 	}
 	err := tx.Find(&m).Error

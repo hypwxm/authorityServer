@@ -83,6 +83,16 @@ func List(query interfaces.QueryInterface) (interfaces.ModelMapSlice, int64, err
 		return nil, 0, err
 	}
 
+	commentQuery := interfaces.NewQueryMap()
+	commentQuery.Set("commentIds", ids)
+	if comments, err := Count(commentQuery); err != nil {
+		return nil, 0, err
+	} else {
+		for _, v := range list {
+			v["commentCount"] = comments[v.GetStringValue("id")]
+		}
+	}
+
 	return list, total, nil
 }
 
@@ -90,7 +100,6 @@ func List(query interfaces.QueryInterface) (interfaces.ModelMapSlice, int64, err
 func Count(query interfaces.QueryInterface) (map[string]int64, error) {
 	db := appGorm.Open()
 	return dao.Count(db, query)
-
 }
 
 func Del(query interfaces.QueryInterface) error {
