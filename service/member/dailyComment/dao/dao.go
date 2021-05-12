@@ -64,9 +64,9 @@ func List(db *gorm.DB, query interfaces.QueryInterface) (interfaces.ModelMapSlic
 
 func Count(db *gorm.DB, query interfaces.QueryInterface) (map[string]int64, error) {
 	tx := db.Model(&dbModel.GDailyComment{})
-	m := make(map[string]int64, 0)
+	m := make(map[string]int64)
 	if diaryId := query.GetStringValue("diaryId"); diaryId != "" {
-		tx.Select("count(*) as ?", diaryId).Where("g_member_baby_grow_comment.diary_id=?", diaryId)
+		tx.Select("count(*) as "+diaryId).Where("g_member_baby_grow_comment.diary_id=?", diaryId)
 	} else if dids := query.ToStringArray("diaryIds"); len(dids) > 0 {
 		for _, v := range dids {
 			tx.Select("(?) as ?", db.Model(&dbModel.GDailyComment{}).Select("count(*)").Where("diary_id=?", v), v)
