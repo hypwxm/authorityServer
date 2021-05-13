@@ -83,7 +83,7 @@ func List(query interfaces.QueryInterface) (interfaces.ModelMapSlice, int64, err
 		return nil, 0, err
 	} else {
 		for _, v := range list {
-			v["commentCount"] = comments[v.GetStringValue("diaryId")]
+			v["commentCount"] = comments[v.GetID()]
 		}
 	}
 	return list, total, nil
@@ -123,6 +123,6 @@ func Get(query interfaces.QueryInterface) (interfaces.ModelInterface, error) {
 	if err != nil {
 		return nil, err
 	}
-	diary.Set("comments", count)
+	diary.Set("commentCount", count[diary.GetID()])
 	return diary, nil
 }

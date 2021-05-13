@@ -21,7 +21,7 @@ func GetCurrentMS() int64 {
 }
 
 func GetUuid() string {
-	return uuid.NewV4().String()
+	return strings.ReplaceAll(uuid.NewV4().String(), "-", "")
 }
 
 func SignPwd(pwd string, salt string) string {

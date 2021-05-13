@@ -113,16 +113,16 @@ func (is ModelMapSlice) ToCamelKey() ModelMapSlice {
 // 从slice的每项中取出key对应的value，业务中可以知道对应的数据类型，通过断言拿到具体类型
 func (is ModelMapSlice) GetValues(key string) interface{} {
 	var list = make([]interface{}, len(is))
-	for _, v := range is {
-		list = append(list, v[key])
+	for k, v := range is {
+		list[k] = v[key]
 	}
 	return list
 }
 
 func (is ModelMapSlice) GetStringValues(key string) []string {
 	var list = make([]string, len(is))
-	for _, v := range is {
-		list = append(list, v[key].(string))
+	for k, v := range is {
+		list[k] = v[key].(string)
 	}
 	return list
 }

@@ -4,6 +4,7 @@ import (
 	"babygrow/DB/appGorm"
 	"babygrow/service/member/dailyComment/dbModel"
 	"babygrow/util/interfaces"
+	"fmt"
 
 	"errors"
 	"strings"
@@ -64,20 +65,42 @@ func List(db *gorm.DB, query interfaces.QueryInterface) (interfaces.ModelMapSlic
 
 func Count(db *gorm.DB, query interfaces.QueryInterface) (map[string]int64, error) {
 	tx := db.Model(&dbModel.GDailyComment{})
-	m := make(map[string]int64)
+	m := make(map[string]interface{})
 	if diaryId := query.GetStringValue("diaryId"); diaryId != "" {
-		tx.Select("count(*) as "+diaryId).Where("g_member_baby_grow_comment.diary_id=?", diaryId)
+		if strings.Contains(diaryId, " ") {
+			return nil, fmt.Errorf("非法操作")
+		}
+		tx.Select("count(*) as a"+diaryId).Where("g_member_baby_grow_comment.diary_id=?", diaryId)
 	} else if dids := query.ToStringArray("diaryIds"); len(dids) > 0 {
 		for _, v := range dids {
-			tx.Select("(?) as ?", db.Model(&dbModel.GDailyComment{}).Select("count(*)").Where("diary_id=?", v), v)
+			if strings.Contains(v, " ") {
+				return nil, fmt.Errorf("非法操作")
+			}
+			tx.Select("(?) as a"+v, db.Model(&dbModel.GDailyComment{}).Select("count(*)").Where("diary_id=?", v))
 		}
 	} else if commentIds := query.ToStringArray("commentIds"); len(commentIds) > 0 {
-		for _, v := range commentIds {
-			tx.Select("(?) as ?", db.Raw("select count(*) as ? from g_member_baby_grow_comment where deleted_at is not null start with id = ? connect by prior t.id = t.comment_id", v, v), v)
+		sqlStr := ""
+		sqlRaws := make([]interface{}, len(commentIds))
+		for k, v := range commentIds {
+			if strings.Contains(v, " ") {
+				return nil, fmt.Errorf("非法操作")
+			}
+			sqlStr = sqlStr + ",(?) as a" + v
+			// 计算数量时需要减掉自己
+			sqlRaws[k] = db.Raw("select (case when count(*)>0 then count(*)-1 else 0 end) from (with recursive t as (select * from g_member_baby_grow_comment g where g.delete_at is null and g.id=? union all select k.* from g_member_baby_grow_comment k,t where t.id = k.comment_id) select * from t) as at", v)
+			// postgres=# with recursive t as(select id,name,parentid from tb9 where id=1 union all select k.id,k.name,k.parentid from tb9 k,t where t.id=k.parentid) select * from t;
 		}
+		tx.Select(sqlStr[1:], sqlRaws...)
 	}
 	err := tx.Find(&m).Error
-	return m, err
+	if err != nil {
+		return nil, err
+	}
+	mi := make(map[string]int64)
+	for k, v := range m {
+		mi[k[1:]] = v.(int64)
+	}
+	return mi, err
 }
 
 // 更新,根据用户id和数据id进行更新
