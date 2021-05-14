@@ -30,13 +30,21 @@ func Get(db *gorm.DB, query interfaces.QueryInterface) (interfaces.ModelInterfac
 }
 
 func List(db *gorm.DB, query interfaces.QueryInterface) (interfaces.ModelMapSlice, int64, error) {
-	tx := db.Model(&dbModel.GDailyComment{}).Select(`
-	g_member_baby_grow_comment.*,
-	COALESCE(g_member_baby_relation.role_name, '') as user_role_name,
-	COALESCE(g_member.realname, '') as user_realname,
-	COALESCE(g_member.account, '') as user_account,
-	COALESCE(g_member.phone, '') as user_phone,
-	COALESCE(g_member.nickname, '') as user_nickname`)
+	var tx *gorm.DB
+	if commentId := query.GetStringValue("commentId"); commentId == "" {
+		tx = db.Model(&dbModel.GDailyComment{})
+		// 如果不传commentId则查询第一级的评论，有commentId的话需要去递归的查询下级的评论
+		tx.Where("g_member_baby_grow_comment.comment_id=''")
+	} else {
+		tx = db.Table("(?) as g_member_baby_grow_comment", db.Raw("with recursive t as (select * from g_member_baby_grow_comment g where g.delete_at is null and g.id=? union all select k.* from g_member_baby_grow_comment k , t where t.id = k.comment_id and k.delete_at is null) select * from t", commentId))
+	}
+	tx.Select(`
+			g_member_baby_grow_comment.*,
+			COALESCE(g_member_baby_relation.role_name, '') as user_role_name,
+			COALESCE(g_member.realname, '') as user_realname,
+			COALESCE(g_member.account, '') as user_account,
+			COALESCE(g_member.phone, '') as user_phone,
+			COALESCE(g_member.nickname, '') as user_nickname`)
 	tx.Joins("left join g_member_baby_relation on g_member_baby_relation.baby_id=g_member_baby_grow_comment.baby_id and g_member_baby_relation.user_id=g_member_baby_grow_comment.user_id")
 	tx.Joins("left join g_member on g_member_baby_grow_comment.user_id=g_member.id")
 	if query.GetStringValue("userId") != "" {
@@ -45,12 +53,13 @@ func List(db *gorm.DB, query interfaces.QueryInterface) (interfaces.ModelMapSlic
 	if query.GetStringValue("diaryId") != "" {
 		tx.Where("g_member_baby_grow_comment.diary_id=?", query.GetStringValue("diaryId"))
 	}
-	if len(query.ToStringArray("diaryIds")) > 0 {
-		tx.Where("g_member_baby_grow_comment.diary_id=any(?)", query.ToStringArray("diaryIds"))
-	}
+	// if len(query.ToStringArray("diaryIds")) > 0 {
+	// 	tx.Where("g_member_baby_grow_comment.diary_id=any(?)", query.ToStringArray("diaryIds"))
+	// }
 	if query.GetStringValue("babyId") != "" {
 		tx.Where("g_member_baby_grow_comment.baby_id=?", query.GetStringValue("babyId"))
 	}
+
 	tx.Scopes(appGorm.BaseWhere2(query, ""))
 	var count int64
 	err := tx.Count(&count).Error
