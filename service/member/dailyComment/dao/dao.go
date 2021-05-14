@@ -5,6 +5,7 @@ import (
 	"babygrow/service/member/dailyComment/dbModel"
 	"babygrow/util/interfaces"
 	"fmt"
+	"log"
 
 	"errors"
 	"strings"
@@ -72,12 +73,18 @@ func Count(db *gorm.DB, query interfaces.QueryInterface) (map[string]int64, erro
 		}
 		tx.Select("count(*) as a"+diaryId).Where("g_member_baby_grow_comment.diary_id=?", diaryId)
 	} else if dids := query.ToStringArray("diaryIds"); len(dids) > 0 {
-		for _, v := range dids {
+		sqlStr := ""
+		sqlRaws := make([]interface{}, len(dids))
+		for k, v := range dids {
 			if strings.Contains(v, " ") {
 				return nil, fmt.Errorf("非法操作")
 			}
-			tx.Select("(?) as a"+v, db.Model(&dbModel.GDailyComment{}).Select("count(*)").Where("diary_id=?", v))
+			sqlStr = sqlStr + ",(?) as a" + v
+			// 计算数量时需要减掉自己
+			sqlRaws[k] = db.Model(&dbModel.GDailyComment{}).Select("count(*)").Where("diary_id=?", v)
+			// postgres=# with recursive t as(select id,name,parentid from tb9 where id=1 union all select k.id,k.name,k.parentid from tb9 k,t where t.id=k.parentid) select * from t;
 		}
+		tx.Select(sqlStr[1:], sqlRaws...)
 	} else if commentIds := query.ToStringArray("commentIds"); len(commentIds) > 0 {
 		sqlStr := ""
 		sqlRaws := make([]interface{}, len(commentIds))
@@ -87,15 +94,18 @@ func Count(db *gorm.DB, query interfaces.QueryInterface) (map[string]int64, erro
 			}
 			sqlStr = sqlStr + ",(?) as a" + v
 			// 计算数量时需要减掉自己
-			sqlRaws[k] = db.Raw("select (case when count(*)>0 then count(*)-1 else 0 end) from (with recursive t as (select * from g_member_baby_grow_comment g where g.delete_at is null and g.id=? union all select k.* from g_member_baby_grow_comment k,t where t.id = k.comment_id) select * from t) as at", v)
+			sqlRaws[k] = db.Raw("select (case when count(*)>0 then count(*)-1 else 0 end) from (with recursive t as (select * from g_member_baby_grow_comment g where g.delete_at is null and g.id=? union all select k.* from g_member_baby_grow_comment k , t where t.id = k.comment_id and k.delete_at is null) select * from t) as at", v)
 			// postgres=# with recursive t as(select id,name,parentid from tb9 where id=1 union all select k.id,k.name,k.parentid from tb9 k,t where t.id=k.parentid) select * from t;
 		}
 		tx.Select(sqlStr[1:], sqlRaws...)
+	} else {
+		return nil, nil
 	}
 	err := tx.Find(&m).Error
 	if err != nil {
 		return nil, err
 	}
+	log.Println("=====", m)
 	mi := make(map[string]int64)
 	for k, v := range m {
 		mi[k[1:]] = v.(int64)
