@@ -36,6 +36,7 @@ func List(db *gorm.DB, query interfaces.QueryInterface) (interfaces.ModelMapSlic
 		tx.Where("g_member_baby_grow_comment.comment_id=''")
 	} else {
 		tx = db.Table("(?) as g_member_baby_grow_comment", db.Raw("with recursive t as (select * from g_member_baby_grow_comment g where g.delete_at is null and g.id=? union all select k.* from g_member_baby_grow_comment k , t where t.id = k.comment_id and k.delete_at is null) select * from t", commentId))
+		tx.Order("g_member_baby_grow_comment.createtime asc")
 	}
 	tx.Select(`
 			g_member_baby_grow_comment.*,

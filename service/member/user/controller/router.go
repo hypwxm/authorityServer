@@ -7,7 +7,6 @@ func Router() *rider.Router {
 
 	// 获取注册的用户
 	route.POST("/list", list)
-	route.POST("/toggleDisabled", toggleDisabled)
 
 	// 用户注册
 	route.POST("/open/register", registry)

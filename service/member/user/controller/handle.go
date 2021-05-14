@@ -4,9 +4,9 @@ import (
 	"babygrow/config"
 	familyMemberModel "babygrow/service/member/familyMember/model"
 	familyMemberService "babygrow/service/member/familyMember/service"
-	"babygrow/service/member/user/model"
-	"babygrow/service/member/user/service"
+	service "babygrow/service/member/user/service2"
 
+	"babygrow/util/interfaces"
 	"babygrow/util/response"
 	"encoding/json"
 
@@ -16,8 +16,8 @@ import (
 func list(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		query := new(model.Query)
-		err := json.Unmarshal(c.Body(), &query)
+		var query = interfaces.NewQueryMap()
+		err := query.FromByte(c.Body())
 		if err != nil {
 			sender.Fail(err.Error())
 			return
@@ -30,12 +30,13 @@ func list(c rider.Context) {
 		sender.SuccessList(list, int(total))
 	})()
 	c.SendJson(200, sender)
+
 }
 
 func registry(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		user := new(model.GMember)
+		user := new(service.CreateModel)
 		err := json.Unmarshal(c.Body(), &user)
 		if err != nil {
 			sender.Fail(err.Error())
@@ -54,20 +55,19 @@ func registry(c rider.Context) {
 func modify(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		user := new(model.UpdateByIDQuery)
-		err := json.Unmarshal(c.Body(), &user)
+		var query = interfaces.NewQueryMap()
+		err := query.FromByte(c.Body())
 		if err != nil {
 			sender.Fail(err.Error())
 			return
 		}
-		userId := c.GetLocals(config.MemberTokenKey).(string)
-		user.ID = userId
-		err = service.Modify(user)
+		query.Set("userId", c.GetLocals(config.MemberTokenKey))
+		err = service.Modify(query)
 		if err != nil {
 			sender.Fail(err.Error())
 			return
 		}
-		sender.Success("修改成功")
+		sender.Success("操作成功")
 	})()
 	c.SendJson(200, sender)
 }
@@ -75,20 +75,19 @@ func modify(c rider.Context) {
 func modifyNickname(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		user := new(model.UpdateByIDQuery)
-		err := json.Unmarshal(c.Body(), &user)
+		var query = interfaces.NewQueryMap()
+		err := query.FromByte(c.Body())
 		if err != nil {
 			sender.Fail(err.Error())
 			return
 		}
-		userId := c.GetLocals(config.MemberTokenKey).(string)
-		user.ID = userId
-		err = service.ModifyNickname(user)
+		query.Set("userId", c.GetLocals(config.MemberTokenKey))
+		err = service.Modify(query)
 		if err != nil {
 			sender.Fail(err.Error())
 			return
 		}
-		sender.Success("修改成功")
+		sender.Success("操作成功")
 	})()
 	c.SendJson(200, sender)
 }
@@ -96,39 +95,19 @@ func modifyNickname(c rider.Context) {
 func modifyAvatar(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		user := new(model.UpdateByIDQuery)
-		err := json.Unmarshal(c.Body(), &user)
+		var query = interfaces.NewQueryMap()
+		err := query.FromByte(c.Body())
 		if err != nil {
 			sender.Fail(err.Error())
 			return
 		}
-		userId := c.GetLocals(config.MemberTokenKey).(string)
-		user.ID = userId
-		err = service.ModifyAvatar(user)
+		query.Set("userId", c.GetLocals(config.MemberTokenKey))
+		err = service.ModifyAvatar(query)
 		if err != nil {
 			sender.Fail(err.Error())
 			return
 		}
-		sender.Success("修改成功")
-	})()
-	c.SendJson(200, sender)
-}
-
-func toggleDisabled(c rider.Context) {
-	sender := response.NewSender()
-	(func() {
-		query := new(model.DisabledQuery)
-		err := json.Unmarshal(c.Body(), &query)
-		if err != nil {
-			sender.Fail(err.Error())
-			return
-		}
-		err = service.ToggleDisabled(query)
-		if err != nil {
-			sender.Fail(err.Error())
-			return
-		}
-		sender.Success("")
+		sender.Success("操作成功")
 	})()
 	c.SendJson(200, sender)
 }
@@ -137,42 +116,36 @@ func toggleDisabled(c rider.Context) {
 func getInfoForFamilyInvite(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		query := new(model.GMember)
-		body := c.Body()
-		err := json.Unmarshal(body, &query)
+		var query = interfaces.NewQueryMap()
+		err := query.FromByte(c.Body())
 		if err != nil {
 			sender.Fail(err.Error())
 			return
 		}
-		bm := make(map[string]string)
-		err = json.Unmarshal(body, &bm)
-		if err != nil {
-			sender.Fail(err.Error())
-			return
-		}
+
 		// 要在家园中邀请成员，查询时必须带上成员的家园的id
-		if bm["familyId"] == "" {
+		if query.GetStringValue("familyId") == "" {
 			sender.Fail(err.Error())
 			return
 		}
-		user, err := service.GetUser(query)
+		user, err := service.Get(query)
 		if err != nil {
 			sender.Fail(err.Error())
 			return
 		}
 		// 获取成员信息，判断该用户是否已经是该家园成员
 		list, _, err := familyMemberService.List(&familyMemberModel.Query{
-			FamilyId: bm["familyId"],
-			UserId:   user.ID,
+			FamilyId: query.GetStringValue("familyId"),
+			UserId:   user.GetID(),
 		})
 		if err != nil {
 			sender.Fail(err.Error())
 			return
 		}
 		var m = make(map[string]interface{})
-		m["avatar"] = user.Avatar
-		m["id"] = user.ID
-		m["account"] = user.Account
+		m["avatar"] = user.GetValue("avatar")
+		m["id"] = user.GetID()
+		m["account"] = user.GetValue("account")
 		if len(list) == 0 {
 			// 非成员，可以去邀请的
 			m["isMember"] = false

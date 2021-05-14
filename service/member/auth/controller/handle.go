@@ -2,12 +2,10 @@ package controller
 
 import (
 	"babygrow/config"
-	"babygrow/service/member/user/model"
-	"babygrow/service/member/user/service"
+	service "babygrow/service/member/user/service2"
 	"babygrow/util"
-	"babygrow/util/database"
+	"babygrow/util/interfaces"
 	"babygrow/util/response"
-	"encoding/json"
 
 	"github.com/hypwxm/rider"
 )
@@ -20,26 +18,24 @@ type LoginForm struct {
 func memberLogin(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		user := new(model.GMember)
-		err := json.Unmarshal(c.Body(), &user)
+		query := interfaces.NewQueryMap()
+		err := query.FromByte(c.Body())
 		if err != nil {
 			sender.Fail(util.ErrorFormat(err))
 			return
 		}
-		if user.Account == "" || user.Password == "" {
+		if query.GetStringValue("account") == "" || query.GetStringValue("password") == "" {
 			sender.Fail("账号或密码错误")
 			return
 		}
-		user, err = service.GetUser(&model.GMember{
-			Account:  user.Account,
-			Password: user.Password,
-		})
+		query.Set("selects", "id,nickname,account,password,salt")
+		user, err := service.Get(query)
 		if err != nil {
 			sender.Fail(util.ErrorFormat(err))
 			return
 		}
-		c.Jwt().Set(config.MemberTokenKey, user.ID)
-		c.Jwt().Set(config.MemberLoginUserName, user.Nickname)
+		c.Jwt().Set(config.MemberTokenKey, user.GetID())
+		c.Jwt().Set(config.MemberLoginUserName, user.GetStringValue("nickname"))
 		sender.Success(c.Jwt().GetToken())
 	})()
 
@@ -49,11 +45,10 @@ func memberLogin(c rider.Context) {
 func loginAppUser(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		user, err := service.GetUser(&model.GMember{
-			BaseColumns: database.BaseColumns{
-				ID: c.GetLocals(config.MemberTokenKey).(string),
-			},
-		})
+		query := interfaces.NewQueryMap()
+		query.Set("id", c.GetLocals(config.MemberTokenKey).(string))
+		query.Set("selects", "id,nickname,realname,gender,birthday,account")
+		user, err := service.Get(query)
 		if err != nil {
 			sender.Fail(err.Error())
 			return
