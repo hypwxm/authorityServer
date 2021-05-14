@@ -5,7 +5,6 @@ import (
 	"babygrow/service/member/dailyComment/dbModel"
 	"babygrow/util/interfaces"
 	"fmt"
-	"log"
 
 	"errors"
 	"strings"
@@ -114,7 +113,6 @@ func Count(db *gorm.DB, query interfaces.QueryInterface) (map[string]int64, erro
 	if err != nil {
 		return nil, err
 	}
-	log.Println("=====", m)
 	mi := make(map[string]int64)
 	for k, v := range m {
 		mi[k[1:]] = v.(int64)
