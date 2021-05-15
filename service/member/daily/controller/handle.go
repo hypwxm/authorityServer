@@ -35,7 +35,7 @@ func modify(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
 		entity := interfaces.NewQueryMap()
-		err := json.Unmarshal(c.Body(), &entity)
+		err := entity.FromByte(c.Body())
 		if err != nil {
 			sender.Fail(err.Error())
 			return

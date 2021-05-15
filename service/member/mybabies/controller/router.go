@@ -11,7 +11,6 @@ func Router() *rider.Router {
 	route.POST("/modify", modify)
 	route.POST("/delete", del)
 	route.POST("/get", get)
-	route.POST("/toggleDisabled", toggleDisabled)
 
 	route.POST("/relations", relations)
 	route.POST("/createRelations", createRelations)

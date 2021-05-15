@@ -2,8 +2,8 @@ package controller
 
 import (
 	"babygrow/config"
-	"babygrow/service/member/mybabies/model"
-	"babygrow/service/member/mybabies/service"
+	service "babygrow/service/member/mybabies/service2"
+	"babygrow/util/interfaces"
 	"babygrow/util/response"
 	"encoding/json"
 
@@ -13,7 +13,7 @@ import (
 func create(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		entity := new(model.GMyBabies)
+		entity := new(service.CreateModel)
 		err := json.Unmarshal(c.Body(), &entity)
 		if err != nil {
 			sender.Fail(err.Error())
@@ -33,13 +33,13 @@ func create(c rider.Context) {
 func modify(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		entity := new(model.UpdateByIDQuery)
-		err := json.Unmarshal(c.Body(), &entity)
+		query := interfaces.NewQueryMap()
+		err := query.FromByte(c.Body())
 		if err != nil {
 			sender.Fail(err.Error())
 			return
 		}
-		err = service.Modify(entity)
+		err = service.Modify(query)
 		if err != nil {
 			sender.Fail(err.Error())
 			return
@@ -52,13 +52,13 @@ func modify(c rider.Context) {
 func list(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		query := new(model.Query)
-		err := json.Unmarshal(c.Body(), &query)
+		query := interfaces.NewQueryMap()
+		err := query.FromByte(c.Body())
 		if err != nil {
 			sender.Fail(err.Error())
 			return
 		}
-		query.UserId = c.GetLocals(config.MemberTokenKey).(string)
+		query.Set("userId", c.GetLocals(config.MemberTokenKey).(string))
 		list, total, err := service.List(query)
 		if err != nil {
 			sender.Fail(err.Error())
@@ -72,8 +72,8 @@ func list(c rider.Context) {
 func del(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		query := new(model.DeleteQuery)
-		err := json.Unmarshal(c.Body(), &query)
+		query := interfaces.NewQueryMap()
+		err := query.FromByte(c.Body())
 		if err != nil {
 			sender.Fail(err.Error())
 			return
@@ -91,8 +91,8 @@ func del(c rider.Context) {
 func get(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		query := new(model.GetQuery)
-		err := json.Unmarshal(c.Body(), &query)
+		query := interfaces.NewQueryMap()
+		err := query.FromByte(c.Body())
 		if err != nil {
 			sender.Fail(err.Error())
 			return
@@ -107,36 +107,17 @@ func get(c rider.Context) {
 	c.SendJson(200, sender)
 }
 
-func toggleDisabled(c rider.Context) {
-	sender := response.NewSender()
-	(func() {
-		query := new(model.DisabledQuery)
-		err := json.Unmarshal(c.Body(), &query)
-		if err != nil {
-			sender.Fail(err.Error())
-			return
-		}
-		err = service.ToggleDisabled(query)
-		if err != nil {
-			sender.Fail(err.Error())
-			return
-		}
-		sender.Success("")
-	})()
-	c.SendJson(200, sender)
-}
-
 func relations(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		query := new(model.MbQuery)
-		err := json.Unmarshal(c.Body(), &query)
+		query := interfaces.NewQueryMap()
+		err := query.FromByte(c.Body())
 		if err != nil {
 			sender.Fail(err.Error())
 			return
 		}
 		// query.UserId = c.GetLocals(config.MemberTokenKey).(string)
-		list, err := service.GetBabyRelations(query)
+		list, _, err := service.GetBabyRelations(query)
 		if err != nil {
 			sender.Fail(err.Error())
 			return
@@ -149,8 +130,8 @@ func relations(c rider.Context) {
 func createRelations(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		query := new(model.GMemberBabyRelation)
-		err := json.Unmarshal(c.Body(), &query)
+		query := interfaces.NewQueryMap()
+		err := query.FromByte(c.Body())
 		if err != nil {
 			sender.Fail(err.Error())
 			return
@@ -169,8 +150,8 @@ func createRelations(c rider.Context) {
 func deleteRelations(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		query := new(model.MBDeleteQuery)
-		err := json.Unmarshal(c.Body(), &query)
+		query := interfaces.NewQueryMap()
+		err := query.FromByte(c.Body())
 		if err != nil {
 			sender.Fail(err.Error())
 			return

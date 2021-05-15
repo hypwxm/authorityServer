@@ -7,7 +7,6 @@ import (
 	"babygrow/service/member/mybabies/dao"
 	"babygrow/service/member/mybabies/daomb"
 	"babygrow/service/member/mybabies/dbModel"
-	"babygrow/service/member/mybabies/model"
 	userService "babygrow/service/member/user/service2"
 	"babygrow/util"
 	"babygrow/util/interfaces"
@@ -156,7 +155,7 @@ func CreateBabyRelations(query interfaces.QueryInterface) (string, error) {
 }
 
 // 删除关系
-func DelRelations(query *model.MBDeleteQuery) error {
-	// 用账号名去查询用户信息，拿到用户id
-	return new(model.GMemberBabyRelation).Delete(query)
+func DelRelations(query interfaces.QueryInterface) error {
+	db := appGorm.Open()
+	return daomb.Delete(db, query)
 }
