@@ -49,3 +49,13 @@ type GMemberBabyRelation struct {
 
 	Account string `json:"account" db:"-" gorm:"-"`
 }
+
+const BusinessNameMBApply = "g_member_baby_relation_apply"
+
+type GMemberBabyRelationApply struct {
+	appGorm.BaseColumns
+	RoleName  string `json:"roleName" db:"role_name" gorm:"column:role_name;type:varchar(10);not null;check(role_name <> '')"`
+	BabyId    string `json:"babyId" db:"baby_id" gorm:"column:baby_id;type:varchar(128);not null;check(baby_id <> '');index;"`
+	UserId    string `json:"userId" db:"user_id" gorm:"column:user_id;type:varchar(128);not null;check(user_id <> '');index;"`
+	InviterId string `json:"inviterId" gorm:"column:inviter_id;type:varchar(128);not null;check(inviter_id <> '');index;"`
+}

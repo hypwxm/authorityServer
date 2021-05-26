@@ -5,9 +5,9 @@ import (
 	mediaDBModel "babygrow/service/media/dbModel"
 	mediaService "babygrow/service/media/service2"
 	"babygrow/service/member/mybabies/dao"
+	"babygrow/service/member/mybabies/daoApply"
 	"babygrow/service/member/mybabies/daomb"
 	"babygrow/service/member/mybabies/dbModel"
-	"babygrow/service/member/mybabies/model"
 	userService "babygrow/service/member/user/service2"
 	"babygrow/util"
 	"babygrow/util/interfaces"
@@ -155,8 +155,33 @@ func CreateBabyRelations(query interfaces.QueryInterface) (string, error) {
 	return daomb.Insert(db, entity)
 }
 
+func ApplyJoinFamily(query interfaces.QueryInterface) (string, error) {
+	// 先判断下是否已经是成员了
+	q := interfaces.NewQueryMap()
+	q.Set("userId", query.GetValue("userId"))
+	q.Set("babyId", query.GetValue("babyId"))
+	if _, c, err := GetBabyRelations(q); err != nil {
+		return "", err
+	} else if c > 0 {
+		return "", fmt.Errorf("已经是成员了")
+	}
+
+	// 创建申请记录，需要发起人进行审核
+	db := appGorm.Open()
+
+	entity := new(dbModel.GMemberBabyRelationApply)
+	mapstructure.Decode(query, entity)
+	return daoApply.Insert(db, entity)
+}
+
 // 删除关系
-func DelRelations(query *model.MBDeleteQuery) error {
-	// 用账号名去查询用户信息，拿到用户id
-	return new(model.GMemberBabyRelation).Delete(query)
+func DelRelations(query interfaces.QueryInterface) error {
+	db := appGorm.Open()
+	return daomb.Delete(db, query)
+}
+
+// 获取申请记录
+func GetApplyMsg(query interfaces.QueryInterface) (interfaces.ModelMapSlice, int64, error) {
+	db := appGorm.Open()
+	return daomb.List(db, query)
 }

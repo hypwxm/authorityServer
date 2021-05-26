@@ -11,11 +11,19 @@ func Router() *rider.Router {
 	route.POST("/modify", modify)
 	route.POST("/delete", del)
 	route.POST("/get", get)
-	route.POST("/toggleDisabled", toggleDisabled)
 
 	route.POST("/relations", relations)
 	route.POST("/createRelations", createRelations)
 	route.POST("/delRelations", deleteRelations)
+
+	/**
+	* 通过邀请链接提交的申请，
+	* 申请加入宝宝大家庭
+	* params:
+	  ------ roleName: 对应的角色
+	  ------ userId: 需要登录，（为注册的用户需要先注册）
+	*/
+	route.POST("/applyJoinFamily", applyJoinFamily)
 
 	return route
 }

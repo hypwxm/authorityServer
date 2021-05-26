@@ -1,4 +1,4 @@
-package daomb
+package daoApply
 
 import (
 	"babygrow/DB/appGorm"
@@ -11,21 +11,33 @@ import (
 	"gorm.io/gorm"
 )
 
-func Insert(db *gorm.DB, entity *dbModel.GMemberBabyRelation) (string, error) {
+func Insert(db *gorm.DB, entity *dbModel.GMemberBabyRelationApply) (string, error) {
 	err := db.Create(&entity).Error
 	return entity.ID, err
 }
 
 func List(db *gorm.DB, query interfaces.QueryInterface) (interfaces.ModelMapSlice, int64, error) {
-	tx := db.Model(&dbModel.GMemberBabyRelation{}).Select(`g_member_baby_relation.*,g_member.id,g_member.nickname,g_member.phone,g_member.realname,g_member.gender,g_member.account`)
-	tx.Joins("left join g_member on g_member_baby_relation.user_id=g_member.id")
-	// tx.Where("g_member_baby_grow.user_id=?", query.UserId)
+	tx := db.Model(&dbModel.GMemberBabyRelationApply{}).Select(`g_member_baby_relation_apply.*,
+	apply.account as applyAccount,
+	apply.nickname as applyNickname,
+	apply.realname as applyRealname,
+	invite.account as inviteAccount,
+	invite.nickname as inviteNickname,
+	invite.realname as inviteRealname,
+	`)
+	tx.Joins("left join g_member apply on g_member_baby_relation_apply.user_id=g_member.id")
+	tx.Joins("left join g_member invite on g_member_baby_relation_apply.inviter_id=g_member.id")
+
 	if userId := query.GetStringValue("userId"); userId != "" {
 		tx.Where("user_id=?", userId)
 	}
 
 	if babyId := query.GetStringValue("babyId"); babyId != "" {
 		tx.Where("baby_id=?", babyId)
+	}
+
+	if inviterId := query.GetStringValue("inviterId"); inviterId != "" {
+		tx.Where("inviter_id=?", inviterId)
 	}
 	tx.Scopes(appGorm.BaseWhere2(query, ""))
 	var count int64
@@ -35,7 +47,7 @@ func List(db *gorm.DB, query interfaces.QueryInterface) (interfaces.ModelMapSlic
 	}
 
 	var list = make([]map[string]interface{}, 0)
-	err = tx.Scopes(appGorm.Paginate2(query, "g_member_baby_relation")).Find(&list).Error
+	err = tx.Scopes(appGorm.Paginate2(query, "g_member_baby_relation_apply")).Find(&list).Error
 	nlist := interfaces.NewModelMapSliceFromMapSlice(list)
 	return nlist.ToCamelKey(), count, err
 }
@@ -50,5 +62,5 @@ func Delete(db *gorm.DB, query interfaces.QueryInterface) error {
 			return errors.New("操作条件错误")
 		}
 	}
-	return db.Where("id=any(?)", query.GetIDs()).Delete(&dbModel.GMemberBabyRelation{}).Error
+	return db.Where("id=any(?)", query.GetIDs()).Delete(&dbModel.GMemberBabyRelationApply{}).Error
 }
