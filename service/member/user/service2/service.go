@@ -66,6 +66,16 @@ func Modify(query interfaces.QueryInterface) error {
 	return dao.Update(db, query)
 }
 
+// 修改昵称
+func ModifyNickname(query interfaces.QueryInterface) error {
+	if query == nil {
+		return errors.New("无更新条件")
+	}
+	db := appGorm.Open()
+	query.Set("selects", "nickname")
+	return dao.Update(db, query)
+}
+
 // 只修改头像
 func ModifyAvatar(query interfaces.QueryInterface) error {
 	if query == nil {

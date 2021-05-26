@@ -81,8 +81,8 @@ func modifyNickname(c rider.Context) {
 			sender.Fail(err.Error())
 			return
 		}
-		query.Set("userId", c.GetLocals(config.MemberTokenKey))
-		err = service.Modify(query)
+		query.Set("id", c.GetLocals(config.MemberTokenKey))
+		err = service.ModifyNickname(query)
 		if err != nil {
 			sender.Fail(err.Error())
 			return

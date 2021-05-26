@@ -50,7 +50,7 @@ func List(db *gorm.DB, query interfaces.QueryInterface) (interfaces.ModelMapSlic
 // 更新,根据用户id和数据id进行更新
 // 部分字段不允许更新，userID, id
 func Update(db *gorm.DB, query interfaces.QueryInterface) error {
-	err := db.Model(&dbModel.GMember{}).Select("nickname", "realname", "birthday", "gender").Where("id=?", query.GetID()).Updates(map[string]interface{}{
+	err := db.Model(&dbModel.GMember{}).Select(query.GetStringValue("selects")).Where("id=?", query.GetID()).Updates(map[string]interface{}{
 		"nickname": query.GetValueWithDefault("nickname", ""),
 		"realname": query.GetValueWithDefault("realname", ""),
 		"birthday": query.GetValueWithDefault("birthday", ""),
