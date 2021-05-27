@@ -70,3 +70,14 @@ func Delete(db *gorm.DB, query interfaces.QueryInterface) error {
 func UpdateApplyStatus(db *gorm.DB, query interfaces.QueryInterface) error {
 	return db.Model(&dbModel.GMemberBabyRelationApply{}).Update("status", query.GetValue("status")).Error
 }
+
+func Get(db *gorm.DB, query interfaces.QueryInterface) (interfaces.ModelInterface, error) {
+	var entity = make(map[string]interface{})
+	tx := db.Model(&dbModel.GMemberBabyRelationApply{})
+	if id := query.GetID(); id != "" {
+		tx.Where("id=?", id)
+	}
+	err := tx.Find(&entity).Error
+	mMap := interfaces.NewModelMapFromMap(entity)
+	return mMap.ToCamelKey(), err
+}

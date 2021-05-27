@@ -188,5 +188,34 @@ func GetApplyMsg(query interfaces.QueryInterface) (interfaces.ModelMapSlice, int
 
 func UpdateApplyStatus(query interfaces.QueryInterface) error {
 	db := appGorm.Open()
-	return daoApply.UpdateApplyStatus(db, query)
+	if status := query.GetValue("status").(int); status == 1 {
+		// 创建对应关系
+		tx := db.Begin()
+		if err := tx.Error; err != nil {
+			return err
+		}
+		defer func() {
+			tx.Rollback()
+		}()
+
+		applyInfo, err := daoApply.Get(tx, query)
+		if err != nil {
+			return err
+		}
+		q := interfaces.NewQueryMap()
+		q.Set("userId", applyInfo.GetValue("userId"))
+		q.Set("babyId", applyInfo.GetValue("babyId"))
+		q.Set("roleName", applyInfo.GetValue("roleName"))
+		_, err = CreateBabyRelations(q)
+		if err != nil {
+			return err
+		}
+		err = daoApply.UpdateApplyStatus(tx, query)
+		if err != nil {
+			return err
+		}
+		return tx.Commit().Error
+	} else {
+		return daoApply.UpdateApplyStatus(db, query)
+	}
 }
