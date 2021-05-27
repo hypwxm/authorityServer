@@ -183,5 +183,10 @@ func DelRelations(query interfaces.QueryInterface) error {
 // 获取申请记录
 func GetApplyMsg(query interfaces.QueryInterface) (interfaces.ModelMapSlice, int64, error) {
 	db := appGorm.Open()
-	return daomb.List(db, query)
+	return daoApply.List(db, query)
+}
+
+func UpdateApplyStatus(query interfaces.QueryInterface) error {
+	db := appGorm.Open()
+	return daoApply.UpdateApplyStatus(db, query)
 }

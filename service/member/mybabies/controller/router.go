@@ -25,5 +25,22 @@ func Router() *rider.Router {
 	*/
 	route.POST("/applyJoinFamily", applyJoinFamily)
 
+	/**
+	* 查询申请记录，邀请方
+	* params:
+	  -------inviterId: 邀请人
+	*/
+	route.POST("/applyRecords", applyRecords)
+	/**
+	* 邀请人操作：拒绝
+	* params：消息id
+	 */
+	route.POST("/applyReject", applyReject)
+	/**
+	* 邀请人操作：同意
+	* params：消息id
+	 */
+	route.POST("/applyAgree", applyAgree)
+
 	return route
 }

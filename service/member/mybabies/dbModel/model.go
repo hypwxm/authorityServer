@@ -58,4 +58,5 @@ type GMemberBabyRelationApply struct {
 	BabyId    string `json:"babyId" db:"baby_id" gorm:"column:baby_id;type:varchar(128);not null;check(baby_id <> '');index;"`
 	UserId    string `json:"userId" db:"user_id" gorm:"column:user_id;type:varchar(128);not null;check(user_id <> '');index;"`
 	InviterId string `json:"inviterId" gorm:"column:inviter_id;type:varchar(128);not null;check(inviter_id <> '');index;"`
+	Status    int    `json:"status" gorm:"column:status;type:smallint;not null;default 1;comment:1-申请中，2-同意，3-拒绝"`
 }

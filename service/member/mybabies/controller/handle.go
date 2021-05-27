@@ -186,3 +186,63 @@ func deleteRelations(c rider.Context) {
 	})()
 	c.SendJson(200, sender)
 }
+
+func applyRecords(c rider.Context) {
+	sender := response.NewSender()
+	(func() {
+		query := interfaces.NewQueryMap()
+		err := query.FromByte(c.Body())
+		if err != nil {
+			sender.Fail(err.Error())
+			return
+		}
+		query.Set("inviterId", c.GetLocals(config.MemberTokenKey).(string))
+		list, total, err := service.GetApplyMsg(query)
+		if err != nil {
+			sender.Fail(err.Error())
+			return
+		}
+		sender.SuccessList(list, int(total))
+	})()
+	c.SendJson(200, sender)
+}
+
+func applyReject(c rider.Context) {
+	sender := response.NewSender()
+	(func() {
+		query := interfaces.NewQueryMap()
+		err := query.FromByte(c.Body())
+		if err != nil {
+			sender.Fail(err.Error())
+			return
+		}
+		query.Set("status", 3)
+		err = service.UpdateApplyStatus(query)
+		if err != nil {
+			sender.Fail(err.Error())
+			return
+		}
+		sender.Success("")
+	})()
+	c.SendJson(200, sender)
+}
+
+func applyAgree(c rider.Context) {
+	sender := response.NewSender()
+	(func() {
+		query := interfaces.NewQueryMap()
+		err := query.FromByte(c.Body())
+		if err != nil {
+			sender.Fail(err.Error())
+			return
+		}
+		query.Set("status", 2)
+		err = service.UpdateApplyStatus(query)
+		if err != nil {
+			sender.Fail(err.Error())
+			return
+		}
+		sender.Success("")
+	})()
+	c.SendJson(200, sender)
+}
