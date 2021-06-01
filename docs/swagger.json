@@ -4,7 +4,7 @@
     "version": "1",
     "title": "接口文档"
   },
-  "host": "localhost:9876",
+  "host": "localhost:6789",
   "paths": {
     "/member/daily/create": {
       "post": {
@@ -126,13 +126,13 @@
             "in": "body",
             "schema": {
               "required": [
-                "babyId"
+                "id"
               ],
               "properties": {
-                "babyId": {
+                "id": {
                   "description": "宝贝id",
                   "type": "string",
-                  "x-go-name": "BabyId"
+                  "x-go-name": "id"
                 }
               }
             }
