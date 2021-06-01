@@ -1,11 +1,25 @@
 {
   "swagger": "2.0",
+  "info": {
+    "version": "1",
+    "title": "接口文档"
+  },
+  "host": "localhost:9876",
   "paths": {
     "/member/daily/create": {
       "post": {
         "description": "创建日记",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "日常"
+        ],
         "summary": "创建日记",
-        "operationId": "daily",
+        "operationId": "create",
         "parameters": [
           {
             "type": "string",
@@ -15,18 +29,113 @@
             "required": true
           },
           {
-            "type": "string",
-            "description": "用户名",
-            "name": "account",
+            "name": "Body",
             "in": "body",
+            "schema": {
+              "required": [
+                "date"
+              ],
+              "properties": {
+                "date": {
+                  "description": "日记记录的日期",
+                  "type": "string"
+                },
+                "userId": {
+                  "description": "用户id",
+                  "type": "string"
+                },
+                "babyId": {
+                  "description": "宝宝id",
+                  "type": "string"
+                },
+                "weight": {
+                  "description": "体重",
+                  "type": "number"
+                },
+                "weather": {
+                  "description": "天气",
+                  "type": "string"
+                },
+                "temperature": {
+                  "description": "温度",
+                  "type": "number"
+                },
+                "mood": {
+                  "description": "心情",
+                  "type": "string"
+                },
+                "health": {
+                  "description": "健康",
+                  "type": "string"
+                },
+                "height": {
+                  "description": "身高",
+                  "type": "number"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "schema": {
+              "properties": {
+                "code": {
+                  "description": "",
+                  "type": "integer"
+                },
+                "message": {
+                  "description": "",
+                  "type": "string"
+                },
+                "data": {
+                  "description": "",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/member/daily/list": {
+      "post": {
+        "description": "列表",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "日常"
+        ],
+        "summary": "列表",
+        "operationId": "list",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "token",
+            "name": "Authorization",
+            "in": "header",
             "required": true
           },
           {
-            "type": "string",
-            "description": "登录密码",
-            "name": "password",
+            "name": "Body",
             "in": "body",
-            "required": true
+            "schema": {
+              "required": [
+                "babyId"
+              ],
+              "properties": {
+                "babyId": {
+                  "description": "宝贝id",
+                  "type": "string",
+                  "x-go-name": "BabyId"
+                }
+              }
+            }
           }
         ],
         "responses": {}

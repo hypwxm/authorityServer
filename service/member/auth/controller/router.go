@@ -25,6 +25,12 @@ func Router() *rider.Router {
 	// responses:
 	//   200: repoResp
 	//   400: badReq
+	// definitions:
+	//   CreateModel:
+	//     type: object
+	//     properties:
+	//       date:
+	//         type: string
 	route.POST("/open/login", memberLogin)
 	route.POST("/loginUser", loginAppUser)
 
