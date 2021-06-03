@@ -19,7 +19,7 @@
           "日常"
         ],
         "summary": "创建日记",
-        "operationId": "create",
+        "operationId": "babyGrowcreate",
         "parameters": [
           {
             "type": "string",
@@ -71,6 +71,9 @@
                 "height": {
                   "description": "身高",
                   "type": "number"
+                },
+                "medias": {
+                  "$ref": "#/definitions/Medias"
                 }
               }
             }
@@ -112,7 +115,7 @@
           "日常"
         ],
         "summary": "列表",
-        "operationId": "list",
+        "operationId": "babyGrowlist",
         "parameters": [
           {
             "type": "string",
@@ -141,11 +144,435 @@
         "responses": {}
       }
     },
+    "/member/babyGrow/modify": {
+      "post": {
+        "description": "更新",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "日常"
+        ],
+        "summary": "更新",
+        "operationId": "babyGrowmodify",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "token",
+            "name": "Authorization",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "Body",
+            "in": "body",
+            "schema": {
+              "required": [
+                "date",
+                "id"
+              ],
+              "properties": {
+                "id": {
+                  "description": "日记id",
+                  "type": "string"
+                },
+                "date": {
+                  "description": "日记记录的日期",
+                  "type": "string"
+                },
+                "weight": {
+                  "description": "体重",
+                  "type": "number"
+                },
+                "weather": {
+                  "description": "天气",
+                  "type": "string"
+                },
+                "temperature": {
+                  "description": "温度",
+                  "type": "number"
+                },
+                "mood": {
+                  "description": "心情",
+                  "type": "string"
+                },
+                "health": {
+                  "description": "健康",
+                  "type": "string"
+                },
+                "height": {
+                  "description": "身高",
+                  "type": "number"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {}
+      }
+    },
+    "/member/babyGrow/delete": {
+      "post": {
+        "description": "删除",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "日常"
+        ],
+        "summary": "删除",
+        "operationId": "babyGrowdel",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "token",
+            "name": "Authorization",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "Body",
+            "in": "body",
+            "schema": {
+              "required": [
+                "ids"
+              ],
+              "properties": {
+                "ids": {
+                  "description": "日记id列表",
+                  "type": "string[]"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {}
+      }
+    },
+    "/member/babyGrow/get": {
+      "post": {
+        "description": "单个请求，详情",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "日常"
+        ],
+        "summary": "单个请求，详情",
+        "operationId": "babyGrowget",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "token",
+            "name": "Authorization",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "Body",
+            "in": "body",
+            "schema": {
+              "required": [
+                "id"
+              ],
+              "properties": {
+                "ids": {
+                  "description": "日记id",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {}
+      }
+    },
+    "/member/babyGrowComment/create": {
+      "post": {
+        "description": "创建日常评论",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "日常评论"
+        ],
+        "summary": "创建日常的评论",
+        "operationId": "babyGrowCommentcreate",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "token",
+            "name": "Authorization",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "Body",
+            "in": "body",
+            "schema": {
+              "required": [
+                "diaryId",
+                "content"
+              ],
+              "properties": {
+                "userId": {
+                  "description": "用户id",
+                  "type": "string"
+                },
+                "babyId": {
+                  "description": "宝宝id",
+                  "type": "string"
+                },
+                "diaryId": {
+                  "description": "体重",
+                  "type": "number"
+                  
+                },
+                "commentId": {
+                  "description": "上级评价id",
+                  "type": "string"
+                },
+                "medias": {
+                  "$ref": "#/definitions/Medias"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "成功",
+            "schema": {
+              "properties": {
+                "code": {
+                  "description": "",
+                  "type": "integer"
+                },
+                "message": {
+                  "description": "",
+                  "type": "string"
+                },
+                "data": {
+                  "description": "",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/member/babyGrowComment/list": {
+      "post": {
+        "description": "列表",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "日常评论"
+        ],
+        "summary": "列表",
+        "operationId": "babyGrowCommentlist",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "token",
+            "name": "Authorization",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "Body",
+            "in": "body",
+            "schema": {
+              "required": [
+                "babyId"
+              ],
+              "properties": {
+                "babyId": {
+                  "description": "宝贝id",
+                  "type": "string",
+                  "x-go-name": "id"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {}
+      }
+    },
+    "/member/babyGrowComment/modify": {
+      "post": {
+        "description": "更新",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "日常评论"
+        ],
+        "summary": "更新",
+        "operationId": "babyGrowCommentmodify",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "token",
+            "name": "Authorization",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "Body",
+            "in": "body",
+            "schema": {
+              "required": [
+                "date",
+                "id"
+              ],
+              "properties": {
+                "id": {
+                  "description": "日记id",
+                  "type": "string"
+                },
+                "date": {
+                  "description": "日记记录的日期",
+                  "type": "string"
+                },
+                "weight": {
+                  "description": "体重",
+                  "type": "number"
+                },
+                "weather": {
+                  "description": "天气",
+                  "type": "string"
+                },
+                "temperature": {
+                  "description": "温度",
+                  "type": "number"
+                },
+                "mood": {
+                  "description": "心情",
+                  "type": "string"
+                },
+                "health": {
+                  "description": "健康",
+                  "type": "string"
+                },
+                "height": {
+                  "description": "身高",
+                  "type": "number"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {}
+      }
+    },
+    "/member/babyGrowComment/delete": {
+      "post": {
+        "description": "删除",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "日常评论"
+        ],
+        "summary": "删除",
+        "operationId": "babyGrowCommentdel",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "token",
+            "name": "Authorization",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "Body",
+            "in": "body",
+            "schema": {
+              "required": [
+                "ids"
+              ],
+              "properties": {
+                "ids": {
+                  "description": "日记id列表",
+                  "type": "string[]"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {}
+      }
+    },
+    "/member/babyGrowComment/get": {
+      "post": {
+        "description": "单个请求，详情",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "tags": [
+          "日常评论"
+        ],
+        "summary": "单个请求，详情",
+        "operationId": "babyGrowCommentget",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "token",
+            "name": "Authorization",
+            "in": "header",
+            "required": true
+          },
+          {
+            "name": "Body",
+            "in": "body",
+            "schema": {
+              "required": [
+                "id"
+              ],
+              "properties": {
+                "ids": {
+                  "description": "日记id",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {}
+      }
+    },
     "/member/auth/open/login": {
       "post": {
-        "description": "app用户登录",
+        "description": "用户认证相关",
         "tags": [
-          "repos"
+          "认证"
         ],
         "summary": "app用户登录",
         "operationId": "login",
@@ -173,6 +600,48 @@
         ],
         "responses": {}
       }
+    },
+    "/member/auth/loginUser": {
+      "post": {
+        "description": "用户认证相关",
+        "tags": [
+          "认证"
+        ],
+        "summary": "获取登录用户信息",
+        "operationId": "loginUser",
+        "parameters": [
+          {
+            "type": "string",
+            "description": "token",
+            "name": "Authorization",
+            "in": "header",
+            "required": true
+          }
+        ],
+        "responses": {}
+      }
+    }
+  },
+  "definitions": {
+    "Medias": {
+      "description": "媒体",
+      "type": "object",
+      "required": [
+        "url"
+      ],
+      "properties": {
+        "url": {
+          "description": "the id for this user",
+          "type": "string",
+          "x-go-name": "Url"
+        },
+        "size": {
+          "description": "the id for this user",
+          "type": "number",
+          "x-go-name": "Size"
+        }
+      },
+      "x-go-package": "service/media/dbModel"
     }
   }
 }
