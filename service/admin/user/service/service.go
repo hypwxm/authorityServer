@@ -16,10 +16,6 @@ import (
 	"gorm.io/gorm"
 )
 
-func GetUser(query *model.GAdminUser) (*model.GAdminUser, error) {
-	return new(model.GAdminUser).Get(query)
-}
-
 // 默认创建一个超级管理员
 func InitAdmin() error {
 	admin := &model.GAdminUser{
