@@ -1,6 +1,6 @@
 package response
 
-import "babygrow/logger"
+import "authorityServer/logger"
 
 type Sender struct {
 	Code    int         `json:"code"`

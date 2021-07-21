@@ -1,7 +1,7 @@
 package appGorm
 
 import (
-	"babygrow/util/interfaces"
+	"authorityServer/util/interfaces"
 	"fmt"
 	"strings"
 

@@ -1,8 +1,8 @@
 package dbModel
 
 import (
-	"babygrow/DB/appGorm"
-	"babygrow/config"
+	"authorityServer/DB/appGorm"
+	"authorityServer/config"
 	"testing"
 )
 

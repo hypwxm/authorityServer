@@ -1,6 +1,6 @@
 package structer
 
-import "babygrow/util/database"
+import "authorityServer/util/database"
 
 type Media struct {
 	database.BaseColumns

@@ -6,7 +6,7 @@
   },
   "host": "localhost:6789",
   "paths": {
-    "/member/babyGrow/create": {
+    "/member/authorityServer/create": {
       "post": {
         "description": "创建日记",
         "consumes": [
@@ -19,7 +19,7 @@
           "日常"
         ],
         "summary": "创建日记",
-        "operationId": "babyGrowcreate",
+        "operationId": "authorityServercreate",
         "parameters": [
           {
             "type": "string",
@@ -102,7 +102,7 @@
         }
       }
     },
-    "/member/babyGrow/list": {
+    "/member/authorityServer/list": {
       "post": {
         "description": "列表",
         "consumes": [
@@ -115,7 +115,7 @@
           "日常"
         ],
         "summary": "列表",
-        "operationId": "babyGrowlist",
+        "operationId": "authorityServerlist",
         "parameters": [
           {
             "type": "string",
@@ -144,7 +144,7 @@
         "responses": {}
       }
     },
-    "/member/babyGrow/modify": {
+    "/member/authorityServer/modify": {
       "post": {
         "description": "更新",
         "consumes": [
@@ -157,7 +157,7 @@
           "日常"
         ],
         "summary": "更新",
-        "operationId": "babyGrowmodify",
+        "operationId": "authorityServermodify",
         "parameters": [
           {
             "type": "string",
@@ -214,7 +214,7 @@
         "responses": {}
       }
     },
-    "/member/babyGrow/delete": {
+    "/member/authorityServer/delete": {
       "post": {
         "description": "删除",
         "consumes": [
@@ -227,7 +227,7 @@
           "日常"
         ],
         "summary": "删除",
-        "operationId": "babyGrowdel",
+        "operationId": "authorityServerdel",
         "parameters": [
           {
             "type": "string",
@@ -255,7 +255,7 @@
         "responses": {}
       }
     },
-    "/member/babyGrow/get": {
+    "/member/authorityServer/get": {
       "post": {
         "description": "单个请求，详情",
         "consumes": [
@@ -268,7 +268,7 @@
           "日常"
         ],
         "summary": "单个请求，详情",
-        "operationId": "babyGrowget",
+        "operationId": "authorityServerget",
         "parameters": [
           {
             "type": "string",
@@ -296,7 +296,7 @@
         "responses": {}
       }
     },
-    "/member/babyGrowComment/create": {
+    "/member/authorityServerComment/create": {
       "post": {
         "description": "创建日常评论",
         "consumes": [
@@ -309,7 +309,7 @@
           "日常评论"
         ],
         "summary": "创建日常的评论",
-        "operationId": "babyGrowCommentcreate",
+        "operationId": "authorityServerCommentcreate",
         "parameters": [
           {
             "type": "string",
@@ -374,7 +374,7 @@
         }
       }
     },
-    "/member/babyGrowComment/list": {
+    "/member/authorityServerComment/list": {
       "post": {
         "description": "列表",
         "consumes": [
@@ -387,7 +387,7 @@
           "日常评论"
         ],
         "summary": "列表",
-        "operationId": "babyGrowCommentlist",
+        "operationId": "authorityServerCommentlist",
         "parameters": [
           {
             "type": "string",
@@ -416,7 +416,7 @@
         "responses": {}
       }
     },
-    "/member/babyGrowComment/modify": {
+    "/member/authorityServerComment/modify": {
       "post": {
         "description": "更新",
         "consumes": [
@@ -429,7 +429,7 @@
           "日常评论"
         ],
         "summary": "更新",
-        "operationId": "babyGrowCommentmodify",
+        "operationId": "authorityServerCommentmodify",
         "parameters": [
           {
             "type": "string",
@@ -486,7 +486,7 @@
         "responses": {}
       }
     },
-    "/member/babyGrowComment/delete": {
+    "/member/authorityServerComment/delete": {
       "post": {
         "description": "删除",
         "consumes": [
@@ -499,7 +499,7 @@
           "日常评论"
         ],
         "summary": "删除",
-        "operationId": "babyGrowCommentdel",
+        "operationId": "authorityServerCommentdel",
         "parameters": [
           {
             "type": "string",
@@ -527,7 +527,7 @@
         "responses": {}
       }
     },
-    "/member/babyGrowComment/get": {
+    "/member/authorityServerComment/get": {
       "post": {
         "description": "单个请求，详情",
         "consumes": [
@@ -540,7 +540,7 @@
           "日常评论"
         ],
         "summary": "单个请求，详情",
-        "operationId": "babyGrowCommentget",
+        "operationId": "authorityServerCommentget",
         "parameters": [
           {
             "type": "string",

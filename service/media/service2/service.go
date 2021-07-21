@@ -1,10 +1,10 @@
 package service2
 
 import (
-	"babygrow/DB/appGorm"
-	"babygrow/service/media/dao"
-	"babygrow/service/media/dbModel"
-	"babygrow/util/interfaces"
+	"authorityServer/DB/appGorm"
+	"authorityServer/service/media/dao"
+	"authorityServer/service/media/dbModel"
+	"authorityServer/util/interfaces"
 	"errors"
 	"fmt"
 	"strings"

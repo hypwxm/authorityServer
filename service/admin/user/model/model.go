@@ -1,13 +1,13 @@
 package model
 
 import (
-	"babygrow/DB/pgsql"
-	roleModel "babygrow/service/admin/role/model"
-	mediaModel "babygrow/service/media/model"
-	mediaService "babygrow/service/media/service"
+	"authorityServer/DB/pgsql"
+	roleModel "authorityServer/service/admin/role/model"
+	mediaModel "authorityServer/service/media/model"
+	mediaService "authorityServer/service/media/service"
 
-	"babygrow/util"
-	"babygrow/util/database"
+	"authorityServer/util"
+	"authorityServer/util/database"
 
 	"errors"
 	"fmt"

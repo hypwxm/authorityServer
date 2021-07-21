@@ -1,7 +1,7 @@
 package dbModel
 
 import (
-	"babygrow/DB/appGorm"
+	"authorityServer/DB/appGorm"
 )
 
 const BusinessName = "g_media"

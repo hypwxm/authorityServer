@@ -1,4 +1,4 @@
-module babygrow
+module authorityServer
 
 go 1.15
 

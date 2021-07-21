@@ -1,7 +1,7 @@
 package service
 
 import (
-	"babygrow/service/admin/org/model"
+	"authorityServer/service/admin/org/model"
 	"log"
 	"testing"
 )

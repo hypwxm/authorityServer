@@ -1,13 +1,13 @@
 package model
 
 import (
-	"babygrow/DB/pgsql"
-	menuModel "babygrow/service/admin/menu/model"
-	menuService "babygrow/service/admin/menu/service"
+	"authorityServer/DB/pgsql"
+	menuModel "authorityServer/service/admin/menu/model"
+	menuService "authorityServer/service/admin/menu/service"
 
-	userModel "babygrow/service/admin/user/model"
-	userService "babygrow/service/admin/user/service"
-	"babygrow/util/database"
+	userModel "authorityServer/service/admin/user/model"
+	userService "authorityServer/service/admin/user/service"
+	"authorityServer/util/database"
 
 	"fmt"
 	"log"

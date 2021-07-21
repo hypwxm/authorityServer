@@ -1,10 +1,11 @@
 package controller
 
 import (
-	"babygrow/config"
-	"babygrow/service/admin/user/model"
-	"babygrow/service/admin/user/service"
-	"babygrow/util/response"
+	"authorityServer/config"
+	"authorityServer/service/admin/user/model"
+	"authorityServer/service/admin/user/service"
+	"authorityServer/util/interfaces"
+	"authorityServer/util/response"
 	"encoding/json"
 
 	"github.com/hypwxm/rider"
@@ -13,7 +14,7 @@ import (
 func create(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		entity := new(model.GAdminUser)
+		entity := new(service.CreateModel)
 		err := json.Unmarshal(c.Body(), &entity)
 		if err != nil {
 			sender.Fail(err.Error())
@@ -34,13 +35,13 @@ func create(c rider.Context) {
 func modify(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		entity := new(model.UpdateByIDQuery)
-		err := json.Unmarshal(c.Body(), &entity)
+		entity := interfaces.NewQueryMap()
+		err := entity.FromByte(c.Body())
 		if err != nil {
 			sender.Fail(err.Error())
 			return
 		}
-		entity.UserId = c.GetLocals(config.AppServerTokenKey).(string)
+		entity.Set("userId", c.GetLocals(config.AppServerTokenKey).(string))
 		err = service.Modify(entity)
 		if err != nil {
 			sender.Fail(err.Error())
@@ -54,8 +55,8 @@ func modify(c rider.Context) {
 func list(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		query := new(model.Query)
-		err := json.Unmarshal(c.Body(), &query)
+		query := interfaces.NewQueryMap()
+		err := query.FromByte(c.Body())
 		if err != nil {
 			sender.Fail(err.Error())
 			return
@@ -73,8 +74,8 @@ func list(c rider.Context) {
 func del(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		query := new(model.DeleteQuery)
-		err := json.Unmarshal(c.Body(), &query)
+		query := interfaces.NewQueryMap()
+		err := query.FromByte(c.Body())
 		if err != nil {
 			sender.Fail(err.Error())
 			return

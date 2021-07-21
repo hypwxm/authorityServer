@@ -3,6 +3,8 @@ package interfaces
 import (
 	"log"
 	"strings"
+
+	"github.com/lib/pq"
 )
 
 type ModelInterface interface {
@@ -52,6 +54,23 @@ func (i ModelMap) GetStringValue(key string) string {
 		return s
 	}
 	return ""
+}
+
+// 把interface的数组转成pq.stringArray，供sql用
+func (i ModelMap) ToStringArray(key string) pq.StringArray {
+	if ids, ok := i[key].(pq.StringArray); ok {
+		return ids
+	}
+	if ids, ok := i[key].([]interface{}); ok {
+		a := make([]string, len(ids))
+		for k, v := range ids {
+			if id, ok := v.(string); ok {
+				a[k] = id
+			}
+		}
+		return a
+	}
+	return nil
 }
 
 func (i ModelMap) Set(key string, value interface{}) {

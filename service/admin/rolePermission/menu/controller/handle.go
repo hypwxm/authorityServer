@@ -1,10 +1,10 @@
 package controller
 
 import (
-	"babygrow/config"
-	"babygrow/service/admin/rolePermission/menu/model"
-	"babygrow/service/admin/rolePermission/menu/service"
-	"babygrow/util/response"
+	"authorityServer/config"
+	"authorityServer/service/admin/rolePermission/menu/model"
+	"authorityServer/service/admin/rolePermission/menu/service"
+	"authorityServer/util/response"
 	"encoding/json"
 
 	"github.com/hypwxm/rider"

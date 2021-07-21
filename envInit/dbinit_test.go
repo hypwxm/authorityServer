@@ -1,8 +1,8 @@
 package envinit
 
 import (
-	"babygrow/DB/pgsql"
-	"babygrow/config"
+	"authorityServer/DB/pgsql"
+	"authorityServer/config"
 	"io/ioutil"
 
 	"log"
@@ -25,7 +25,7 @@ func TestMyBabiesInit(t *testing.T) {
 	}
 }
 
-func TestBabyGrowInit(t *testing.T) {
+func TestauthorityServerInit(t *testing.T) {
 	if config.Env != "development" {
 		log.Fatalln("环境错误")
 
@@ -42,7 +42,7 @@ func TestBabyGrowInit(t *testing.T) {
 	}
 }
 
-func TestBabyGrowCommentInit(t *testing.T) {
+func TestauthorityServerCommentInit(t *testing.T) {
 	if config.Env != "development" {
 		log.Fatalln("环境错误")
 

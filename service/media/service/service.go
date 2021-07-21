@@ -1,8 +1,8 @@
 package service
 
 import (
-	"babygrow/service/media/model"
-	"babygrow/util/interfaces"
+	"authorityServer/service/media/model"
+	"authorityServer/util/interfaces"
 
 	"github.com/jmoiron/sqlx"
 )

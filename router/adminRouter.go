@@ -1,19 +1,19 @@
 package router
 
 import (
-	"babygrow/middleware"
-	menuController "babygrow/service/admin/menu/controller"
-	orgController "babygrow/service/admin/org/controller"
-	roleMenuController "babygrow/service/admin/rolePermission/menu/controller"
+	"authorityServer/middleware"
+	menuController "authorityServer/service/admin/menu/controller"
+	orgController "authorityServer/service/admin/org/controller"
+	roleMenuController "authorityServer/service/admin/rolePermission/menu/controller"
 
-	controller8 "babygrow/service/admin/role/controller"
-	controller7 "babygrow/service/admin/user/controller"
+	controller8 "authorityServer/service/admin/role/controller"
+	controller7 "authorityServer/service/admin/user/controller"
 
-	controller2 "babygrow/service/auth/controller"
+	controller2 "authorityServer/service/auth/controller"
 
-	baseControl "babygrow/base_control"
-	controller12 "babygrow/service/menu/controller"
-	controller14 "babygrow/service/webSource/controller"
+	baseControl "authorityServer/base_control"
+	controller12 "authorityServer/service/menu/controller"
+	controller14 "authorityServer/service/webSource/controller"
 
 	"github.com/hypwxm/rider"
 )

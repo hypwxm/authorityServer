@@ -1,10 +1,10 @@
 package controller
 
 import (
-	"babygrow/config"
-	"babygrow/service/admin/org/model"
-	"babygrow/service/admin/org/service"
-	"babygrow/util/response"
+	"authorityServer/config"
+	"authorityServer/service/admin/org/service"
+	"authorityServer/util/interfaces"
+	"authorityServer/util/response"
 	"encoding/json"
 	"strings"
 
@@ -14,7 +14,7 @@ import (
 func create(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		entity := new(model.GOrg)
+		entity := new(service.CreateModel)
 		err := json.Unmarshal(c.Body(), &entity)
 		if err != nil {
 			sender.Fail(err.Error())
@@ -38,14 +38,15 @@ func create(c rider.Context) {
 func modify(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		entity := new(model.UpdateByIDQuery)
-		err := json.Unmarshal(c.Body(), &entity)
+		query := interfaces.NewQueryMap()
+		err := query.FromByte(c.Body())
 		if err != nil {
 			sender.Fail(err.Error())
 			return
 		}
-		entity.UserId = c.GetLocals(config.AppServerTokenKey).(string)
-		err = service.Modify(entity)
+		userId := c.GetLocals(config.AppServerTokenKey)
+		query.Set("userId", userId)
+		err = service.Modify(query)
 		if err != nil {
 			sender.Fail(err.Error())
 			return
@@ -58,12 +59,14 @@ func modify(c rider.Context) {
 func list(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		query := new(model.Query)
-		err := json.Unmarshal(c.Body(), &query)
+		query := interfaces.NewQueryMap()
+		err := query.FromByte(c.Body())
 		if err != nil {
 			sender.Fail(err.Error())
 			return
 		}
+		userId := c.GetLocals(config.AppServerTokenKey)
+		query.Set("userId", userId)
 		list, total, err := service.List(query)
 		if err != nil {
 			sender.Fail(err.Error())
@@ -77,8 +80,8 @@ func list(c rider.Context) {
 func del(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		query := new(model.DeleteQuery)
-		err := json.Unmarshal(c.Body(), &query)
+		query := interfaces.NewQueryMap()
+		err := query.FromByte(c.Body())
 		if err != nil {
 			sender.Fail(err.Error())
 			return
@@ -96,8 +99,8 @@ func del(c rider.Context) {
 func get(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		query := new(model.GetQuery)
-		err := json.Unmarshal(c.Body(), &query)
+		query := interfaces.NewQueryMap()
+		err := query.FromByte(c.Body())
 		if err != nil {
 			sender.Fail(err.Error())
 			return

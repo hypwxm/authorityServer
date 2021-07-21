@@ -1,9 +1,9 @@
 package model
 
 import (
-	"babygrow/DB/appGorm"
-	"babygrow/DB/pgsql"
-	"babygrow/util/interfaces"
+	"authorityServer/DB/appGorm"
+	"authorityServer/DB/pgsql"
+	"authorityServer/util/interfaces"
 	"errors"
 	"fmt"
 	"log"

@@ -1,7 +1,7 @@
 package baseController
 
 import (
-	"babygrow/middleware"
+	"authorityServer/middleware"
 
 	"github.com/hypwxm/rider"
 )

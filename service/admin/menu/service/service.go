@@ -1,25 +1,49 @@
 package service
 
 import (
-	"babygrow/service/admin/menu/model"
+	"authorityServer/DB/appGorm"
+	"authorityServer/service/admin/menu/dao"
+	"authorityServer/service/admin/menu/dbModel"
+	"authorityServer/util/interfaces"
+	"errors"
+	"strings"
 )
 
-func Create(entity *model.GMenu) (string, error) {
-	return entity.Insert()
+type CreateModel struct {
+	dbModel.GMenu
 }
 
-func Modify(updateQuery *model.UpdateByIDQuery) error {
-	return new(model.GMenu).Update(updateQuery)
+func Create(entity *CreateModel) (string, error) {
+	db := appGorm.Open()
+	return dao.Insert(db, &entity.GMenu)
 }
 
-func List(query *model.Query) ([]*model.ListModel, int64, error) {
-	return new(model.GMenu).List(query)
+func Modify(query interfaces.QueryInterface) error {
+	if query == nil {
+		return errors.New("无更新条件")
+	}
+	if strings.TrimSpace(query.GetID()) == "" {
+		return errors.New("更新条件错误")
+	}
+	db := appGorm.Open()
+	return dao.Update(db, query)
 }
 
-func Del(query *model.DeleteQuery) error {
-	return new(model.GMenu).Delete(query)
+func List(query interfaces.QueryInterface) (interfaces.ModelMapSlice, int64, error) {
+	db := appGorm.Open()
+	list, total, err := dao.List(db, query)
+	if err != nil {
+		return nil, 0, err
+	}
+	return list, total, nil
 }
 
-func Get(query *model.GetQuery) (*model.GetModel, error) {
-	return new(model.GMenu).GetByID(query)
+func Del(query interfaces.QueryInterface) error {
+	db := appGorm.Open()
+	return dao.Delete(db, query)
+}
+
+func Get(query interfaces.QueryInterface) (interfaces.ModelInterface, error) {
+	db := appGorm.Open()
+	return dao.Get(db, query)
 }

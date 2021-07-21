@@ -1,7 +1,7 @@
 package appGorm
 
 import (
-	"babygrow/util"
+	"authorityServer/util"
 
 	"gorm.io/gorm"
 )

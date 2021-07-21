@@ -1,9 +1,9 @@
 package dao
 
 import (
-	"babygrow/DB/appGorm"
-	"babygrow/service/media/dbModel"
-	"babygrow/util/interfaces"
+	"authorityServer/DB/appGorm"
+	"authorityServer/service/media/dbModel"
+	"authorityServer/util/interfaces"
 
 	"errors"
 	"strings"

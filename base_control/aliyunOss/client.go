@@ -1,7 +1,7 @@
 package aliyunOss
 
 import (
-	"babygrow/config"
+	"authorityServer/config"
 	"fmt"
 	"os"
 
@@ -9,14 +9,14 @@ import (
 )
 
 var OssConfigDev = map[string]string{
-	"host":     "https://babygrowning-test.oss-cn-hangzhou.aliyuncs.com",
-	"bucket":   "babygrowning-test",
+	"host":     "https://authorityServerning-test.oss-cn-hangzhou.aliyuncs.com",
+	"bucket":   "authorityServerning-test",
 	"endpoint": "oss-cn-hangzhou.aliyuncs.com",
 }
 
 var OssConfigProd = map[string]string{
-	"host":     "https://babygrow.oss-cn-hangzhou.aliyuncs.com",
-	"bucket":   "babygrow",
+	"host":     "https://authorityServer.oss-cn-hangzhou.aliyuncs.com",
+	"bucket":   "authorityServer",
 	"endpoint": "oss-cn-hangzhou-internal.aliyuncs.com",
 }
 

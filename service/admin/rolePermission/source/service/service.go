@@ -1,7 +1,7 @@
 package service
 
 import (
-	"babygrow/service/admin/rolePermission/source/model"
+	"authorityServer/service/admin/rolePermission/source/model"
 )
 
 func Create(query *model.SaveQuery) (string, error) {

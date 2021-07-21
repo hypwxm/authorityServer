@@ -1,7 +1,7 @@
 package appGorm
 
 import (
-	"babygrow/config"
+	"authorityServer/config"
 	"log"
 	"os"
 	"time"

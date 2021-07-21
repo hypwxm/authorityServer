@@ -1,8 +1,8 @@
 package model
 
 import (
-	"babygrow/DB/pgsql"
-	"babygrow/config"
+	"authorityServer/DB/pgsql"
+	"authorityServer/config"
 	"io/ioutil"
 	"testing"
 )
