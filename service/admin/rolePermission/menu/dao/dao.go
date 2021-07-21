@@ -4,9 +4,7 @@ import (
 	"authorityServer/DB/appGorm"
 	"authorityServer/service/admin/rolePermission/menu/dbModel"
 	"authorityServer/util/interfaces"
-
-	"errors"
-	"strings"
+	"fmt"
 
 	"gorm.io/gorm"
 )
@@ -23,7 +21,7 @@ func MultiInsert(db *gorm.DB, entity []*dbModel.GRoleMenu) ([]*dbModel.GRoleMenu
 
 func Get(db *gorm.DB, query interfaces.QueryInterface) (interfaces.ModelInterface, error) {
 	var entity = make(map[string]interface{})
-	tx := db.Model(&dbModel.GRole{})
+	tx := db.Model(&dbModel.GRoleMenu{})
 	if query.GetID() != "" {
 		tx.Where("id=?", query.GetID())
 	}
@@ -32,25 +30,32 @@ func Get(db *gorm.DB, query interfaces.QueryInterface) (interfaces.ModelInterfac
 	return mMap.ToCamelKey(), err
 }
 
-func List(db *gorm.DB, query interfaces.QueryInterface) (interfaces.ModelMapSlice, int64, error) {
-	tx := db.Model(&dbModel.GRole{})
-	tx.Scopes(appGorm.BaseWhere2(query, ""))
-	var count int64
-	err := tx.Count(&count).Error
-	if err != nil {
-		return nil, 0, err
-	}
+func List(db *gorm.DB, query interfaces.QueryInterface) (interfaces.ModelMapSlice, error) {
+	tx := db.Model(&dbModel.GRoleMenu{})
+	tx.Select(`
+			g_authority_role_menu.createtime,
+			g_authority_role_menu.updatetime,
+			g_authority_role_menu.role_id,
+			g_authority_role_menu.menu_id,
+			g_authority_menu.parent_id,
+			g_authority_menu.name,
+			g_authority_menu.path,
+			g_authority_menu.icon
+`)
+	tx.Joins("inner join g_authority_menu on g_authority_role_menu.menu_id=g_authority_role_menu.id")
+	tx.Where("g_authority_role_menu.role_id=any(?)", query.ToStringArray("roleIds"))
 
+	tx.Scopes(appGorm.BaseWhere2(query, ""))
 	var list = make([]map[string]interface{}, 0)
-	err = tx.Scopes(appGorm.Paginate2(query, "")).Find(&list).Error
+	err := tx.Scopes(appGorm.Paginate2(query, "")).Find(&list).Error
 	nlist := interfaces.NewModelMapSliceFromMapSlice(list)
-	return nlist.ToCamelKey(), count, err
+	return nlist.ToCamelKey(), err
 }
 
 // 更新,根据用户id和数据id进行更新
 // 部分字段不允许更新，userID, id
 func Update(db *gorm.DB, query interfaces.QueryInterface) error {
-	err := db.Model(&dbModel.GRole{}).Select("name", "path", "icon").Where("id=?", query.GetID()).Updates(map[string]interface{}{
+	err := db.Model(&dbModel.GRoleMenu{}).Select("name", "path", "icon").Where("id=?", query.GetID()).Updates(map[string]interface{}{
 		"name": query.GetValueWithDefault("name", ""),
 		"path": query.GetValueWithDefault("path", ""),
 		"icon": query.GetValueWithDefault("icon", ""),
@@ -60,13 +65,8 @@ func Update(db *gorm.DB, query interfaces.QueryInterface) error {
 
 // 删除，批量删除
 func Delete(db *gorm.DB, query interfaces.QueryInterface) error {
-	if len(query.GetIDs()) == 0 {
-		return errors.New("操作条件错误")
+	if query.GetStringValue("roleId") == "" {
+		return fmt.Errorf("操作错误")
 	}
-	for _, v := range query.GetIDs() {
-		if strings.TrimSpace(v) == "" {
-			return errors.New("操作条件错误")
-		}
-	}
-	return db.Where("id=any(?)", query.GetIDs()).Delete(&dbModel.GRole{}).Error
+	return db.Where("role_id=? and menu_id=any(?)", query.GetStringValue("roleId"), query.ToStringArray("menuIds")).Delete(&dbModel.GRoleMenu{}).Error
 }

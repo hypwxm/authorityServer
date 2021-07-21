@@ -2,10 +2,9 @@ package controller
 
 import (
 	"authorityServer/config"
-	"authorityServer/service/admin/rolePermission/menu/model"
 	"authorityServer/service/admin/rolePermission/menu/service"
+	"authorityServer/util/interfaces"
 	"authorityServer/util/response"
-	"encoding/json"
 
 	"github.com/hypwxm/rider"
 )
@@ -13,13 +12,13 @@ import (
 func create(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		entity := new(model.SaveQuery)
-		err := json.Unmarshal(c.Body(), &entity)
+		entity := interfaces.NewQueryMap()
+		err := entity.FromByte(c.Body())
 		if err != nil {
 			sender.Fail(err.Error())
 			return
 		}
-		id, err := service.Create(entity)
+		id, err := service.Save(entity)
 		if err != nil {
 			sender.Fail(err.Error())
 			return
@@ -32,15 +31,14 @@ func create(c rider.Context) {
 func list(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		query := new(model.Query)
-		err := json.Unmarshal(c.Body(), &query)
+		query := interfaces.NewQueryMap()
+		err := query.FromByte(c.Body())
 		if err != nil {
 			sender.Fail(err.Error())
 			return
 		}
 		// 如果前段没传角色id过来，就根据当前的登录信息的角色来
-		userId := c.GetLocals(config.AppServerTokenKey).(string)
-		query.UserId = userId
+		query.Set("userId", c.GetLocals(config.AppServerTokenKey).(string))
 		list, err := service.List(query)
 		if err != nil {
 			sender.Fail(err.Error())
@@ -54,8 +52,8 @@ func list(c rider.Context) {
 func del(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		query := new(model.DeleteQuery)
-		err := json.Unmarshal(c.Body(), &query)
+		query := interfaces.NewQueryMap()
+		err := query.FromByte(c.Body())
 		if err != nil {
 			sender.Fail(err.Error())
 			return

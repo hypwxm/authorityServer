@@ -5,7 +5,7 @@ import (
 	menuService "authorityServer/service/admin/menu/service"
 	"authorityServer/service/admin/rolePermission/menu/dao"
 	"authorityServer/service/admin/rolePermission/menu/dbModel"
-	"authorityServer/service/admin/rolePermission/menu/model"
+	userService "authorityServer/service/admin/user/service"
 
 	"authorityServer/util/interfaces"
 	"fmt"
@@ -37,36 +37,40 @@ func Save(query interfaces.QueryInterface) ([]*dbModel.GRoleMenu, error) {
 	return list, nil
 }
 
-func Del(query *model.DeleteQuery) error {
-	return new(model.GRoleMenu).Delete(query)
+func Del(query interfaces.QueryInterface) error {
+	db := appGorm.Open()
+	return dao.Delete(db, query)
 }
 
-func List(query interfaces.QueryMap) (interfaces.ModelMapSlice, int64, error) {
+func List(query interfaces.QueryInterface) (interfaces.ModelMapSlice, error) {
 	if roleIds := query.ToStringArray("roleIds"); len(roleIds) == 0 {
 		// 如果roleid为空，去userId对应的权限，
 		//给别人分配权限的时候只能以自己拥有的权限为基准
 		if query.GetStringValue("userId") == "" {
 			return nil, fmt.Errorf("操作错误")
 		}
-		user, err := userService.Get(&userModel.GetQuery{ID: query.UserId})
+		user, err := userService.Get(interfaces.QueryMap{"id": query.GetStringValue("userId")})
 		if err != nil {
 			return nil, err
 		}
 
-		if user.Account != "admin" {
+		if user.GetStringValue("account") == "admin" {
 			// 究极管理员无需判断，最高权限
-			for _, v := range user.Roles {
-				query.Set("roleIds", append(roleIds, v.RoleId))
-			}
-			if len(roleIds) == 0 {
-				return nil, fmt.Errorf("操作错误")
-			}
-		} else {
 			ms, _, err := menuService.List(nil)
 			if err != nil {
 				return nil, err
 			}
 			return ms, nil
+		} else {
+			roles := user.GetValue("roles").(interfaces.ModelMapSlice)
+			roleIds := make([]string, 0)
+			for _, v := range roles {
+				roleIds = append(roleIds, v.GetStringValue("id"))
+			}
+			if len(roleIds) == 0 {
+				return nil, fmt.Errorf("操作错误")
+			}
+			query.Set("roleIds", roleIds)
 		}
 	}
 
