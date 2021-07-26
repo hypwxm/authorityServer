@@ -177,7 +177,7 @@ func RolesInsert(db *gorm.DB, roles []*dbModel.GUserRole) error {
 */
 
 func GetRolesByUserIds(db *gorm.DB, ids pq.StringArray) (interfaces.ModelMapSlice, error) {
-	tx := db.Model(&dbModel.GAdminUser{})
+	tx := db.Model(&dbModel.GUserRole{})
 	tx.Select("g_authority_user_role.*,g_authority_role.*")
 	tx.Joins("inner join g_authority_role on g_authority_user_role.role_id=g_authority_role.id and g_authority_role.delete_at is null")
 	tx.Where("g_authority_user_role.user_id=any(?)", ids)
