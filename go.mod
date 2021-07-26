@@ -1,4 +1,4 @@
-module authorityServer
+module authority-server
 
 go 1.15
 
