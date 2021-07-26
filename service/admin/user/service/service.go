@@ -78,10 +78,11 @@ func Create(entity *CreateModel) (string, error) {
 		for _, v := range entity.Roles {
 			v.UserId = id
 		}
-
-		err = dao.RolesInsert(tx, entity.Roles)
-		if err != nil {
-			return err
+		if entity.Account != "admin" {
+			err = dao.RolesInsert(tx, entity.Roles)
+			if err != nil {
+				return err
+			}
 		}
 		return nil
 	})
