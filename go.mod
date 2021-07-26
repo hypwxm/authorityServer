@@ -1,4 +1,4 @@
-module authorityServer
+module github.com/hypwxm/authorityServer
 
 go 1.15
 
