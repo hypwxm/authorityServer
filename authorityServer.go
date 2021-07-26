@@ -7,7 +7,7 @@ import (
 	"github.com/hypwxm/rider"
 )
 
-func Init(app rider.Rider, cfg config.ConfigDefine) *rider.Router {
+func Init(app *rider.Rider, cfg config.ConfigDefine) *rider.Router {
 	config.InitConfig(cfg)
 	// app.Kid("/", router.Router())
 	return router.Router()
