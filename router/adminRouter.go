@@ -12,8 +12,6 @@ import (
 	controller2 "github.com/hypwxm/authorityServer/service/auth/controller"
 
 	baseControl "github.com/hypwxm/authorityServer/base_control"
-	controller12 "github.com/hypwxm/authorityServer/service/menu/controller"
-	controller14 "github.com/hypwxm/authorityServer/service/webSource/controller"
 
 	"github.com/hypwxm/rider"
 )
@@ -26,9 +24,6 @@ func AdminRouter() *rider.Router {
 	baseControl.Init(route)
 
 	route.Kid("/auth", middleware.Auth(), controller2.Router())
-
-	route.Kid("/settings/menu", middleware.Auth(), controller12.Router())
-	route.Kid("/settings/webSource", middleware.Auth(), controller14.Router())
 
 	route.Kid("/adminuser", middleware.Auth(), controller7.Router())
 	route.Kid("/adminrole", middleware.Auth(), controller8.Router())
