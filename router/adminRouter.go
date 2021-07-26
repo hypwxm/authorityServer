@@ -25,11 +25,11 @@ func AdminRouter() *rider.Router {
 
 	route.Kid("/auth", middleware.Auth(), controller2.Router())
 
-	route.Kid("/adminuser", middleware.Auth(), controller7.Router())
-	route.Kid("/adminrole", middleware.Auth(), controller8.Router())
-	route.Kid("/adminorg", middleware.Auth(), orgController.Router())
-	route.Kid("/adminmenu", middleware.Auth(), menuController.Router())
-	route.Kid("/adminrolemenu", middleware.Auth(), roleMenuController.Router())
+	route.Kid("/user", middleware.Auth(), controller7.Router())
+	route.Kid("/role", middleware.Auth(), controller8.Router())
+	route.Kid("/org", middleware.Auth(), orgController.Router())
+	route.Kid("/menu", middleware.Auth(), menuController.Router())
+	route.Kid("/rolemenu", middleware.Auth(), roleMenuController.Router())
 
 	return route
 }
