@@ -1,7 +1,6 @@
 package aliyunOss
 
 import (
-	"authorityServer/config"
 	"fmt"
 	"os"
 
@@ -23,12 +22,7 @@ var OssConfigProd = map[string]string{
 var OssConfig = make(map[string]string)
 
 func init() {
-	if config.Env == config.ENV_DEV {
-		OssConfig = OssConfigDev
-	}
-	if config.Env == config.ENV_PROD {
-		OssConfig = OssConfigProd
-	}
+	OssConfig = OssConfigProd
 }
 
 // 创建oss客户端
