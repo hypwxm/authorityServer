@@ -1,9 +1,9 @@
 package dao
 
 import (
-	"authorityServer/DB/appGorm"
-	"authorityServer/service/admin/role/dbModel"
-	"authorityServer/util/interfaces"
+	"github.com/hypwxm/authorityServer/DB/appGorm"
+	"github.com/hypwxm/authorityServer/service/admin/role/dbModel"
+	"github.com/hypwxm/authorityServer/util/interfaces"
 
 	"errors"
 	"strings"

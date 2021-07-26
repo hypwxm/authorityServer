@@ -1,19 +1,19 @@
 package router
 
 import (
-	"authorityServer/middleware"
-	menuController "authorityServer/service/admin/menu/controller"
-	orgController "authorityServer/service/admin/org/controller"
-	roleMenuController "authorityServer/service/admin/rolePermission/menu/controller"
+	"github.com/hypwxm/authorityServer/middleware"
+	menuController "github.com/hypwxm/authorityServer/service/admin/menu/controller"
+	orgController "github.com/hypwxm/authorityServer/service/admin/org/controller"
+	roleMenuController "github.com/hypwxm/authorityServer/service/admin/rolePermission/menu/controller"
 
-	controller8 "authorityServer/service/admin/role/controller"
-	controller7 "authorityServer/service/admin/user/controller"
+	controller8 "github.com/hypwxm/authorityServer/service/admin/role/controller"
+	controller7 "github.com/hypwxm/authorityServer/service/admin/user/controller"
 
-	controller2 "authorityServer/service/auth/controller"
+	controller2 "github.com/hypwxm/authorityServer/service/auth/controller"
 
-	baseControl "authorityServer/base_control"
-	controller12 "authorityServer/service/menu/controller"
-	controller14 "authorityServer/service/webSource/controller"
+	baseControl "github.com/hypwxm/authorityServer/base_control"
+	controller12 "github.com/hypwxm/authorityServer/service/menu/controller"
+	controller14 "github.com/hypwxm/authorityServer/service/webSource/controller"
 
 	"github.com/hypwxm/rider"
 )

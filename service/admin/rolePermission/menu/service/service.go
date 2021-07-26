@@ -1,14 +1,15 @@
 package service
 
 import (
-	"authorityServer/DB/appGorm"
-	menuService "authorityServer/service/admin/menu/service"
-	"authorityServer/service/admin/rolePermission/menu/dao"
-	"authorityServer/service/admin/rolePermission/menu/dbModel"
-	userService "authorityServer/service/admin/user/service"
+	"github.com/hypwxm/authorityServer/DB/appGorm"
+	menuService "github.com/hypwxm/authorityServer/service/admin/menu/service"
+	"github.com/hypwxm/authorityServer/service/admin/rolePermission/menu/dao"
+	"github.com/hypwxm/authorityServer/service/admin/rolePermission/menu/dbModel"
+	userService "github.com/hypwxm/authorityServer/service/admin/user/service"
 
-	"authorityServer/util/interfaces"
 	"fmt"
+
+	"github.com/hypwxm/authorityServer/util/interfaces"
 )
 
 func Save(query interfaces.QueryInterface) ([]*dbModel.GRoleMenu, error) {

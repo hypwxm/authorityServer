@@ -1,9 +1,10 @@
 package appGorm
 
 import (
-	"authorityServer/util/interfaces"
 	"fmt"
 	"strings"
+
+	"github.com/hypwxm/authorityServer/util/interfaces"
 
 	"gorm.io/gorm"
 )

@@ -1,7 +1,7 @@
 package baseController
 
 import (
-	"authorityServer/middleware"
+	"github.com/hypwxm/authorityServer/middleware"
 
 	"github.com/hypwxm/rider"
 )

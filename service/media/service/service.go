@@ -1,8 +1,8 @@
 package service
 
 import (
-	"authorityServer/service/media/model"
-	"authorityServer/util/interfaces"
+	"github.com/hypwxm/authorityServer/service/media/model"
+	"github.com/hypwxm/authorityServer/util/interfaces"
 
 	"github.com/jmoiron/sqlx"
 )

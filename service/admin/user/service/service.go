@@ -1,15 +1,16 @@
 package service
 
 import (
-	"authorityServer/DB/appGorm"
-	"authorityServer/service/admin/user/dao"
-	"authorityServer/service/admin/user/dbModel"
-	"authorityServer/service/admin/user/model"
-	"authorityServer/util"
-	"authorityServer/util/interfaces"
 	"errors"
 	"fmt"
 	"strings"
+
+	"github.com/hypwxm/authorityServer/DB/appGorm"
+	"github.com/hypwxm/authorityServer/service/admin/user/dao"
+	"github.com/hypwxm/authorityServer/service/admin/user/dbModel"
+	"github.com/hypwxm/authorityServer/service/admin/user/model"
+	"github.com/hypwxm/authorityServer/util"
+	"github.com/hypwxm/authorityServer/util/interfaces"
 
 	"github.com/hypwxm/rider/utils/cryptos"
 	"github.com/lib/pq"

@@ -1,9 +1,10 @@
 package service
 
 import (
-	"authorityServer/service/admin/org/model"
 	"log"
 	"testing"
+
+	"github.com/hypwxm/authorityServer/service/admin/org/model"
 )
 
 func TestModels(t *testing.T) {

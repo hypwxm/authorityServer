@@ -1,9 +1,10 @@
 package envinit
 
 import (
-	"authorityServer/DB/pgsql"
-	"authorityServer/config"
 	"io/ioutil"
+
+	"github.com/hypwxm/authorityServer/DB/pgsql"
+	"github.com/hypwxm/authorityServer/config"
 
 	"log"
 	"testing"

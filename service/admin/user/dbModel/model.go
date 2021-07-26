@@ -1,7 +1,7 @@
 package dbModel
 
 import (
-	"authorityServer/DB/appGorm"
+	"github.com/hypwxm/authorityServer/DB/appGorm"
 )
 
 const BusinessName = "g_authority_user"

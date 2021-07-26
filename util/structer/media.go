@@ -1,6 +1,6 @@
 package structer
 
-import "authorityServer/util/database"
+import "github.com/hypwxm/authorityServer/util/database"
 
 type Media struct {
 	database.BaseColumns

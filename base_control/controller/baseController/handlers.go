@@ -1,16 +1,17 @@
 package baseController
 
 import (
-	"authorityServer/base_control/aliyunOss"
-	"authorityServer/config"
-	"authorityServer/logger"
-	"authorityServer/util/response"
 	"math/rand"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/hypwxm/authorityServer/base_control/aliyunOss"
+	"github.com/hypwxm/authorityServer/config"
+	"github.com/hypwxm/authorityServer/logger"
+	"github.com/hypwxm/authorityServer/util/response"
 
 	"github.com/hypwxm/rider"
 	"github.com/hypwxm/rider/utils/file"

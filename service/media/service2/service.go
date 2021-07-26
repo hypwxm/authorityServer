@@ -1,13 +1,14 @@
 package service2
 
 import (
-	"authorityServer/DB/appGorm"
-	"authorityServer/service/media/dao"
-	"authorityServer/service/media/dbModel"
-	"authorityServer/util/interfaces"
 	"errors"
 	"fmt"
 	"strings"
+
+	"github.com/hypwxm/authorityServer/DB/appGorm"
+	"github.com/hypwxm/authorityServer/service/media/dao"
+	"github.com/hypwxm/authorityServer/service/media/dbModel"
+	"github.com/hypwxm/authorityServer/util/interfaces"
 )
 
 type CreateModel struct {

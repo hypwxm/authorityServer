@@ -1,7 +1,7 @@
 package appGorm
 
 import (
-	"authorityServer/util"
+	"github.com/hypwxm/authorityServer/util"
 
 	"gorm.io/gorm"
 )

@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"authorityServer/base_control/controller/baseController"
+	"github.com/hypwxm/authorityServer/base_control/controller/baseController"
 
 	"github.com/hypwxm/rider"
 )

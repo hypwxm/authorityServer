@@ -1,10 +1,11 @@
 package appGorm
 
 import (
-	"authorityServer/config"
 	"log"
 	"os"
 	"time"
+
+	"github.com/hypwxm/authorityServer/config"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"

@@ -1,12 +1,13 @@
 package controller
 
 import (
-	"authorityServer/config"
-	"authorityServer/service/admin/org/service"
-	"authorityServer/util/interfaces"
-	"authorityServer/util/response"
 	"encoding/json"
 	"strings"
+
+	"github.com/hypwxm/authorityServer/config"
+	"github.com/hypwxm/authorityServer/service/admin/org/service"
+	"github.com/hypwxm/authorityServer/util/interfaces"
+	"github.com/hypwxm/authorityServer/util/response"
 
 	"github.com/hypwxm/rider"
 )

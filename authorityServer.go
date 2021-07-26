@@ -1,8 +1,8 @@
 package authorityServer // import "github.com/hypwxm/authorityServer"
 
 import (
-	"authorityServer/config"
-	"authorityServer/router"
+	"github.com/hypwxm/authorityServer/config"
+	"github.com/hypwxm/authorityServer/router"
 
 	"github.com/hypwxm/rider"
 )

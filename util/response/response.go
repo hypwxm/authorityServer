@@ -1,6 +1,6 @@
 package response
 
-import "authorityServer/logger"
+import "github.com/hypwxm/authorityServer/logger"
 
 type Sender struct {
 	Code    int         `json:"code"`

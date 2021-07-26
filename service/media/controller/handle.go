@@ -1,11 +1,12 @@
 package controller
 
 import (
-	"authorityServer/config"
-	"authorityServer/service/media/model"
-	"authorityServer/service/media/service"
-	"authorityServer/util/response"
 	"encoding/json"
+
+	"github.com/hypwxm/authorityServer/config"
+	"github.com/hypwxm/authorityServer/service/media/model"
+	"github.com/hypwxm/authorityServer/service/media/service"
+	"github.com/hypwxm/authorityServer/util/response"
 
 	"github.com/hypwxm/rider"
 )

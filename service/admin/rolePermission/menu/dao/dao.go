@@ -1,10 +1,11 @@
 package dao
 
 import (
-	"authorityServer/DB/appGorm"
-	"authorityServer/service/admin/rolePermission/menu/dbModel"
-	"authorityServer/util/interfaces"
 	"fmt"
+
+	"github.com/hypwxm/authorityServer/DB/appGorm"
+	"github.com/hypwxm/authorityServer/service/admin/rolePermission/menu/dbModel"
+	"github.com/hypwxm/authorityServer/util/interfaces"
 
 	"gorm.io/gorm"
 )

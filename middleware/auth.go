@@ -1,9 +1,10 @@
 package middleware
 
 import (
-	"authorityServer/config"
-	"authorityServer/util/response"
 	"strings"
+
+	"github.com/hypwxm/authorityServer/config"
+	"github.com/hypwxm/authorityServer/util/response"
 
 	"github.com/hypwxm/rider"
 )

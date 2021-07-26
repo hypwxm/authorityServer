@@ -1,11 +1,12 @@
 package dao
 
 import (
-	"authorityServer/DB/appGorm"
-	"authorityServer/service/admin/user/dbModel"
-	"authorityServer/util"
-	"authorityServer/util/interfaces"
 	"fmt"
+
+	"github.com/hypwxm/authorityServer/DB/appGorm"
+	"github.com/hypwxm/authorityServer/service/admin/user/dbModel"
+	"github.com/hypwxm/authorityServer/util"
+	"github.com/hypwxm/authorityServer/util/interfaces"
 
 	"errors"
 	"strings"

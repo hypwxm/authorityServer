@@ -1,9 +1,10 @@
 package dbModel
 
 import (
-	"authorityServer/DB/appGorm"
-	"authorityServer/config"
 	"testing"
+
+	"github.com/hypwxm/authorityServer/DB/appGorm"
+	"github.com/hypwxm/authorityServer/config"
 )
 
 func TestModels(t *testing.T) {

@@ -1,10 +1,10 @@
 package controller
 
 import (
-	"authorityServer/config"
-	adminUserService "authorityServer/service/admin/user/service"
-	"authorityServer/util/interfaces"
-	"authorityServer/util/response"
+	"github.com/hypwxm/authorityServer/config"
+	adminUserService "github.com/hypwxm/authorityServer/service/admin/user/service"
+	"github.com/hypwxm/authorityServer/util/interfaces"
+	"github.com/hypwxm/authorityServer/util/response"
 
 	"github.com/hypwxm/rider"
 )

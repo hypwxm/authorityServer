@@ -1,9 +1,10 @@
 package model
 
 import (
-	"authorityServer/DB/pgsql"
 	"fmt"
 	"strings"
+
+	"github.com/hypwxm/authorityServer/DB/pgsql"
 )
 
 // 表名

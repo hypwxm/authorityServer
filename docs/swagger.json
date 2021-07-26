@@ -6,7 +6,7 @@
   },
   "host": "localhost:6789",
   "paths": {
-    "/member/authorityServer/create": {
+    "/member/github.com/hypwxm/authorityServer/create": {
       "post": {
         "description": "创建日记",
         "consumes": [
@@ -102,7 +102,7 @@
         }
       }
     },
-    "/member/authorityServer/list": {
+    "/member/github.com/hypwxm/authorityServer/list": {
       "post": {
         "description": "列表",
         "consumes": [
@@ -144,7 +144,7 @@
         "responses": {}
       }
     },
-    "/member/authorityServer/modify": {
+    "/member/github.com/hypwxm/authorityServer/modify": {
       "post": {
         "description": "更新",
         "consumes": [
@@ -214,7 +214,7 @@
         "responses": {}
       }
     },
-    "/member/authorityServer/delete": {
+    "/member/github.com/hypwxm/authorityServer/delete": {
       "post": {
         "description": "删除",
         "consumes": [
@@ -255,7 +255,7 @@
         "responses": {}
       }
     },
-    "/member/authorityServer/get": {
+    "/member/github.com/hypwxm/authorityServer/get": {
       "post": {
         "description": "单个请求，详情",
         "consumes": [

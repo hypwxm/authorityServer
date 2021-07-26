@@ -1,12 +1,13 @@
 package service
 
 import (
-	"authorityServer/DB/appGorm"
-	"authorityServer/service/admin/menu/dao"
-	"authorityServer/service/admin/menu/dbModel"
-	"authorityServer/util/interfaces"
 	"errors"
 	"strings"
+
+	"github.com/hypwxm/authorityServer/DB/appGorm"
+	"github.com/hypwxm/authorityServer/service/admin/menu/dao"
+	"github.com/hypwxm/authorityServer/service/admin/menu/dbModel"
+	"github.com/hypwxm/authorityServer/util/interfaces"
 )
 
 type CreateModel struct {

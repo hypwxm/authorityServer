@@ -1,14 +1,15 @@
 package model
 
 import (
-	"authorityServer/DB/appGorm"
-	"authorityServer/DB/pgsql"
-	"authorityServer/util/interfaces"
 	"errors"
 	"fmt"
 	"log"
 	"reflect"
 	"strings"
+
+	"github.com/hypwxm/authorityServer/DB/appGorm"
+	"github.com/hypwxm/authorityServer/DB/pgsql"
+	"github.com/hypwxm/authorityServer/util/interfaces"
 
 	"github.com/jmoiron/sqlx"
 	"github.com/lib/pq"
