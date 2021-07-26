@@ -6,6 +6,6 @@ import (
 
 func Router() *rider.Router {
 	route := rider.NewRouter()
-	route.Kid("/server", AdminRouter())
+	route.Kid("/", AdminRouter())
 	return route
 }
