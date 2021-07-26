@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 
 	"github.com/hypwxm/authorityServer/config"
-	"github.com/hypwxm/authorityServer/service/admin/user/model"
 	"github.com/hypwxm/authorityServer/service/admin/user/service"
 	"github.com/hypwxm/authorityServer/util/interfaces"
 	"github.com/hypwxm/authorityServer/util/response"
@@ -94,8 +93,8 @@ func del(c rider.Context) {
 func get(c rider.Context) {
 	sender := response.NewSender()
 	(func() {
-		query := new(model.GetQuery)
-		err := json.Unmarshal(c.Body(), &query)
+		query := interfaces.NewQueryMap()
+		err := query.FromByte(c.Body())
 		if err != nil {
 			sender.Fail(err.Error())
 			return

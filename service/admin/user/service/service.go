@@ -8,7 +8,6 @@ import (
 	"github.com/hypwxm/authorityServer/DB/appGorm"
 	"github.com/hypwxm/authorityServer/service/admin/user/dao"
 	"github.com/hypwxm/authorityServer/service/admin/user/dbModel"
-	"github.com/hypwxm/authorityServer/service/admin/user/model"
 	"github.com/hypwxm/authorityServer/util"
 	"github.com/hypwxm/authorityServer/util/interfaces"
 
@@ -19,14 +18,16 @@ import (
 
 // 默认创建一个超级管理员
 func InitAdmin() error {
-	admin := &model.GAdminUser{
-		Account:   "admin",
-		Password:  "123456",
-		Username:  "管理员",
-		CreatorId: "system",
-		Creator:   "系统",
+	admin := &CreateModel{
+		GAdminUser: dbModel.GAdminUser{
+			Account:   "admin",
+			Password:  "123456",
+			Username:  "管理员",
+			CreatorId: "system",
+			Creator:   "系统",
+		},
 	}
-	_, err := admin.Insert()
+	_, err := Create(admin)
 	return err
 }
 
