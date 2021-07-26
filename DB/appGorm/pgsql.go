@@ -27,12 +27,10 @@ func Open() *gorm.DB {
 		)
 
 		dbAddr := config.Config.Pgsql
-		// psql_db, err = sqlx.Connect("postgres", "port=5432 user=postgres password=123456 dbname=brush sslmode=disable")
 		psql_db, err = gorm.Open(postgres.Open(dbAddr), &gorm.Config{
 			Logger: newLogger,
 		})
 
-		// psql_db, err = sql.Open("postgres", "port=5432 user=postgresql password=123456 dbname=brush sslmode=disable")
 		if err != nil {
 			psql_db = nil
 			return nil
