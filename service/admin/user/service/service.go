@@ -101,7 +101,7 @@ func Get(query interfaces.QueryInterface) (interfaces.ModelInterface, error) {
 	if password := query.GetStringValue("password"); password != "" {
 		// 如果密码传过来了，是登录事件
 		signedPwd := util.SignPwd(password, user.GetStringValue("salt"))
-		if signedPwd != password {
+		if signedPwd != user.GetStringValue("password") {
 			return nil, errors.New("密码错误")
 		}
 	} else {

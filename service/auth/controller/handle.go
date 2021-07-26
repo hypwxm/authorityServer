@@ -23,7 +23,7 @@ func login(c rider.Context) {
 			sender.Fail(err.Error())
 			return
 		}
-		if loginForm.GetStringValue("password") == "" {
+		if loginForm.GetStringValue("password") == "" || loginForm.GetStringValue("account") == "" {
 			if err != nil {
 				sender.Fail("账号或密码错误")
 				return
@@ -35,7 +35,7 @@ func login(c rider.Context) {
 			return
 		}
 		c.Jwt().Set(config.AppServerTokenKey, user.GetID())
-		c.Jwt().Set(config.AppLoginUserName, user.GetStringValue("username"))
+		c.Jwt().Set(config.AppLoginUserName, user.GetStringValue("account"))
 
 		sender.Success(c.Jwt().GetToken())
 	})()
