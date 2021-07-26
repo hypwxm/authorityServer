@@ -7,8 +7,8 @@ import (
 func Router() *rider.Router {
 	route := rider.NewRouter()
 
-	route.POST("/open/admin/login", login)
-	route.POST("/admin/loginUser", loginAdmin)
+	route.POST("/open/login", login)
+	route.POST("/loginUser", loginAdmin)
 
 	return route
 }
