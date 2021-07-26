@@ -33,7 +33,7 @@ func init() {
 
 // 创建oss客户端
 func CreateClient() *oss.Client {
-	client, err := oss.New(OssConfig["endpoint"], "LTAI4G1c4NhVtABdPUm3HNoK", "DYF3hzWYvLzLli8SupXqYHu0fOdL04")
+	client, err := oss.New(OssConfig["endpoint"], "", "")
 	if err != nil {
 		fmt.Println("Error:", err)
 		os.Exit(-1)
