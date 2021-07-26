@@ -1,4 +1,4 @@
-package authorityServer // import "gitee.com/hypwxm_admin/authority-server"
+package authorityServer // import "github.com/hypwxm/authorityServer"
 
 import (
 	"authorityServer/config"
