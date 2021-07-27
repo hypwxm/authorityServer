@@ -93,7 +93,7 @@ func Create(entity *CreateModel) (string, error) {
 // 根据条件获取单个用户
 func Get(query interfaces.QueryInterface) (interfaces.ModelInterface, error) {
 	db := appGorm.Open()
-
+	query.Set("needPwd", dao.NeedPwdWords)
 	user, err := dao.Get(db, query)
 	if err != nil {
 		return nil, err

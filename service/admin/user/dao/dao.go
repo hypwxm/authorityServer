@@ -16,6 +16,8 @@ import (
 	"gorm.io/gorm"
 )
 
+const NeedPwdWords = "yes i need pwd"
+
 func Insert(db *gorm.DB, entity *dbModel.GAdminUser) (string, error) {
 	err := db.Create(&entity).Error
 	return entity.ID, err
@@ -25,6 +27,9 @@ func Insert(db *gorm.DB, entity *dbModel.GAdminUser) (string, error) {
 func Get(db *gorm.DB, query interfaces.QueryInterface) (interfaces.ModelInterface, error) {
 	var entity = make(map[string]interface{})
 	tx := db.Model(&dbModel.GAdminUser{})
+	if query.GetStringValue("needPwd") != NeedPwdWords {
+		tx.Omit("password,salt")
+	}
 	if query.GetID() != "" {
 		tx.Where("id=?", query.GetID())
 	}
@@ -73,7 +78,6 @@ func List(db *gorm.DB, query interfaces.QueryInterface) (interfaces.ModelMapSlic
 		g_authority_user.contact_way
 `)
 	}
-
 	orgIds := query.ToStringArray("orgIds")
 	roleIds := query.ToStringArray("roleIds")
 	if keywords := query.GetStringValue("keywords"); keywords != "" {
@@ -145,7 +149,7 @@ func Update(db *gorm.DB, query interfaces.QueryInterface) error {
 		return err
 	}
 	roles := make([]*dbModel.GUserRole, 0)
-	err = mapstructure.Decode(query.ToStringArray("roles"), &roles)
+	err = mapstructure.Decode(query.GetValue("roles"), &roles)
 	if err != nil {
 		return err
 	}
