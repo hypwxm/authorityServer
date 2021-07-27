@@ -57,7 +57,7 @@ func List(query interfaces.QueryInterface) (interfaces.ModelMapSlice, error) {
 
 		if user.GetStringValue("account") == "admin" {
 			// 究极管理员无需判断，最高权限
-			ms, _, err := menuService.List(nil)
+			ms, _, err := menuService.List(interfaces.QueryMap{})
 			if err != nil {
 				return nil, err
 			}
