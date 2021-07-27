@@ -145,7 +145,7 @@ func Update(db *gorm.DB, query interfaces.QueryInterface) error {
 		return err
 	}
 	roles := make([]*dbModel.GUserRole, 0)
-	err = mapstructure.Decode(query.ToStringArray("roles"), roles)
+	err = mapstructure.Decode(query.ToStringArray("roles"), &roles)
 	if err != nil {
 		return err
 	}
