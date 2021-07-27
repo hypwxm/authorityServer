@@ -37,10 +37,11 @@ func Get(db *gorm.DB, query interfaces.QueryInterface) (interfaces.ModelInterfac
 }
 
 func List(db *gorm.DB, query interfaces.QueryInterface) (interfaces.ModelMapSlice, int64, error) {
-	tx := db.Model(&dbModel.GAdminUser{})
+	var tx *gorm.DB
 
 	// 如果是以组织或者角色维度进行查询，要以"用户角色"表作为主表
 	if strings.TrimSpace(query.GetStringValue("orgId")) != "" || len(query.ToStringArray("orgIds")) > 0 || len(query.ToStringArray("roleIds")) > 0 {
+		tx = db.Model(&dbModel.GUserRole{})
 		tx.Select(`
 					g_authority_user_role.org_id,
 					g_authority_user.id,
@@ -57,6 +58,7 @@ func List(db *gorm.DB, query interfaces.QueryInterface) (interfaces.ModelMapSlic
 		`)
 		tx.Joins("inner join g_authority_user on g_authority_user.id=g_authority_user_role.userId")
 	} else {
+		tx = db.Model(&dbModel.GAdminUser{})
 		tx.Select(`
 		g_authority_user.id,
 		g_authority_user.createtime,
