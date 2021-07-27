@@ -138,7 +138,7 @@ func List(query interfaces.QueryInterface) (interfaces.ModelMapSlice, int64, err
 				role = append(role, vm)
 			}
 		}
-		v.Set("roles", roles)
+		v.Set("roles", role)
 
 	}
 
