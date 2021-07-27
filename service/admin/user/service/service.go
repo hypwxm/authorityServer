@@ -10,11 +10,14 @@ import (
 	"github.com/hypwxm/authorityServer/service/admin/user/dbModel"
 	"github.com/hypwxm/authorityServer/util"
 	"github.com/hypwxm/authorityServer/util/interfaces"
+	"github.com/mitchellh/mapstructure"
 
 	"github.com/hypwxm/rider/utils/cryptos"
 	"github.com/lib/pq"
 	"gorm.io/gorm"
 )
+
+const NeedPwdWords = dao.NeedPwdWords
 
 // 默认创建一个超级管理员
 func InitAdmin() error {
@@ -93,7 +96,6 @@ func Create(entity *CreateModel) (string, error) {
 // 根据条件获取单个用户
 func Get(query interfaces.QueryInterface) (interfaces.ModelInterface, error) {
 	db := appGorm.Open()
-	query.Set("needPwd", dao.NeedPwdWords)
 	user, err := dao.Get(db, query)
 	if err != nil {
 		return nil, err
@@ -146,7 +148,44 @@ func List(query interfaces.QueryInterface) (interfaces.ModelMapSlice, int64, err
 
 func Modify(query interfaces.QueryInterface) error {
 	db := appGorm.Open()
-	return dao.Update(db, query)
+
+	err := db.Transaction(func(tx *gorm.DB) error {
+		if err := dao.Update(tx, query); err != nil {
+			return err
+		}
+
+		// 如果password有更新的话
+		if pwd := query.GetStringValue("password"); pwd != "" {
+			if !util.ValidatePwd(pwd) {
+				return fmt.Errorf("密码太短")
+			}
+			user, err := dao.Get(tx, interfaces.QueryMap{"id": query.GetID()})
+			if err != nil {
+				return err
+			}
+			query.Set("password", util.SignPwd(pwd, user.GetStringValue("salt")))
+
+		}
+
+		// 更新操作直接把之前的角色信息删除，再重新插入
+		err := dao.DeleteRoles(tx, query)
+		if err != nil {
+			return err
+		}
+		roles := make([]*dbModel.GUserRole, 0)
+		err = mapstructure.Decode(query.GetValue("roles"), &roles)
+		if err != nil {
+			return err
+		}
+		err = dao.RolesInsert(tx, roles)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+
+	return err
 }
 
 func Del(query interfaces.QueryInterface) error {

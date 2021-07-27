@@ -1,18 +1,14 @@
 package dao
 
 import (
-	"fmt"
-
 	"github.com/hypwxm/authorityServer/DB/appGorm"
 	"github.com/hypwxm/authorityServer/service/admin/user/dbModel"
-	"github.com/hypwxm/authorityServer/util"
 	"github.com/hypwxm/authorityServer/util/interfaces"
 
 	"errors"
 	"strings"
 
 	"github.com/lib/pq"
-	"github.com/mitchellh/mapstructure"
 	"gorm.io/gorm"
 )
 
@@ -115,49 +111,22 @@ func Update(db *gorm.DB, query interfaces.QueryInterface) error {
 	if strings.TrimSpace(query.GetStringValue("id")) == "" {
 		return errors.New("更新条件错误")
 	}
-	err := db.Model(&dbModel.GAdminUser{}).Select("username", "post", "sort", "contact_way", "disabled").Where("id=?", query.GetID()).Updates(map[string]interface{}{
+	if err := db.Model(&dbModel.GAdminUser{}).Select("username", "post", "sort", "contact_way", "disabled").Where("id=?", query.GetID()).Updates(map[string]interface{}{
 		"username":    query.GetValueWithDefault("username", ""),
 		"post":        query.GetValueWithDefault("post", ""),
 		"sort":        query.GetValueWithDefault("sort", 0),
 		"contact_way": query.GetValueWithDefault("contact_way", ""),
 		"disabled":    query.GetValueWithDefault("disabled", ""),
-	}).Error
-	if err != nil {
+	}).Error; err != nil {
 		return err
 	}
-	// 如果password有更新的话
 	if pwd := query.GetStringValue("password"); pwd != "" {
-		if !util.ValidatePwd(pwd) {
-			return fmt.Errorf("密码太短")
-		}
-		user, err := Get(db, interfaces.QueryMap{"id": query.GetID()})
-		if err != nil {
-			return err
-		}
-		query.Set("password", util.SignPwd(pwd, user.GetStringValue("salt")))
-		err = db.Model(&dbModel.GAdminUser{}).Select("password").Where("id=?", query.GetID()).Updates(map[string]interface{}{
-			"password": query.GetValueWithDefault("password", ""),
-		}).Error
-		if err != nil {
+		if err := db.Model(&dbModel.GAdminUser{}).Select("password").Where("id=?", query.GetID()).Updates(map[string]interface{}{
+			"password": pwd,
+		}).Error; err != nil {
 			return err
 		}
 	}
-
-	// 更新操作直接把之前的角色信息删除，再重新插入
-	err = db.Where("user_id=?", query.GetIDs()).Unscoped().Delete(&dbModel.GUserRole{}).Error
-	if err != nil {
-		return err
-	}
-	roles := make([]*dbModel.GUserRole, 0)
-	err = mapstructure.Decode(query.GetValue("roles"), &roles)
-	if err != nil {
-		return err
-	}
-	err = RolesInsert(db, roles)
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -191,4 +160,8 @@ func GetRolesByUserIds(db *gorm.DB, ids pq.StringArray) (interfaces.ModelMapSlic
 	err := tx.Find(&list).Error
 	nlist := interfaces.NewModelMapSliceFromMapSlice(list)
 	return nlist.ToCamelKey(), err
+}
+
+func DeleteRoles(db *gorm.DB, query interfaces.QueryInterface) error {
+	return db.Where("user_id=?", query.GetID()).Unscoped().Delete(&dbModel.GUserRole{}).Error
 }

@@ -29,6 +29,7 @@ func login(c rider.Context) {
 				return
 			}
 		}
+		loginForm.Set("needPwd", adminUserService.NeedPwdWords)
 		user, err := adminUserService.Get(loginForm)
 		if err != nil {
 			sender.Fail(err.Error())
