@@ -56,7 +56,7 @@ func List(db *gorm.DB, query interfaces.QueryInterface) (interfaces.ModelMapSlic
 					g_authority_user.creator,
 					g_authority_user.contact_way
 		`)
-		tx.Joins("inner join g_authority_user on g_authority_user.id=g_authority_user_role.userId")
+		tx.Joins("inner join g_authority_user on g_authority_user.id=g_authority_user_role.user_id")
 	} else {
 		tx = db.Model(&dbModel.GAdminUser{})
 		tx.Select(`
