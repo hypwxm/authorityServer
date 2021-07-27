@@ -23,4 +23,5 @@ type GAdminUser struct {
 type GUserRole struct {
 	UserId string `json:"userId" gorm:"column:user_id;type:varchar(128);not null;check(user_id <> '')"`
 	RoleId string `json:"roleId" gorm:"column:role_id;type:varchar(128);not null;check(role_id <> '')"`
+	OrgId  string `json:"orgId" gorm:"column:org_id;type:varchar(128);not null;check(org_id <> '')"`
 }

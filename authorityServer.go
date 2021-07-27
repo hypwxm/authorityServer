@@ -26,11 +26,22 @@ func Init(app *rider.Rider, cfg config.ConfigDefine) *rider.Router {
 
 func InitTables() {
 	db := appGorm.Open()
+	db.Migrator().DropTable(&dbModel.GMenu{})
 	db.AutoMigrate(&dbModel.GMenu{})
+
+	db.Migrator().DropTable(&dbModel1.GOrg{})
 	db.AutoMigrate(&dbModel1.GOrg{})
+
+	db.Migrator().DropTable(&dbModel2.GRole{})
 	db.AutoMigrate(&dbModel2.GRole{})
+
+	db.Migrator().DropTable(&dbModel3.GRoleMenu{})
 	db.AutoMigrate(&dbModel3.GRoleMenu{})
+
+	db.Migrator().DropTable(&dbModel4.GAdminUser{})
 	db.AutoMigrate(&dbModel4.GAdminUser{})
+
+	db.Migrator().DropTable(&dbModel4.GUserRole{})
 	db.AutoMigrate(&dbModel4.GUserRole{})
 }
 
